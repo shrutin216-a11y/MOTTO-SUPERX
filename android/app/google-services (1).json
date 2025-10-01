@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "251210101725",
+    "project_id": "motto-994ef",
+    "storage_bucket": "motto-994ef.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:251210101725:android:989ee2f705690479f13c34",
+        "android_client_info": {
+          "package_name": "com.example.motto_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAlE7itPYjgoluoyF_Ihq69eNEa1y0E0f8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
