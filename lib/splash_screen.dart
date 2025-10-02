@@ -5,7 +5,7 @@ class splashscreen extends StatelessWidget {
   const splashscreen({super.key});
 
   void navigateToScreen(BuildContext context) {
-  Future.delayed(Duration(seconds: 5), () {
+  Future.delayed(Duration(seconds: 3), () {
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(
         builder: (context) {
