@@ -21,63 +21,68 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body:Center(
+      body: Center(
         child: Padding(
           padding: const EdgeInsets.all(10.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text("Login",
-              style: TextStyle(fontSize: 30)),
-              SizedBox(height:15),
-                TextField(
-                  controller: emailController,
-                  decoration: InputDecoration(
-                    labelText: "Email",
-                    //hintText: "Enter Email",
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+              Text("Login Screen", style: TextStyle(fontSize: 30)),
+              SizedBox(height: 15),
+              TextField(
+                controller: emailController,
+                decoration: InputDecoration(
+                  labelText: "Email ID",
+                  //hintText: "Enter Email",
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
                   ),
                 ),
-                SizedBox(height: 15),
-               TextField(
-                  controller: passwordController,
-                  decoration: InputDecoration(
-                    labelText: "Password",
-                    //hintText: "Enter Password",
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+              ),
+              SizedBox(height: 15),
+              TextField(
+                controller: passwordController,
+                decoration: InputDecoration(
+                  labelText: "Password",
+                  //hintText: "Enter Password",
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
                   ),
                 ),
+              ),
               SizedBox(height: 15),
               ElevatedButton(
-                onPressed:  () async {
-                  if(emailController.text.trim().isNotEmpty &&
-                  passwordController.text.trim().isNotEmpty){
-                    try{
-                      UserCredential userCredentialObj =  await _firebaseAuth.signInWithEmailAndPassword(
-                        email: emailController.text, 
-                        password: passwordController.text);
-          
-                        log("User Crdentials: $userCredentialObj");
-                        log("User: ${userCredentialObj.user}");
-          
-                        log("User Id: ${userCredentialObj.user!.uid}");
-                        CustomSnackbar().showCustomSnackBar(
-                          context,
-                          "Login Succesful!",
-                          bgColor: Colors.green,
+                onPressed: () async {
+                  if (emailController.text.trim().isNotEmpty &&
+                      passwordController.text.trim().isNotEmpty) {
+                    try {
+                      UserCredential userCredentialObj = await _firebaseAuth
+                          .signInWithEmailAndPassword(
+                            email: emailController.text,
+                            password: passwordController.text,
                           );
-          
-                          //clear controllers
-                          emailController.clear();
-                          passwordController.clear();
-          
-                          Navigator.of(context).pushReplacement(
-                            MaterialPageRoute(
-                              builder: (context){
-                                return HomeScreen();
-                              },
-                            ),
-                          );
+
+                      log("User Crdentials: $userCredentialObj");
+                      log("User: ${userCredentialObj.user}");
+
+                      log("User Id: ${userCredentialObj.user!.uid}");
+                      CustomSnackbar().showCustomSnackBar(
+                        context,
+                        "Login Succesful!",
+                        bgColor: Colors.green,
+                      );
+
+                      //clear controllers
+                      emailController.clear();
+                      passwordController.clear();
+
+                      Navigator.of(context).pushReplacement(
+                        MaterialPageRoute(
+                          builder: (context) {
+                            return HomeScreen();
+                          },
+                        ),
+                      );
                     } on FirebaseAuthException catch (error) {
                       CustomSnackbar().showCustomSnackBar(
                         context,
@@ -85,27 +90,36 @@ class _LoginScreenState extends State<LoginScreen> {
                         bgColor: Colors.red,
                       );
                     }
-                  }else{
+                  } else {
                     CustomSnackbar().showCustomSnackBar(
                       context,
                       "Enter valid data",
-                      bgColor: Colors.red,);
+                      bgColor: Colors.red,
+                    );
                   }
-                }, 
-                child: Text("Login",style: TextStyle(fontSize: 20))),
-                SizedBox(height: 15),
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).push(MaterialPageRoute(
-                      builder: (context){
+                },
+                child: Text("Login", style: TextStyle(fontSize: 20)),
+              ),
+              SizedBox(height: 15),
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) {
                         return signupScreen();
-                      }));
-                  }, 
-                  child: Text("New User? Sign Up",style: TextStyle(fontSize: 18)))
+                      },
+                    ),
+                  );
+                },
+                child: Text(
+                  "New User? Sign Up",
+                  style: TextStyle(fontSize: 18),
+                ),
+              ),
             ],
           ),
-        )
-      )
+        ),
+      ),
     );
   }
 }
