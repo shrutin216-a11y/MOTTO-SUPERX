@@ -12,6 +12,8 @@ dependencies:
   firebase_core: ^4.1.1
   firebase_auth: ^6.1.0
   google_fonts: ^6.2.1 
+  shared_preferences: ^2.5.3
+  carousel_slider: ^5.1.1
 
 dev_dependencies:
   flutter_test:
@@ -23,3 +25,7 @@ flutter:
 
   assets:
     - assets/Motto logo.png
+    - assets/image.png
+    - assets/image1.png
+    - assets/image2.png
+    - assets/image3.png

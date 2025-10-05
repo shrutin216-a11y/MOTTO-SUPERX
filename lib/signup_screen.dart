@@ -23,44 +23,52 @@ class signupScreen extends StatelessWidget {
             color: Colors.white,
           ),
           Positioned(
-            top: 640,
+            top: 600,
             child: Container(
               width: MediaQuery.of(context).size.width,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(30),
-                border: Border.all(color: Colors.teal)
+                border: Border.all(color: Colors.pink)
                 //color: Colors.teal[50],
               ),
-              child: Padding(
-          padding: const EdgeInsets.all(10.0),
+          child: Padding(
+          padding: const EdgeInsets.all(20.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              Text("Create your Account!", style: TextStyle(fontSize: 30,color: Colors.teal)),
-              SizedBox(height: 15),
+              Text("Create your Account!", style: TextStyle(fontSize: 30,color: Colors.pink)),
+              SizedBox(height: 20),
               TextField(
                 controller: emailController,
                 decoration: InputDecoration(
                   labelText: "Enter your EmailId",
-                  // hintText: "Enter Email",
+                  // hintText: "Enter Email", 
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                    
+                    borderRadius: BorderRadius.circular(10.0),  
                   ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.black)
+                  )
                 ),
               ),
-              SizedBox(height: 15),
+              SizedBox(height: 20),
               TextField(
                 controller: passwordController,
-                decoration: InputDecoration(
+                decoration: InputDecoration(  
+                  focusColor: Colors.pink,
+                  hoverColor: Colors.pink,
                   labelText: "Password",
                   //hintText: "Enter Password",
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10.0),
                   ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.black),
+                  ), 
                 ),
               ),
-              SizedBox(height: 15),
+              
+              SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () async {
                   if (emailController.text.trim().isNotEmpty &&
@@ -106,10 +114,10 @@ class signupScreen extends StatelessWidget {
                   }
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.teal,
-                  foregroundColor: Colors.teal[50],
+                  backgroundColor: Colors.pink,
+                  foregroundColor: Colors.pink[50],
                 ),
-                child: Text("SignUp",style: TextStyle(fontSize: 20)),
+                child: Text("SignUp",style: TextStyle(fontSize: 22)),
               ),
               SizedBox(height: 40),
             ],
