@@ -22,10 +22,8 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return  MaterialApp(
-      theme: ThemeData(
-       textTheme: GoogleFonts.jostTextTheme(),
-      ),
+    return MaterialApp(
+      theme: ThemeData(textTheme: GoogleFonts.jostTextTheme()),
       debugShowCheckedModeBanner: false,
       home: Scaffold(body: splashscreen()),
     );
