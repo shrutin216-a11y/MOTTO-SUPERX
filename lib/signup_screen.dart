@@ -72,14 +72,14 @@ class _signupScreenState extends State<signupScreen>
 
               // Title
               const Text(
-                "Create your Account!",
+                "Create your Account",
                 style: TextStyle(
                   fontSize: 26,
                   fontWeight: FontWeight.w600,
                   color: Colors.black,
                 ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 8),
 
               // Subtitle
               const Text(
@@ -185,7 +185,7 @@ class _signupScreenState extends State<signupScreen>
                   ),
                 ),
               ),
-              const SizedBox(height: 35),
+              const SizedBox(height: 40),
 
               // Sign Up Button
               SizedBox(
@@ -256,7 +256,7 @@ class _signupScreenState extends State<signupScreen>
                 ),
               ),
 
-              const SizedBox(height: 30),
+              const SizedBox(height: 25),
 
               // Footer
               const Center(
