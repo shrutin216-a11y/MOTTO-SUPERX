@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:motto_app/splash_screen.dart';
 
-
 /////GIT SETUP DONE
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
