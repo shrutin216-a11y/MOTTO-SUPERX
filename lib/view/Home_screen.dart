@@ -1,8 +1,10 @@
+import "dart:developer";
+
 import "package:firebase_auth/firebase_auth.dart";
 import "package:flutter/material.dart";
-import "package:motto_app/card_Screen.dart";
-import "package:motto_app/login_screen.dart";
-import "package:motto_app/shared_preference_screen.dart";
+import "package:motto_app/view/card_Screen.dart";
+import "package:motto_app/view/login_screen.dart";
+import "package:motto_app/controller/shared_preference.dart";
 import "package:shared_preferences/shared_preferences.dart";
 import 'package:google_fonts/google_fonts.dart';
 
@@ -15,6 +17,8 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   UserController userController = UserController();
+
+  bool isLiked = false;
 
   @override
   void initState() {
@@ -33,7 +37,7 @@ class _HomeScreenState extends State<HomeScreen> {
       backgroundColor: Colors.white,
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(12),
+          padding: const EdgeInsets.all(8),
           child: SingleChildScrollView(
             scrollDirection: Axis.vertical,
             child: Column(
@@ -98,32 +102,71 @@ class _HomeScreenState extends State<HomeScreen> {
                   scrollDirection: Axis.horizontal,
                   child: Row(
                     children: [
-                      Container(
-                        decoration: BoxDecoration(
-                          color: Colors.teal,
-                          borderRadius: BorderRadius.circular(20),
+                      CircleAvatar(
+                        maxRadius: 45,
+                        backgroundImage: NetworkImage(
+                          "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR4VitBamUT0ddJgz-XMdl4qgA-vJKoMEUHQw&s",
                         ),
-                        height: 110,
-                        width: 350,
                       ),
-                      const SizedBox(width: 20),
-                      Container(
-                        decoration: BoxDecoration(
-                          color: Colors.blueGrey,
-                          borderRadius: BorderRadius.circular(20),
+                      const SizedBox(width: 10),
+                      CircleAvatar(
+                        maxRadius: 45,
+                        backgroundImage: NetworkImage(
+                          "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRYqNTb-vVDEo0TlL2vfMo01_2CkkrjbHYXBg&s",
+                          scale: 50,
                         ),
-                        height: 110,
-                        width: 350,
                       ),
-                      const SizedBox(width: 20),
-                      Container(
-                        decoration: BoxDecoration(
-                          color: Colors.lightBlueAccent,
-                          borderRadius: BorderRadius.circular(20),
+                      const SizedBox(width: 10),
+                      CircleAvatar(
+                        maxRadius: 45,
+                        backgroundImage: NetworkImage(
+                          "https://s3.india.com/wp-content/uploads/2024/12/Eco-friendly-Travel-In-Kerala.jpg?impolicy=Medium_Widthonly&w=350&h=263",
+                          scale: 50,
                         ),
-                        height: 110,
-                        width: 350,
                       ),
+                      const SizedBox(width: 10),
+                      CircleAvatar(
+                        maxRadius: 45,
+                        backgroundImage: NetworkImage(
+                          "https://lp-cms-production.imgix.net/2019-06/80840681.jpg?auto=format,compress&q=72&w=1095&fit=crop&crop=faces,edges",
+                          scale: 50,
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      CircleAvatar(
+                        maxRadius: 45,
+                        backgroundImage: NetworkImage(
+                          "https://s7ap1.scene7.com/is/image/incredibleindia/shivneri-fort-pune-maharashtra-hero?qlt=82&ts=1742178330918",
+                          scale: 50,
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      // Container(
+                      //   decoration: BoxDecoration(
+                      //     color: Colors.teal,
+                      //     borderRadius: BorderRadius.circular(20),
+                      //   ),
+                      //   height: 110,
+                      //   width: 350,
+                      // ),
+                      // const SizedBox(width: 20),
+                      // Container(
+                      //   decoration: BoxDecoration(
+                      //     color: Colors.blueGrey,
+                      //     borderRadius: BorderRadius.circular(20),
+                      //   ),
+                      //   height: 110,
+                      //   width: 350,
+                      // ),
+                      // const SizedBox(width: 20),
+                      // Container(
+                      //   decoration: BoxDecoration(
+                      //     color: Colors.lightBlueAccent,
+                      //     borderRadius: BorderRadius.circular(20),
+                      //   ),
+                      //   height: 110,
+                      //   width: 350,
+                      // ),
                     ],
                   ),
                 ),
@@ -140,10 +183,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     );
                   },
                   child: Container(
+                    width: MediaQuery.of(context).size.width, // make card wider
                     margin: const EdgeInsets.symmetric(
-                      horizontal: 16,
                       vertical: 10,
-                    ),
+                    ), // only vertical margin
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(16),
@@ -172,12 +215,23 @@ class _HomeScreenState extends State<HomeScreen> {
                                 width: double.infinity,
                                 fit: BoxFit.cover,
                               ),
-                              const Positioned(
+                              Positioned(
                                 top: 8,
                                 right: 8,
-                                child: Icon(
-                                  Icons.favorite_border,
-                                  color: Colors.white,
+
+                                child: GestureDetector(
+                                  onTap: () {
+                                    log("Favorite icon clicked!");
+                                    setState(() {
+                                      isLiked = !isLiked;
+                                    });
+                                  },
+                                  child: Icon(
+                                    isLiked
+                                        ? Icons.favorite
+                                        : Icons.favorite_border,
+                                    color: isLiked ? Colors.pink : Colors.white,
+                                  ),
                                 ),
                               ),
                             ],
@@ -261,10 +315,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
                 Container(
-                  margin: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 10,
-                  ),
+                  width: MediaQuery.of(context).size.width, // make card wider
+                  margin: const EdgeInsets.symmetric(vertical: 10),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(16),
@@ -378,10 +430,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
                 Container(
-                  margin: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 10,
-                  ),
+                  width: MediaQuery.of(context).size.width, // make card wider
+                  margin: const EdgeInsets.symmetric(vertical: 10),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(16),

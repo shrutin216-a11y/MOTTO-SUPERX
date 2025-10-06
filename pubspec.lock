@@ -9,6 +9,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.3.62"
+  animated_custom_dropdown:
+    dependency: "direct main"
+    description:
+      name: animated_custom_dropdown
+      sha256: "5a72dc209041bb53f6c7164bc2e366552d5197cdb032b1c9b2c36e3013024486"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.1.1"
   animated_text_kit:
     dependency: "direct main"
     description:
@@ -73,6 +81,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.19.1"
+  confirmation_success:
+    dependency: "direct main"
+    description:
+      name: confirmation_success
+      sha256: "2c9a3f2b00ebdad4d8432ec508e8aefe32249382b7e613236879c40fb561b91a"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.2"
   crypto:
     dependency: transitive
     description:
@@ -81,6 +97,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.6"
+  cupertino_icons:
+    dependency: transitive
+    description:
+      name: cupertino_icons
+      sha256: ba631d1c7f7bef6b729a622b7b752645a2d076dba9976925b8f25725a30e1ee6
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.8"
   dropdown_button2:
     dependency: "direct main"
     description:
@@ -161,6 +185,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.1.1"
+  floating_snackbar:
+    dependency: "direct main"
+    description:
+      name: floating_snackbar
+      sha256: cc40701330f3082a0c24e9a6ef6de295b2ff8fc7e5ef01b3bd10c646a0293fee
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.5"
   flutter:
     dependency: "direct main"
     description: flutter

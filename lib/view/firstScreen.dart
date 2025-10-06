@@ -1,7 +1,7 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
-import 'package:motto_app/signup_screen.dart';
-import 'package:motto_app/login_screen.dart'; 
+import 'package:motto_app/view/signup_screen.dart';
+import 'package:motto_app/view/login_screen.dart'; 
 
 class FirstScreen extends StatefulWidget {
   const FirstScreen({super.key});

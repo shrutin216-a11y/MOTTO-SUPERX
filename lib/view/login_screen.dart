@@ -2,10 +2,10 @@ import 'dart:developer';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:motto_app/bottom_navigation_screen.dart';
-import 'package:motto_app/shared_preference_screen.dart';
-import 'package:motto_app/signup_screen.dart';
-import 'package:motto_app/snackbar.dart';
+import 'package:motto_app/view/bottom_navigation_screen.dart';
+import 'package:motto_app/controller/shared_preference.dart';
+import 'package:motto_app/view/signup_screen.dart';
+import 'package:motto_app/view/snackbar.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
