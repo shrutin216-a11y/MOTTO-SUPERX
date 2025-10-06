@@ -2,7 +2,6 @@ import 'dart:developer';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-//import 'package:motto_app/Home_screen.dart';
 import 'package:motto_app/bottom_navigation_screen.dart';
 import 'package:motto_app/shared_preference_screen.dart';
 import 'package:motto_app/signup_screen.dart';
@@ -22,10 +21,11 @@ class _LoginScreenState extends State<LoginScreen> {
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
 
   final List<String> imageList = [
-    'assets/image.png',
-    'assets/image1.png',
-    'assets/image2.png',
-    'assets/image3.png',
+    'assets/img1.png',
+    'assets/img2.png',
+    'assets/img3.png',
+    'assets/img4.png',
+    'assets/img5.png'
   ];
 
   @override
@@ -35,188 +35,202 @@ class _LoginScreenState extends State<LoginScreen> {
     return Scaffold(
       body: Stack(
         children: [
-          Align(
-            alignment: Alignment.topCenter,
-            child: CarouselSlider(
-              options: CarouselOptions(
-                height: size.height * 0.60,
-                viewportFraction: 1.0,
-                autoPlay: true,
-                autoPlayInterval: const Duration(seconds: 1),
-                autoPlayAnimationDuration: const Duration(milliseconds: 100),
-                enlargeCenterPage: false,
-              ),
-              items: imageList.map((imagePath) {
-                return Builder(
-                  builder: (BuildContext context) {
-                    return Container(
-                      width: MediaQuery.of(context).size.width,
-                      decoration: BoxDecoration(
-                        image: DecorationImage(
-                          image: AssetImage(imagePath),
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                    );
-                  },
-                );
-              }).toList(),
+          /// 🔹 Background Carousel
+          CarouselSlider(
+            options: CarouselOptions(
+              height: size.height,
+              viewportFraction: 1.0,
+              autoPlay: true,
+              autoPlayInterval: const Duration(seconds: 2),
+              autoPlayAnimationDuration: const Duration(milliseconds: 600),
+              enlargeCenterPage: false,
             ),
-          ),
-          Positioned(
-            top: size.height * 0.57,
-            left: 0,
-            right: 0,
-            child: Container(
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(30),
-                  topRight: Radius.circular(30),
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black26,
-                    blurRadius: 10,
-                    offset: Offset(0, -2),
+            items: imageList.map((imagePath) {
+              return Container(
+                width: size.width,
+                decoration: BoxDecoration(
+                  image: DecorationImage(
+                    image: AssetImage(imagePath),
+                    fit: BoxFit.cover,
                   ),
-                ],
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(20.0),
+                ),
+              );
+            }).toList(),
+          ),
+
+          /// 🔹 Semi-transparent overlay (ignore touches)
+          IgnorePointer(
+            child: Container(color: Colors.black.withOpacity(0.5)),
+          ),
+
+          /// 🔹 Login UI
+          SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 20),
+              child: SingleChildScrollView(
                 child: Column(
-                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    Text(
-                      "Login",
+                    const SizedBox(height: 120),
+
+                    const Text(
+                      "Welcome back!",
                       style: TextStyle(
                         fontSize: 30,
-                        color: Colors.pink,
+                        color: Colors.white,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 10),
+                    const Text(
+                      "Log in to continue your journey",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 18,
+                        color: Colors.white70,
+                      ),
+                    ),
+                    const SizedBox(height: 40),
 
-                    // Email Field
+                    /// 🔹 Email Field with prefix icon
                     TextField(
                       controller: emailController,
+                      keyboardType: TextInputType.emailAddress,
+                      style: const TextStyle(color: Colors.black),
                       decoration: InputDecoration(
-                        labelText: "Email",
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide(color: Colors.pink),
+                        prefixIcon: const Icon(Icons.email, color: Colors.grey),
+                        hintText: "Email",
+                        hintStyle: const TextStyle(color: Colors.black54),
+                        filled: true,
+                        fillColor: Colors.white,
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: const BorderSide(color: Colors.black26),
                         ),
                         focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.pink),
+                          borderRadius: BorderRadius.circular(12),
                         ),
                       ),
                     ),
-
                     const SizedBox(height: 20),
 
+                    /// 🔹 Password Field with prefix icon
                     TextField(
                       controller: passwordController,
                       obscureText: true,
+                      style: const TextStyle(color: Colors.black),
                       decoration: InputDecoration(
-                        labelText: "Password",
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide(color: Colors.pink),
+                        prefixIcon: const Icon(Icons.lock, color: Colors.grey),
+                        hintText: "Password",
+                        hintStyle: const TextStyle(color: Colors.black54),
+                        filled: true,
+                        fillColor: Colors.white,
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: const BorderSide(color: Colors.black26),
                         ),
                         focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.pink),
+                          borderRadius: BorderRadius.circular(12),
                         ),
                       ),
                     ),
+                    const SizedBox(height:6),
+                    Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: const [
+                    Text(
+                    "Forget Password?",
+                     style: TextStyle(color: Colors.white, fontSize: 16),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 30),
 
-                    const SizedBox(height: 25),
+                    /// 🔹 Login Button
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: () async {
+                          Map<String, dynamic> data = {
+                            'email': emailController.text.trim(),
+                            'password': passwordController.text.trim(),
+                            "LoginFlag": true,
+                          };
+                          userController.setSharedPrefData(data);
 
-                    ElevatedButton(
-                      onPressed: () async {
-                        Map<String, dynamic> data = {
-                          'email': emailController.text.trim(),
-                          'password': passwordController.text.trim(),
-                          "LoginFlag": true,
-                        };
-                        userController.setSharedPrefData(data);
+                          if (emailController.text.trim().isNotEmpty &&
+                              passwordController.text.trim().isNotEmpty) {
+                            try {
+                              UserCredential userCredentialObj =
+                                  await _firebaseAuth.signInWithEmailAndPassword(
+                                email: emailController.text,
+                                password: passwordController.text,
+                              );
 
-                        if (emailController.text.trim().isNotEmpty &&
-                            passwordController.text.trim().isNotEmpty) {
-                          try {
-                            UserCredential userCredentialObj =
-                                await _firebaseAuth.signInWithEmailAndPassword(
-                                  email: emailController.text,
-                                  password: passwordController.text,
-                                );
+                              log("User Credentials: $userCredentialObj");
+                              log("User Id: ${userCredentialObj.user!.uid}");
 
-                            log("User Crdentials: $userCredentialObj");
-                            log("User: ${userCredentialObj.user}");
-                            log("User Id: ${userCredentialObj.user!.uid}");
+                              CustomSnackbar().showCustomSnackBar(
+                                context,
+                                "Login Successful!",
+                                bgColor: Colors.green,
+                              );
 
+                              emailController.clear();
+                              passwordController.clear();
+
+                              Navigator.of(context).pushReplacement(
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      const BottomNavigationWidget(),
+                                ),
+                              );
+                            } on FirebaseAuthException catch (error) {
+                              CustomSnackbar().showCustomSnackBar(
+                                context,
+                                error.message!,
+                                bgColor: Colors.red,
+                              );
+                            }
+                          } else {
                             CustomSnackbar().showCustomSnackBar(
                               context,
-                              "Login Successful!",
-                              bgColor: Colors.green,
-                            );
-
-                            emailController.clear();
-                            passwordController.clear();
-
-                            Navigator.of(context).pushReplacement(
-                              MaterialPageRoute(
-                                builder: (context) => BottomNavigationWidget(),
-                              ),
-                            );
-                          } on FirebaseAuthException catch (error) {
-                            CustomSnackbar().showCustomSnackBar(
-                              context,
-                              error.message!,
+                              "Enter valid data",
                               bgColor: Colors.red,
                             );
                           }
-                        } else {
-                          CustomSnackbar().showCustomSnackBar(
-                            context,
-                            "Enter valid data",
-                            bgColor: Colors.red,
-                          );
-                        }
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.pink,
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.green,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
                         ),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 40,
-                          vertical: 12,
+                        child: const Text(
+                          "Login",
+                          style: TextStyle(fontSize: 20),
                         ),
-                      ),
-                      child: const Text(
-                        "Login",
-                        style: TextStyle(fontSize: 22),
                       ),
                     ),
-
                     const SizedBox(height: 15),
 
-                    // Sign Up Link
+                    /// 🔹 Signup link
                     TextButton(
                       onPressed: () {
                         Navigator.of(context).push(
                           MaterialPageRoute(
-                            builder: (context) => signupScreen(),
+                            builder: (context) => const signupScreen(),
                           ),
                         );
                       },
                       child: const Text(
-                        "Create Account",
-                        style: TextStyle(fontSize: 20, color: Colors.pink),
+                        "Don't have an account? Create one",
+                        style: TextStyle(color: Colors.white, fontSize: 16),
                       ),
                     ),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 40),
                   ],
                 ),
               ),

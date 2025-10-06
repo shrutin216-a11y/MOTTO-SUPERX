@@ -26,7 +26,8 @@ flutter:
 
   assets:
     - assets/Motto logo.png
-    - assets/image.png
-    - assets/image1.png
-    - assets/image2.png
-    - assets/image3.png
+    - assets/img1.png
+    - assets/img2.png
+    - assets/img3.png
+    - assets/img4.png
+    - assets/img5.png

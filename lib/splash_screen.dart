@@ -2,7 +2,8 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 // import 'package:motto_app/Home_screen.dart';
 import 'package:motto_app/bottom_navigation_screen.dart';
-import 'package:motto_app/login_screen.dart';
+import 'package:motto_app/firstScreen.dart';
+//import 'package:motto_app/login_screen.dart';
 import 'package:motto_app/shared_preference_screen.dart';
 
 class splashscreen extends StatelessWidget {
@@ -28,7 +29,7 @@ class splashscreen extends StatelessWidget {
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(
         builder: (context){
-          return LoginScreen();
+          return FirstScreen();
         },
       ),
     );
