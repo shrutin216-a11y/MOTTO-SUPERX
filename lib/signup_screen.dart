@@ -3,84 +3,229 @@ import "package:firebase_auth/firebase_auth.dart";
 import "package:flutter/material.dart";
 import "package:motto_app/snackbar.dart";
 
-class signupScreen extends StatelessWidget {
+class signupScreen extends StatefulWidget {
   const signupScreen({super.key});
 
   @override
+  State<signupScreen> createState() => _signupScreenState();
+}
+
+class _signupScreenState extends State<signupScreen>
+    with SingleTickerProviderStateMixin {
+  // Controllers
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController phoneController = TextEditingController();
+  final TextEditingController cityController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+  final TextEditingController confirmPasswordController =
+      TextEditingController();
+
+  final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
+
+  // Animation controller
+  late AnimationController _animationController;
+  late Animation<double> _fadeInAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 1),
+    );
+    _fadeInAnimation = CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeIn,
+    );
+    _animationController.forward();
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    TextEditingController emailController = TextEditingController();
-    TextEditingController passwordController = TextEditingController();
-
-    final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
-
     return Scaffold(
-      body: Stack(
-        children: [
-          Container(
-            height: MediaQuery.of(context).size.height,
-            width: MediaQuery.of(context).size.width,
-            color: Colors.white,
-          ),
-          Positioned(
-            top: 600,
-            child: Container(
-              width: MediaQuery.of(context).size.width,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(30),
-                border: Border.all(color: Colors.pink)
-                //color: Colors.teal[50],
-              ),
-          child: Padding(
-          padding: const EdgeInsets.all(20.0),
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 20),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.end,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text("Create your Account!", style: TextStyle(fontSize: 30,color: Colors.pink)),
-              SizedBox(height: 20),
-              TextField(
-                controller: emailController,
-                decoration: InputDecoration(
-                  labelText: "Enter your EmailId",
-                  // hintText: "Enter Email", 
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),  
+              // Animated illustration at the top
+              FadeTransition(
+                opacity: _fadeInAnimation,
+                child: Center(
+                  child: Image.asset(
+                    "assets/animated_img.png",
+                    height: 180,
+                    fit: BoxFit.contain,
                   ),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.black)
-                  )
                 ),
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 15),
+
+              // Title
+              const Text(
+                "Create your Account!",
+                style: TextStyle(
+                  fontSize: 26,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black,
+                ),
+              ),
+              const SizedBox(height: 12),
+
+              // Subtitle
+              const Text(
+                "We only use your details to make sure everyone is real.",
+                style: TextStyle(fontSize: 15, color: Colors.black54),
+              ),
+              const SizedBox(height: 30),
+
+              // Full Name
               TextField(
-                controller: passwordController,
-                decoration: InputDecoration(  
-                  focusColor: Colors.pink,
-                  hoverColor: Colors.pink,
-                  labelText: "Password",
-                  //hintText: "Enter Password",
+                controller: nameController,
+                decoration: InputDecoration(
+                  labelText: "Full Name",
+                  prefixIcon: const Icon(Icons.person_outline),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10.0),
                   ),
-                  focusedBorder: OutlineInputBorder(
+                  focusedBorder: const OutlineInputBorder(
                     borderSide: BorderSide(color: Colors.black),
-                  ), 
+                  ),
                 ),
               ),
-              
-              SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () async {
-                  if (emailController.text.trim().isNotEmpty &&
-                      passwordController.text.trim().isNotEmpty) {
+              const SizedBox(height: 15),
+
+              // Phone
+              TextField(
+                controller: phoneController,
+                keyboardType: TextInputType.phone,
+                decoration: InputDecoration(
+                  labelText: "Phone Number",
+                  prefixIcon: const Icon(Icons.phone_outlined),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                  focusedBorder: const OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.black),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 15),
+
+              // City
+              TextField(
+                controller: cityController,
+                decoration: InputDecoration(
+                  labelText: "City",
+                  prefixIcon: const Icon(Icons.location_city_outlined),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                  focusedBorder: const OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.black),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 15),
+
+              // Email
+              TextField(
+                controller: emailController,
+                decoration: InputDecoration(
+                  labelText: "Email Address",
+                  prefixIcon: const Icon(Icons.email_outlined),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                  focusedBorder: const OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.black),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 15),
+
+              // Password
+              TextField(
+                controller: passwordController,
+                obscureText: true,
+                decoration: InputDecoration(
+                  labelText: "Password",
+                  prefixIcon: const Icon(Icons.lock_outline),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                  focusedBorder: const OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.black),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 15),
+
+              // Confirm Password
+              TextField(
+                controller: confirmPasswordController,
+                obscureText: true,
+                decoration: InputDecoration(
+                  labelText: "Confirm Password",
+                  prefixIcon: const Icon(Icons.lock_reset_outlined),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                  focusedBorder: const OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.black),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 35),
+
+              // Sign Up Button
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () async {
+                    // Validation
+                    if (nameController.text.trim().isEmpty ||
+                        phoneController.text.trim().isEmpty ||
+                        cityController.text.trim().isEmpty ||
+                        emailController.text.trim().isEmpty ||
+                        passwordController.text.trim().isEmpty ||
+                        confirmPasswordController.text.trim().isEmpty) {
+                      CustomSnackbar().showCustomSnackBar(
+                        context,
+                        "Please fill all fields",
+                        bgColor: Colors.red,
+                      );
+                      return;
+                    }
+
+                    if (passwordController.text !=
+                        confirmPasswordController.text) {
+                      CustomSnackbar().showCustomSnackBar(
+                        context,
+                        "Passwords do not match",
+                        bgColor: Colors.red,
+                      );
+                      return;
+                    }
+
+                    // Firebase signup
                     try {
-                      ///create new user
-                      UserCredential userCredentialObj = await firebaseAuth
+                      UserCredential userCredential = await firebaseAuth
                           .createUserWithEmailAndPassword(
-                            email: emailController.text,
-                            password: passwordController.text,
+                            email: emailController.text.trim(),
+                            password: passwordController.text.trim(),
                           );
 
-                      log("User Credentials : $userCredentialObj");
+                      log("User Registered: ${userCredential.user?.email}");
                       CustomSnackbar().showCustomSnackBar(
                         context,
                         "Registered Successfully!",
@@ -88,133 +233,43 @@ class signupScreen extends StatelessWidget {
                       );
                       Navigator.of(context).pop();
                     } on FirebaseAuthException catch (error) {
-                      log("Error Code: ${error.code}");
-                      log("Error Message: ${error.message}");
-                      if (error.code.toString() == "invalid-email") {
-                        CustomSnackbar().showCustomSnackBar(
-                          context,
-                          "Enter valid email id",
-                          bgColor: Colors.red,
-                        );
-                      } else {
-                        CustomSnackbar().showCustomSnackBar(
-                          context,
-                          "error.message!",
-                          bgColor: Colors.red,
-                        );
-                      }
+                      log("Error: ${error.code}");
+                      CustomSnackbar().showCustomSnackBar(
+                        context,
+                        error.message ?? "Registration failed",
+                        bgColor: Colors.red,
+                      );
                     }
-                  } else {
-                    CustomSnackbar().showCustomSnackBar(
-                      context,
-                      "Enter valid data",
-                      bgColor: Colors.red,
-                    );
-                  }
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.pink,
-                  foregroundColor: Colors.pink[50],
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green[900],
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: const Text(
+                    "Sign Up",
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                  ),
                 ),
-                child: Text("SignUp",style: TextStyle(fontSize: 22)),
               ),
-              SizedBox(height: 40),
+
+              const SizedBox(height: 30),
+
+              // Footer
+              const Center(
+                child: Text(
+                  "We never share this with anyone and it won’t be on your profile.",
+                  style: TextStyle(fontSize: 12, color: Colors.black54),
+                  textAlign: TextAlign.center,
+                ),
+              ),
             ],
           ),
         ),
       ),
-
-
-
-            )
-        ],
-
-      )
-      // backgroundColor: Colors.teal[50],
-      // body: Center(
-      //   child: Padding(
-      //     padding: const EdgeInsets.all(10.0),
-      //     child: Column(
-      //       mainAxisAlignment: MainAxisAlignment.end,
-      //       children: [
-      //         Text("SignUp Screen", style: TextStyle(fontSize: 30,color: Colors.teal)),
-      //         SizedBox(height: 15),
-      //         TextField(
-      //           controller: emailController,
-      //           decoration: InputDecoration(
-      //             labelText: "Enter your EmailId",
-      //             // hintText: "Enter Email",
-      //             border: OutlineInputBorder(
-      //               borderRadius: BorderRadius.circular(10.0),
-      //             ),
-      //           ),
-      //         ),
-      //         SizedBox(height: 15),
-      //         TextField(
-      //           controller: passwordController,
-      //           decoration: InputDecoration(
-      //             labelText: "Password",
-      //             //hintText: "Enter Password",
-      //             border: OutlineInputBorder(
-      //               borderRadius: BorderRadius.circular(10.0),
-      //             ),
-      //           ),
-      //         ),
-      //         SizedBox(height: 15),
-      //         ElevatedButton(
-      //           onPressed: () async {
-      //             if (emailController.text.trim().isNotEmpty &&
-      //                 passwordController.text.trim().isNotEmpty) {
-      //               try {
-      //                 ///create new user
-      //                 UserCredential userCredentialObj = await firebaseAuth
-      //                     .createUserWithEmailAndPassword(
-      //                       email: emailController.text,
-      //                       password: passwordController.text,
-      //                     );
-
-      //                 log("User Credentials : $userCredentialObj");
-      //                 CustomSnackbar().showCustomSnackBar(
-      //                   context,
-      //                   "Registered Successfully!",
-      //                   bgColor: Colors.green,
-      //                 );
-      //                 Navigator.of(context).pop();
-      //               } on FirebaseAuthException catch (error) {
-      //                 log("Error Code: ${error.code}");
-      //                 log("Error Message: ${error.message}");
-      //                 if (error.code.toString() == "invalid-email") {
-      //                   CustomSnackbar().showCustomSnackBar(
-      //                     context,
-      //                     "Enter valid email id",
-      //                     bgColor: Colors.red,
-      //                   );
-      //                 } else {
-      //                   CustomSnackbar().showCustomSnackBar(
-      //                     context,
-      //                     "error.message!",
-      //                     bgColor: Colors.red,
-      //                   );
-      //                 }
-      //               }
-      //             } else {
-      //               CustomSnackbar().showCustomSnackBar(
-      //                 context,
-      //                 "Enter valid data",
-      //                 bgColor: Colors.red,
-      //               );
-      //             }
-      //           },
-      //           style: ElevatedButton.styleFrom(
-      //             backgroundColor: Colors.teal,
-      //             foregroundColor: Colors.teal[50],
-      //           ),
-      //           child: Text("SignUp",style: TextStyle(fontSize: 20)),
-      //         ),
-      //       ],
-      //     ),
-      //   ),
-      // ),
     );
   }
 }
