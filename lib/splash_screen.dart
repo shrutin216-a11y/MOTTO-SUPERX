@@ -5,6 +5,7 @@ import 'package:motto_app/bottom_navigation_screen.dart';
 import 'package:motto_app/firstScreen.dart';
 //import 'package:motto_app/login_screen.dart';
 import 'package:motto_app/shared_preference_screen.dart';
+//import 'package:lottie/lottie.dart';
 
 class splashscreen extends StatelessWidget {
   const splashscreen({super.key});
@@ -42,9 +43,14 @@ class splashscreen extends StatelessWidget {
   Widget build(BuildContext context) {
     navigateToScreen(context);
     return Scaffold(
+      backgroundColor: Colors.grey[200],
       body: Center(
         child: 
-          Image.asset("assets/Motto logo.png"),
+          Container(
+            height: 100,
+            width: 100,
+            child: Image.asset("assets/motto.jpg",fit: BoxFit.cover),
+            ),
         ),
       );
   }
