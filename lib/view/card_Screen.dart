@@ -1,8 +1,8 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:motto_app/Home_screen.dart';
-import 'package:motto_app/booking_screen.dart';
+import 'package:motto_app/view/Home_screen.dart';
+import 'package:motto_app/view/booking_screen.dart';
 
 class CardScreen extends StatefulWidget {
   const CardScreen({super.key});

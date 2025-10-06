@@ -16,14 +16,11 @@ dependencies:
   carousel_slider: ^5.1.1
   standard_searchbar: ^2.1.1
   lottie: ^3.1.2
-<<<<<<< HEAD
-  animated_custom_dropdown: ^3.1.1
-  confirmation_success: ^0.0.2
-  floating_snackbar: ^1.0.5
-=======
   dropdown_button2: ^2.3.9
   animated_text_kit: ^4.2.2
->>>>>>> 9ce4d64a792b4c33a42f2a14d09e33fae6a3fb3a
+  animated_custom_dropdown: ^3.1.1
+  floating_snackbar: ^1.0.5
+  confirmation_success: ^0.0.2
 
 dev_dependencies:
   flutter_test:

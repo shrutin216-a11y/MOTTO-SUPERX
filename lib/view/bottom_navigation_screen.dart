@@ -1,9 +1,9 @@
 import 'dart:developer';
 import 'package:flutter/material.dart';
-import 'package:motto_app/Home_screen.dart';
-import 'package:motto_app/Favourites.dart';
-import 'package:motto_app/StartTrip.dart';
-import 'package:motto_app/profile_screen.dart';
+import 'package:motto_app/view/Home_screen.dart';
+import 'package:motto_app/view/Favourites.dart';
+import 'package:motto_app/view/StartTrip.dart';
+import 'package:motto_app/view/profile_screen.dart';
 
 class BottomNavigationWidget extends StatefulWidget {
   const BottomNavigationWidget({super.key});
