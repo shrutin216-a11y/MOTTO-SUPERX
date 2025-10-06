@@ -21,13 +21,12 @@ class _LoginScreenState extends State<LoginScreen> {
   UserController userController = UserController();
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
 
-   final List<String> imageList = [
+  final List<String> imageList = [
     'assets/image.png',
     'assets/image1.png',
     'assets/image2.png',
     'assets/image3.png',
   ];
-
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +35,7 @@ class _LoginScreenState extends State<LoginScreen> {
     return Scaffold(
       body: Stack(
         children: [
-         Align(
+          Align(
             alignment: Alignment.topCenter,
             child: CarouselSlider(
               options: CarouselOptions(
@@ -65,7 +64,7 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
           ),
           Positioned(
-            top: size.height * 0.57, 
+            top: size.height * 0.57,
             left: 0,
             right: 0,
             child: Container(
@@ -106,11 +105,11 @@ class _LoginScreenState extends State<LoginScreen> {
                         labelText: "Email",
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide(color: Colors.pink)
+                          borderSide: BorderSide(color: Colors.pink),
                         ),
                         focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.pink)
-                        )
+                          borderSide: BorderSide(color: Colors.pink),
+                        ),
                       ),
                     ),
 
@@ -123,13 +122,11 @@ class _LoginScreenState extends State<LoginScreen> {
                         labelText: "Password",
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide(
-                            color: Colors.pink
-                          )
+                          borderSide: BorderSide(color: Colors.pink),
                         ),
                         focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.pink)
-                        )
+                          borderSide: BorderSide(color: Colors.pink),
+                        ),
                       ),
                     ),
 
@@ -137,9 +134,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
                     ElevatedButton(
                       onPressed: () async {
-                        Map<String, dynamic> data ={
-                          'email':emailController.text.trim(),
-                          'password':passwordController.text.trim(),
+                        Map<String, dynamic> data = {
+                          'email': emailController.text.trim(),
+                          'password': passwordController.text.trim(),
                           "LoginFlag": true,
                         };
                         userController.setSharedPrefData(data);
@@ -149,9 +146,9 @@ class _LoginScreenState extends State<LoginScreen> {
                           try {
                             UserCredential userCredentialObj =
                                 await _firebaseAuth.signInWithEmailAndPassword(
-                              email: emailController.text,
-                              password: passwordController.text,
-                            );
+                                  email: emailController.text,
+                                  password: passwordController.text,
+                                );
 
                             log("User Crdentials: $userCredentialObj");
                             log("User: ${userCredentialObj.user}");
@@ -216,10 +213,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       },
                       child: const Text(
                         "Create Account",
-                        style: TextStyle(
-                          fontSize: 20,
-                          color: Colors.pink,
-                        ),
+                        style: TextStyle(fontSize: 20, color: Colors.pink),
                       ),
                     ),
                     const SizedBox(height: 20),
