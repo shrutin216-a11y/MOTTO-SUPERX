@@ -57,13 +57,20 @@ class _signupScreenState extends State<signupScreen>
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              GestureDetector(
+                onTap: () {
+                  Navigator.of(context).pop();
+                },
+                child: Icon(Icons.arrow_back_ios_sharp),
+              ),
+
               // Animated illustration at the top
               FadeTransition(
                 opacity: _fadeInAnimation,
                 child: Center(
                   child: Image.asset(
                     "assets/animated_img.png",
-                    height: 180,
+                    height: 150,
                     fit: BoxFit.contain,
                   ),
                 ),
@@ -185,7 +192,7 @@ class _signupScreenState extends State<signupScreen>
                   ),
                 ),
               ),
-              const SizedBox(height: 40),
+              const SizedBox(height: 30),
 
               // Sign Up Button
               SizedBox(
