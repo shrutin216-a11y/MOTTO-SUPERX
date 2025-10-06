@@ -102,7 +102,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         hintText: "Email",
                         hintStyle: const TextStyle(color: Colors.black54),
                         filled: true,
-                        fillColor: Colors.white,
+                        fillColor: Colors.white.withOpacity(0.7),
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                           borderSide: const BorderSide(color: Colors.black26),
@@ -124,7 +124,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         hintText: "Password",
                         hintStyle: const TextStyle(color: Colors.black54),
                         filled: true,
-                        fillColor: Colors.white,
+                        fillColor: Colors.white.withOpacity(0.7),
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                           borderSide: const BorderSide(color: Colors.black26),

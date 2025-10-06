@@ -21,15 +21,15 @@ class _BottomNavigationWidgetState extends State<BottomNavigationWidget> {
       body: pages(currentSelectedIndex),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: currentSelectedIndex,
-        selectedItemColor: Colors.pink,
-        unselectedItemColor: Colors.black,
+        selectedItemColor: Colors.green,
+        unselectedItemColor: Colors.grey[800],
         onTap: (value) {
           log("Index: $value");
           currentSelectedIndex = value;
           setState(() {});
         },
         items: [
-          BottomNavigationBarItem(icon: Icon(Icons.explore), label: "Explore"),
+          BottomNavigationBarItem(icon: Icon(Icons.public), label: "Explore"),
           BottomNavigationBarItem(
             icon: Icon(Icons.add_circle),
             label: "Start Trip",

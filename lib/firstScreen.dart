@@ -62,7 +62,17 @@ class _FirstScreenState extends State<FirstScreen> {
                     child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      SizedBox(height: 130),
+                      SizedBox(height: 70),
+                    Text(
+                       "MOTTO",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                        fontSize: 30,
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      SizedBox(height: 30),
                     Text(
                        "Where journeys begin with connections",
                         textAlign: TextAlign.center,
