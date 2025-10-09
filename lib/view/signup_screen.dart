@@ -1,7 +1,7 @@
 import "dart:developer";
 import "package:firebase_auth/firebase_auth.dart";
 import "package:flutter/material.dart";
-import "package:motto_app/view/snackbar.dart";
+import "package:motto_app/controller/snackbar.dart";
 
 class signupScreen extends StatefulWidget {
   const signupScreen({super.key});
