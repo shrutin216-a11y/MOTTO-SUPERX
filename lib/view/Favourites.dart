@@ -10,6 +10,12 @@ class Favourites extends StatefulWidget {
 class _FavouritesState extends State<Favourites> {
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        title: Text("Favourites", style: TextStyle(fontSize: 30)),
+        backgroundColor: Colors.green,
+      ),
+    );
   }
 }

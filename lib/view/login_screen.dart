@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:motto_app/view/bottom_navigation_screen.dart';
 import 'package:motto_app/controller/shared_preference.dart';
 import 'package:motto_app/view/signup_screen.dart';
-import 'package:motto_app/view/snackbar.dart';
+import 'package:motto_app/controller/snackbar.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -25,7 +25,7 @@ class _LoginScreenState extends State<LoginScreen> {
     'assets/img2.png',
     'assets/img3.png',
     'assets/img4.png',
-    'assets/img5.png'
+    'assets/img5.png',
   ];
 
   @override
@@ -59,14 +59,15 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
 
           /// 🔹 Semi-transparent overlay (ignore touches)
-          IgnorePointer(
-            child: Container(color: Colors.black.withOpacity(0.5)),
-          ),
+          IgnorePointer(child: Container(color: Colors.black.withOpacity(0.5))),
 
           /// 🔹 Login UI
           SafeArea(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 20),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 24.0,
+                vertical: 20,
+              ),
               child: SingleChildScrollView(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
@@ -85,10 +86,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     const Text(
                       "Log in to continue your journey",
                       textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 18,
-                        color: Colors.white70,
-                      ),
+                      style: TextStyle(fontSize: 18, color: Colors.white70),
                     ),
                     const SizedBox(height: 40),
 
@@ -134,17 +132,17 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
                     ),
-                    const SizedBox(height:6),
+                    const SizedBox(height: 6),
                     Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: const [
-                    Text(
-                    "Forget Password?",
-                     style: TextStyle(color: Colors.white, fontSize: 16),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 30),
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: const [
+                        Text(
+                          "Forget Password?",
+                          style: TextStyle(color: Colors.white, fontSize: 16),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 30),
 
                     /// 🔹 Login Button
                     SizedBox(
@@ -162,10 +160,11 @@ class _LoginScreenState extends State<LoginScreen> {
                               passwordController.text.trim().isNotEmpty) {
                             try {
                               UserCredential userCredentialObj =
-                                  await _firebaseAuth.signInWithEmailAndPassword(
-                                email: emailController.text,
-                                password: passwordController.text,
-                              );
+                                  await _firebaseAuth
+                                      .signInWithEmailAndPassword(
+                                        email: emailController.text,
+                                        password: passwordController.text,
+                                      );
 
                               log("User Credentials: $userCredentialObj");
                               log("User Id: ${userCredentialObj.user!.uid}");
