@@ -21,6 +21,7 @@ dependencies:
   animated_custom_dropdown: ^3.1.1
   floating_snackbar: ^1.0.5
   confirmation_success: ^0.0.2
+  stylish_bottom_bar: ^1.1.1
 
 dev_dependencies:
   flutter_test:
@@ -36,9 +37,10 @@ flutter:
     - assets/img3.png
     - assets/img4.png
     - assets/img5.png
-    - assets/motto.jpg
     - assets/animated_img.png
     - assets/CardImages/fuji1.jpg
     - assets/CardImages/fuji2.jpg
     - assets/CardImages/fuji3.jpg
     - assets/profile_img.png
+    - assets/login.png
+    - assets/logo2.png

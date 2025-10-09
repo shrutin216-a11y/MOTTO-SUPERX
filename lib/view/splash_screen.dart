@@ -1,57 +1,110 @@
+import 'dart:async';
 import 'dart:developer';
 import 'package:flutter/material.dart';
-// import 'package:motto_app/Home_screen.dart';
 import 'package:motto_app/view/bottom_navigation_screen.dart';
 import 'package:motto_app/view/firstScreen.dart';
-//import 'package:motto_app/login_screen.dart';
 import 'package:motto_app/controller/shared_preference.dart';
-//import 'package:lottie/lottie.dart';
 
-class splashscreen extends StatelessWidget {
-  const splashscreen({super.key});
+class SplashScreen extends StatefulWidget {
+  const SplashScreen({super.key});
 
-  void navigateToScreen(BuildContext context) {
-  Future.delayed(Duration(seconds: 3), () async{
-    UserController userControllerObj = UserController();
-    await userControllerObj.getSharedPrefData();
-    log("IS USER LOGGED IN:${userControllerObj.isUserLoggedIn}");
-
-    if(userControllerObj.isUserLoggedIn){
-      //HOME SCREEN
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(
-        builder: (context) {
-          return BottomNavigationWidget();
-        },
-      ),
-    );
-   }else{
-    //LOGIN SCREEN
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(
-        builder: (context){
-          return FirstScreen();
-        },
-      ),
-    );
-   }
-  }
- );
+  @override
+  State<SplashScreen> createState() => _SplashScreenState();
 }
+
+class _SplashScreenState extends State<SplashScreen>
+    with TickerProviderStateMixin {
+  late AnimationController _scaleController;
+  late AnimationController _fadeController;
+  late Animation<double> _scaleAnimation;
+  late Animation<double> _fadeAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Animation Controllers
+    _scaleController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 2500),
+    );
+    _fadeController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 3000),
+    );
+
+    _scaleAnimation =
+        CurvedAnimation(parent: _scaleController, curve: Curves.elasticOut);
+    _fadeAnimation =
+        CurvedAnimation(parent: _fadeController, curve: Curves.easeIn);
+
+    _scaleController.forward();
+    _fadeController.forward();
+
+    // Navigate after delay
+    Future.delayed(const Duration(seconds: 3), () async {
+      UserController userControllerObj = UserController();
+      await userControllerObj.getSharedPrefData();
+      log("IS USER LOGGED IN: ${userControllerObj.isUserLoggedIn}");
+
+      if (mounted) {
+        if (userControllerObj.isUserLoggedIn) {
+          // Navigate to Home Screen
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(
+              builder: (context) => const BottomNavigationWidget(),
+            ),
+          );
+        } else {
+          // Navigate to Login/First Screen
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(
+              builder: (context) => const FirstScreen(),
+            ),
+          );
+        }
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _scaleController.dispose();
+    _fadeController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    navigateToScreen(context);
     return Scaffold(
-      backgroundColor: Colors.grey[200],
+      backgroundColor: Colors.white,
       body: Center(
         child: 
-          Container(
-            height: 100,
-            width: 100,
-            child: Image.asset("assets/motto.jpg",fit: BoxFit.cover),
+          FadeTransition(
+            opacity: _fadeAnimation,
+            child: ScaleTransition(
+              scale: _scaleAnimation,
+              child: Container(
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.greenAccent,
+                      blurRadius: 30,
+                      spreadRadius: 5,
+                    ),
+                  ],
+                ),
+                child: Image.asset(
+                  "assets/logo2.png",
+                  height: 180,
+                  width: 180,
+                  fit: BoxFit.cover,
+                ),
+              ),
             ),
-        ),
-      );
+          ),
+      ),
+    );
   }
 }
