@@ -1,7 +1,5 @@
 import 'dart:developer';
-
 import 'package:animated_custom_dropdown/custom_dropdown.dart';
-import 'package:confirmation_success/confirmation_success.dart';
 import 'package:floating_snackbar/floating_snackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -16,7 +14,7 @@ class BookingScreen extends StatefulWidget {
 
 class _BookingScreen extends State<BookingScreen> {
   final List<int> _passCount = [1, 2, 3, 4, 5];
-  final List<String> _passGender = ["Male", "Female", "Transgender"];
+  final List<String> _passGender = ["Male", "Female", "Prefer Not to say"];
   final List<String> _passId = [
     "Adhar Card",
     "PanCard",

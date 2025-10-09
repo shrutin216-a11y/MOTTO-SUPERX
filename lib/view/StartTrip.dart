@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:animated_text_kit/animated_text_kit.dart';
+import 'package:motto_app/view/bottom_navigation_screen.dart';
 
 class StartTrip extends StatefulWidget {
   const StartTrip({super.key});
@@ -28,7 +29,6 @@ class _StartTripScreenState extends State<StartTrip> {
     "activities": "",
   };
 
-  // Dropdown Data
   final List<String> destinations = [
     "Mount Fuji",
     "Paris",
@@ -37,7 +37,7 @@ class _StartTripScreenState extends State<StartTrip> {
     "Dubai",
     "New York",
     "Santorini",
-    "Maldives",
+    "Maldives"
   ];
 
   final List<String> countries = [
@@ -48,7 +48,7 @@ class _StartTripScreenState extends State<StartTrip> {
     "USA",
     "Greece",
     "India",
-    "Thailand",
+    "Thailand"
   ];
 
   final List<String> durations = [
@@ -56,7 +56,7 @@ class _StartTripScreenState extends State<StartTrip> {
     "5 Days",
     "7 Days",
     "10 Days",
-    "15 Days",
+    "15 Days"
   ];
 
   final List<String> boardingPoints = [
@@ -65,7 +65,7 @@ class _StartTripScreenState extends State<StartTrip> {
     "Delhi",
     "Bangalore",
     "Hyderabad",
-    "Chennai",
+    "Chennai"
   ];
 
   final List<String> modes = ["Car", "Aeroplane", "Train", "Cruise"];
@@ -74,7 +74,7 @@ class _StartTripScreenState extends State<StartTrip> {
     "₹5000 - ₹8000",
     "₹8000 - ₹15000",
     "₹15000 - ₹25000",
-    "₹25000+",
+    "₹25000+"
   ];
 
   final List<String> activities = [
@@ -85,218 +85,119 @@ class _StartTripScreenState extends State<StartTrip> {
     "Cultural Tour",
     "Wildlife Safari",
     "Scuba Diving",
-    "Shopping & Local Markets",
+    "Shopping & Local Markets"
   ];
 
-  // Steps Definition
   List<Map<String, dynamic>> get questions => [
-    {
-      "key": "destination",
-      "label": "Choose your Destination",
-      "items": destinations,
-      "icon": Icons.landscape,
-    },
-    {
-      "key": "country",
-      "label": "Select Country",
-      "items": countries,
-      "icon": Icons.flag,
-    },
-    {
-      "key": "groupSize",
-      "label": "Select Group Size",
-      "items": List<String>.generate(12, (i) => "${i + 1} People"),
-      "icon": Icons.group,
-    },
-    {
-      "key": "duration",
-      "label": "Select Trip Duration",
-      "items": durations,
-      "icon": Icons.access_time,
-    },
-    {
-      "key": "boardingPoint",
-      "label": "Boarding City",
-      "items": boardingPoints,
-      "icon": Icons.location_on,
-    },
-    {
-      "key": "date",
-      "label": "Select Start & End Date",
-      "items": [],
-      "icon": Icons.calendar_month,
-    },
-    {
-      "key": "mode",
-      "label": "Preferred Mode of Travel",
-      "items": modes,
-      "icon": Icons.directions_car,
-    },
-    {
-      "key": "budget",
-      "label": "Select Budget Range",
-      "items": budgets,
-      "icon": Icons.currency_rupee,
-    },
-    {
-      "key": "details",
-      "label": "Enter Trip Details",
-      "items": [],
-      "icon": Icons.notes,
-    },
-    {
-      "key": "activities",
-      "label": "Select Preferred Activities",
-      "items": activities,
-      "icon": Icons.surfing,
-    },
-  ];
+        {
+          "key": "destination",
+          "label": "Choose your Destination",
+          "items": destinations,
+          "icon": Icons.landscape
+        },
+        {
+          "key": "country",
+          "label": "Select Country",
+          "items": countries,
+          "icon": Icons.flag
+        },
+        {
+          "key": "groupSize",
+          "label": "Select Group Size",
+          "items": List<String>.generate(12, (i) => "${i + 1} People"),
+          "icon": Icons.group
+        },
+        {
+          "key": "duration",
+          "label": "Select Trip Duration",
+          "items": durations,
+          "icon": Icons.access_time
+        },
+        {
+          "key": "boardingPoint",
+          "label": "Boarding City",
+          "items": boardingPoints,
+          "icon": Icons.location_on
+        },
+        {
+          "key": "date",
+          "label": "Select Start & End Date",
+          "items": [],
+          "icon": Icons.calendar_month
+        },
+        {
+          "key": "mode",
+          "label": "Preferred Mode of Travel",
+          "items": modes,
+          "icon": Icons.directions_car
+        },
+        {
+          "key": "budget",
+          "label": "Select Budget Range",
+          "items": budgets,
+          "icon": Icons.currency_rupee
+        },
+        {
+          "key": "details",
+          "label": "Enter Trip Details",
+          "items": [],
+          "icon": Icons.notes
+        },
+        {
+          "key": "activities",
+          "label": "Select Preferred Activities",
+          "items": activities,
+          "icon": Icons.surfing
+        },
+      ];
 
-  // Navigation
+  // 🔹 Move to next step
   void nextStep() {
     String key = questions[currentStep]["key"];
     var value = formData[key];
 
     if (key == "date") {
       if (formData["startDate"].isEmpty || formData["endDate"].isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("Please select both start and end dates."),
-          ),
-        );
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text("Please select both start and end dates."),
+        ));
         return;
       }
     } else if (value == null || value.toString().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Please fill this field before continuing."),
-        ),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text("Please fill this field before continuing."),
+      ));
       return;
     }
 
     if (currentStep < questions.length - 1) {
       setState(() => currentStep++);
       _controller.nextPage(
-        duration: const Duration(milliseconds: 400),
-        curve: Curves.easeInOut,
-      );
+          duration: const Duration(milliseconds: 400), curve: Curves.easeInOut);
     } else {
       setState(() => currentStep++);
     }
   }
 
+  // 🔹 Go to previous step or back to BottomNavigation
   void previousStep() {
     if (currentStep > 0) {
       setState(() => currentStep--);
       _controller.previousPage(
-        duration: const Duration(milliseconds: 400),
-        curve: Curves.easeInOut,
+          duration: const Duration(milliseconds: 400), curve: Curves.easeInOut);
+    } else {
+      Navigator.of(context).pushReplacement(
+        PageRouteBuilder(
+          pageBuilder: (context, animation, secondaryAnimation) =>
+              const BottomNavigationWidget(),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            final tween = Tween(begin: const Offset(-1.0, 0.0), end: Offset.zero)
+                .chain(CurveTween(curve: Curves.easeInOut));
+            return SlideTransition(position: animation.drive(tween), child: child);
+          },
+        ),
       );
     }
-  }
-
-  // UI for Each Question
-  Widget buildQuestion(Map<String, dynamic> q) {
-    String key = q["key"];
-    String label = q["label"];
-    IconData icon = q["icon"];
-    List<String> items = List<String>.from(q["items"]);
-
-    return Padding(
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          LinearProgressIndicator(
-            value: (currentStep + 1) / questions.length,
-            color: Colors.teal,
-            backgroundColor: Colors.grey.shade300,
-            borderRadius: BorderRadius.circular(8),
-          ),
-          const SizedBox(height: 15),
-          Center(
-            child: Text(
-              "Step ${currentStep + 1} of ${questions.length}",
-              style: GoogleFonts.poppins(
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-                color: Colors.grey,
-              ),
-            ),
-          ),
-          const SizedBox(height: 25),
-
-          AnimatedTextKit(
-            animatedTexts: [
-              TypewriterAnimatedText(
-                label,
-                textStyle: GoogleFonts.poppins(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 22,
-                  color: Colors.black87,
-                ),
-                speed: const Duration(milliseconds: 60),
-              ),
-            ],
-            totalRepeatCount: 1,
-          ),
-          const SizedBox(height: 30),
-
-          // Conditional Fields
-          if (key == "date") buildDateSelector(icon),
-          if (key == "details") buildTextInput(icon),
-          if (key != "date" && key != "details")
-            buildDropdownField(items, icon, key),
-
-          const Spacer(),
-
-          // Navigation Buttons
-          Row(
-            children: [
-              if (currentStep > 0)
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: previousStep,
-                    style: OutlinedButton.styleFrom(
-                      minimumSize: const Size(double.infinity, 50),
-                      side: const BorderSide(color: Colors.teal),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                    ),
-                    child: Text(
-                      "← Back",
-                      style: GoogleFonts.poppins(color: Colors.teal),
-                    ),
-                  ),
-                ),
-              if (currentStep > 0) const SizedBox(width: 12),
-              Expanded(
-                child: ElevatedButton(
-                  onPressed: nextStep,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.teal,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                    minimumSize: const Size(double.infinity, 50),
-                  ),
-                  child: Text(
-                    currentStep == questions.length - 1 ? "Finish" : "Next →",
-                    style: GoogleFonts.poppins(
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
-        ],
-      ),
-    );
   }
 
   Widget buildDropdownField(List<String> items, IconData icon, String key) {
@@ -307,10 +208,9 @@ class _StartTripScreenState extends State<StartTrip> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            blurRadius: 8,
-            offset: const Offset(0, 4),
-          ),
+              color: Colors.grey.withOpacity(0.1),
+              blurRadius: 8,
+              offset: const Offset(0, 4))
         ],
       ),
       child: DropdownButtonHideUnderline(
@@ -320,28 +220,23 @@ class _StartTripScreenState extends State<StartTrip> {
             children: [
               Icon(icon, color: Colors.teal),
               const SizedBox(width: 12),
-              Text(
-                "Select an option",
-                style: GoogleFonts.poppins(fontSize: 16),
-              ),
+              Text("Select an option",
+                  style: GoogleFonts.poppins(fontSize: 16)),
             ],
           ),
           value: formData[key].isEmpty ? null : formData[key],
           items: items
-              .map(
-                (item) => DropdownMenuItem<String>(
-                  value: item,
-                  child: Text(item, style: GoogleFonts.poppins(fontSize: 16)),
-                ),
-              )
+              .map((item) => DropdownMenuItem<String>(
+                    value: item,
+                    child:
+                        Text(item, style: GoogleFonts.poppins(fontSize: 16)),
+                  ))
               .toList(),
           onChanged: (value) => setState(() => formData[key] = value),
           dropdownStyleData: DropdownStyleData(
             maxHeight: 250,
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(12),
-              color: Colors.white,
-            ),
+                borderRadius: BorderRadius.circular(12), color: Colors.white),
           ),
         ),
       ),
@@ -356,10 +251,9 @@ class _StartTripScreenState extends State<StartTrip> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            blurRadius: 8,
-            offset: const Offset(0, 4),
-          ),
+              color: Colors.grey.withOpacity(0.1),
+              blurRadius: 8,
+              offset: const Offset(0, 4))
         ],
       ),
       child: Column(
@@ -368,10 +262,8 @@ class _StartTripScreenState extends State<StartTrip> {
             children: [
               Icon(icon, color: Colors.teal),
               const SizedBox(width: 8),
-              Text(
-                "Select Start & End Date",
-                style: GoogleFonts.poppins(fontSize: 16),
-              ),
+              Text("Select Start & End Date",
+                  style: GoogleFonts.poppins(fontSize: 16)),
             ],
           ),
           const SizedBox(height: 16),
@@ -388,15 +280,12 @@ class _StartTripScreenState extends State<StartTrip> {
                       initialDate: DateTime.now(),
                     );
                     if (start != null) {
-                      setState(
-                        () => formData["startDate"] =
-                            "${start.day}/${start.month}/${start.year}",
-                      );
+                      setState(() => formData["startDate"] =
+                          "${start.day}/${start.month}/${start.year}");
                     }
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.teal.shade400,
-                  ),
+                      backgroundColor: Colors.teal.shade400),
                   label: Text(
                     formData["startDate"].isEmpty
                         ? "Start Date"
@@ -417,15 +306,12 @@ class _StartTripScreenState extends State<StartTrip> {
                       initialDate: DateTime.now(),
                     );
                     if (end != null) {
-                      setState(
-                        () => formData["endDate"] =
-                            "${end.day}/${end.month}/${end.year}",
-                      );
+                      setState(() => formData["endDate"] =
+                          "${end.day}/${end.month}/${end.year}");
                     }
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.teal.shade400,
-                  ),
+                      backgroundColor: Colors.teal.shade400),
                   label: Text(
                     formData["endDate"].isEmpty
                         ? "End Date"
@@ -451,14 +337,98 @@ class _StartTripScreenState extends State<StartTrip> {
         hintStyle: GoogleFonts.poppins(color: Colors.grey.shade500),
         filled: true,
         fillColor: Colors.white,
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 14,
-        ),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
           borderSide: BorderSide.none,
         ),
+      ),
+    );
+  }
+
+  Widget buildQuestion(Map<String, dynamic> q) {
+    String key = q["key"];
+    String label = q["label"];
+    IconData icon = q["icon"];
+    List<String> items = List<String>.from(q["items"]);
+
+    return Padding(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          LinearProgressIndicator(
+            value: (currentStep + 1) / questions.length,
+            color: Colors.teal,
+            backgroundColor: Colors.grey.shade300,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          const SizedBox(height: 15),
+          Center(
+            child: Text(
+              "Step ${currentStep + 1} of ${questions.length}",
+              style: GoogleFonts.poppins(
+                  fontSize: 14, fontWeight: FontWeight.w500, color: Colors.grey),
+            ),
+          ),
+          const SizedBox(height: 25),
+          AnimatedTextKit(
+            animatedTexts: [
+              TypewriterAnimatedText(
+                label,
+                textStyle: GoogleFonts.poppins(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 22,
+                    color: Colors.black87),
+                speed: const Duration(milliseconds: 60),
+              ),
+            ],
+            totalRepeatCount: 1,
+          ),
+          const SizedBox(height: 30),
+          if (key == "date") buildDateSelector(icon),
+          if (key == "details") buildTextInput(icon),
+          if (key != "date" && key != "details")
+            buildDropdownField(items, icon, key),
+          const Spacer(),
+          Row(
+            children: [
+              if (currentStep > 0)
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: previousStep,
+                    style: OutlinedButton.styleFrom(
+                      minimumSize: const Size(double.infinity, 50),
+                      side: const BorderSide(color: Colors.teal),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14)),
+                    ),
+                    child: Text("← Back",
+                        style: GoogleFonts.poppins(color: Colors.teal)),
+                  ),
+                ),
+              if (currentStep > 0) const SizedBox(width: 12),
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: nextStep,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.teal,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14)),
+                    minimumSize: const Size(double.infinity, 50),
+                  ),
+                  child: Text(
+                    currentStep == questions.length - 1 ? "Finish" : "Next →",
+                    style: GoogleFonts.poppins(
+                        fontWeight: FontWeight.w600, color: Colors.white),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+        ],
       ),
     );
   }
@@ -468,39 +438,27 @@ class _StartTripScreenState extends State<StartTrip> {
       padding: const EdgeInsets.all(24.0),
       child: Column(
         children: [
-          Text(
-            "Your Trip Summary",
-            style: GoogleFonts.poppins(
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
+          Text("Your Trip Summary",
+              style: GoogleFonts.poppins(
+                  fontSize: 22, fontWeight: FontWeight.bold)),
           const SizedBox(height: 16),
           Expanded(
             child: ListView(
               children: formData.entries
-                  .map(
-                    (e) => Card(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                      elevation: 2,
-                      margin: const EdgeInsets.symmetric(vertical: 6),
-                      child: ListTile(
-                        title: Text(
-                          e.key.toUpperCase(),
-                          style: GoogleFonts.poppins(
-                            color: Colors.teal,
-                            fontWeight: FontWeight.w600,
-                          ),
+                  .map((e) => Card(
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14)),
+                        elevation: 2,
+                        margin: const EdgeInsets.symmetric(vertical: 6),
+                        child: ListTile(
+                          title: Text(e.key.toUpperCase(),
+                              style: GoogleFonts.poppins(
+                                  color: Colors.teal,
+                                  fontWeight: FontWeight.w600)),
+                          subtitle: Text(e.value,
+                              style: GoogleFonts.poppins(fontSize: 15)),
                         ),
-                        subtitle: Text(
-                          e.value,
-                          style: GoogleFonts.poppins(fontSize: 15),
-                        ),
-                      ),
-                    ),
-                  )
+                      ))
                   .toList(),
             ),
           ),
@@ -510,13 +468,9 @@ class _StartTripScreenState extends State<StartTrip> {
               backgroundColor: Colors.teal,
               minimumSize: const Size(double.infinity, 55),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(14),
-              ),
+                  borderRadius: BorderRadius.circular(14)),
             ),
-            child: Text(
-              "Done",
-              style: GoogleFonts.poppins(color: Colors.white),
-            ),
+            child: Text("Done", style: GoogleFonts.poppins(color: Colors.white)),
           ),
         ],
       ),
@@ -525,17 +479,30 @@ class _StartTripScreenState extends State<StartTrip> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: SafeArea(
-        child: PageView.builder(
-          controller: _controller,
-          physics: const NeverScrollableScrollPhysics(),
-          itemCount: questions.length + 1,
-          itemBuilder: (context, index) {
-            if (index == questions.length) return buildSummary();
-            return buildQuestion(questions[index]);
-          },
+    return WillPopScope(
+      onWillPop: () async {
+        if (currentStep == 0) {
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (context) => const BottomNavigationWidget()),
+          );
+          return false;
+        } else {
+          previousStep();
+          return false;
+        }
+      },
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        body: SafeArea(
+          child: PageView.builder(
+            controller: _controller,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: questions.length + 1,
+            itemBuilder: (context, index) {
+              if (index == questions.length) return buildSummary();
+              return buildQuestion(questions[index]);
+            },
+          ),
         ),
       ),
     );

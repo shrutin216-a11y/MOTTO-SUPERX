@@ -26,7 +26,7 @@ class MainApp extends StatelessWidget {
     return MaterialApp(
       theme: ThemeData(textTheme: GoogleFonts.interTextTheme()),
       debugShowCheckedModeBanner: false,
-      home: Scaffold(body: splashscreen()),
+      home: Scaffold(body: SplashScreen()),
     );
   }
 }

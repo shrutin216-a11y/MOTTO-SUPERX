@@ -3,12 +3,12 @@ import 'package:confirmation_success/confirmation_success.dart';
 import 'package:motto_app/view/Home_screen.dart';
 import 'package:motto_app/view/bottom_navigation_screen.dart'; // example package
 
-class SubmitPage extends StatefulWidget {
+class SubmitTrip extends StatefulWidget {
   @override
-  State<SubmitPage> createState() => _SubmitPageState();
+  State<SubmitTrip> createState() => _SubmitTripState();
 }
 
-class _SubmitPageState extends State<SubmitPage> {
+class _SubmitTripState extends State<SubmitTrip> {
   void initState() {
     super.initState();
     Future.delayed(const Duration(seconds: 3), () {
@@ -28,7 +28,7 @@ class _SubmitPageState extends State<SubmitPage> {
       body: ConfirmationSuccess(
         reactColor: Colors.green,
         child: Text(
-          "   Booked \nSuccesfully! ",
+          "   Posted \nSuccesfully! ",
           style: TextStyle(
             fontSize: 25,
             color: Colors.black,

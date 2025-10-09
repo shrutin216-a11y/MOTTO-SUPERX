@@ -26,7 +26,6 @@ class _FirstScreenState extends State<FirstScreen> {
     return Scaffold(
       body: Stack(
         children: [
-          // 🔹 Background Carousel
           CarouselSlider(
             options: CarouselOptions(
               height: size.height,
