@@ -95,7 +95,7 @@ class _FirstScreenState extends State<FirstScreen> {
                                 builder: (context) => const LoginScreen()));
                           },
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.green,
+                            backgroundColor: Colors.teal[400],
                             foregroundColor: Colors.white,
                             padding: const EdgeInsets.symmetric(vertical: 16),
                             shape: RoundedRectangleBorder(
