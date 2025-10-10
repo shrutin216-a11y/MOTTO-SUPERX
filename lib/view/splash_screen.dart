@@ -46,7 +46,7 @@ class splashscreen extends StatelessWidget {
       backgroundColor: Colors.grey[200],
       body: Center(
         child: 
-          Container(
+          SizedBox(
             height: 100,
             width: 100,
             child: Image.asset("assets/motto.jpg",fit: BoxFit.cover),

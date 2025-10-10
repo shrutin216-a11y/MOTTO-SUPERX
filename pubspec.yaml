@@ -21,6 +21,10 @@ dependencies:
   animated_custom_dropdown: ^3.1.1
   floating_snackbar: ^1.0.5
   confirmation_success: ^0.0.2
+  fade_scroll_app_bar: ^0.0.7
+  custom_animation_appbar: ^2.0.0
+  apptomate_custom_silver_appbar: ^0.0.1
+  scrollable_list_tabview: ^0.2.0-nullsafety
 
 dev_dependencies:
   flutter_test:

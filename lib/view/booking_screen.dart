@@ -31,6 +31,7 @@ class _BookingScreen extends State<BookingScreen> {
   TextEditingController ageController = TextEditingController();
   TextEditingController idNumController = TextEditingController();
 
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
