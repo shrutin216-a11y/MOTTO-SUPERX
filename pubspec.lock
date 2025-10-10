@@ -25,6 +25,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.3.0"
+  apptomate_custom_silver_appbar:
+    dependency: "direct main"
+    description:
+      name: apptomate_custom_silver_appbar
+      sha256: "22898d2ca6ec98471082cc3ed3783bfa5c04fc0204676255272b281e38b77cfc"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.1"
   archive:
     dependency: transitive
     description:
@@ -113,6 +121,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.8"
+  custom_animation_appbar:
+    dependency: "direct main"
+    description:
+      name: custom_animation_appbar
+      sha256: "189f0706019e9230bed059091d3ee6df741dbed2e96af923ae7b78e807c15a32"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.0"
   dropdown_button2:
     dependency: "direct main"
     description:
@@ -121,6 +137,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.3.9"
+  fade_scroll_app_bar:
+    dependency: "direct main"
+    description:
+      name: fade_scroll_app_bar
+      sha256: "874fd451c8126d73febfbf32aa1917d0d1050475a51adf158119c29d26d540dc"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.7"
   fake_async:
     dependency: transitive
     description:
@@ -504,6 +528,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "6.0.3"
+  scrollable_list_tabview:
+    dependency: "direct main"
+    description:
+      name: scrollable_list_tabview
+      sha256: dd3c34abb8739cc35b0cc34a3b99591a1943dbf3999cc2467d5346888530feaa
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.2.0-nullsafety"
+  scrollable_positioned_list:
+    dependency: transitive
+    description:
+      name: scrollable_positioned_list
+      sha256: "9566352ab9ba05794ee6c8864f154afba5d36c5637d0e3e32c615ba4ceb92772"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.2.3"
   shared_preferences:
     dependency: "direct main"
     description:
