@@ -1,11 +1,12 @@
 import 'dart:developer';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:stylish_bottom_bar/stylish_bottom_bar.dart';
 import 'package:motto_app/view/Home_screen.dart';
 import 'package:motto_app/view/Favourites.dart';
 import 'package:motto_app/view/StartTrip.dart';
 import 'package:motto_app/view/chat.dart';
 import 'package:motto_app/view/profile_screen.dart';
-import 'package:stylish_bottom_bar/stylish_bottom_bar.dart';
 
 class BottomNavigationWidget extends StatefulWidget {
   const BottomNavigationWidget({super.key});
@@ -30,12 +31,15 @@ class _BottomNavigationWidgetState extends State<BottomNavigationWidget> {
           });
         },
         items: [
-          _bottomBarItem(Icons.public, 0),
+          _bottomBarItem(Icons.public_sharp, 0, label: "Explore"),
           _bottomBarItem(Icons.favorite_outline, 1,
-              selectedIcon: Icons.favorite_sharp),
-          _bottomBarItem(Icons.add_circle, 2, selectedIcon: Icons.add_circle),
-          _bottomBarItem(Icons.chat, 3),
-          _bottomBarItem(Icons.account_circle_sharp, 4),
+              selectedIcon: Icons.favorite, label: "Favourites"),
+          _bottomBarItem(Icons.navigation_outlined, 2,
+              selectedIcon: Icons.alt_route_rounded, label: "Start Trip"),
+          _bottomBarItem(CupertinoIcons.chat_bubble_2_fill, 3,
+              selectedIcon: CupertinoIcons.chat_bubble_2_fill, label: "Chat"),
+          _bottomBarItem(Icons.account_circle_outlined, 4,
+              selectedIcon: Icons.account_circle_rounded, label: "Profile"),
         ],
         option: AnimatedBarOptions(
           barAnimation: BarAnimation.fade,
@@ -45,9 +49,9 @@ class _BottomNavigationWidgetState extends State<BottomNavigationWidget> {
     );
   }
 
-  // 🌊 Ripple + Jump + Glow Animation
+  // 🌊 Animated Bottom Bar Item
   BottomBarItem _bottomBarItem(IconData icon, int index,
-      {IconData? selectedIcon}) {
+      {IconData? selectedIcon, String? label}) {
     bool isSelected = currentSelectedIndex == index;
 
     return BottomBarItem(
@@ -57,14 +61,20 @@ class _BottomNavigationWidgetState extends State<BottomNavigationWidget> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Green indicator bar
+            // Gradient indicator bar
             AnimatedContainer(
               duration: const Duration(milliseconds: 300),
               height: 3,
               width: isSelected ? 28 : 0,
               margin: const EdgeInsets.only(bottom: 3),
               decoration: BoxDecoration(
-                color: isSelected ? Colors.green : Colors.transparent,
+                gradient: isSelected
+                    ? const LinearGradient(
+                        colors: [Color(0xFF00BFA5), Color(0xFF4DB6AC)],
+                        begin: Alignment.centerLeft,
+                        end: Alignment.centerRight,
+                      )
+                    : null,
                 borderRadius: BorderRadius.circular(8),
               ),
             ),
@@ -75,41 +85,52 @@ class _BottomNavigationWidgetState extends State<BottomNavigationWidget> {
               duration: const Duration(milliseconds: 500),
               curve: Curves.easeOutCubic,
               builder: (context, value, child) {
-                final scale = 1 + 0.25 * value; // pop effect
-                final offsetY = -8 * value; // jump upward
-                final rippleSize = 40 + (value * 30); // ripple expanding
-                final rippleOpacity = (1 - value).clamp(0.0, 0.3);
+                final scale = 1 + 0.25 * value;
+                final offsetY = -6 * value;
+                final glow = Colors.tealAccent.withOpacity(value * 0.3);
 
                 return Transform.translate(
                   offset: Offset(0, offsetY),
                   child: Stack(
                     alignment: Alignment.center,
                     children: [
-                      // 🌟 Expanding ripple circle
                       Container(
-                        width: rippleSize,
-                        height: rippleSize,
+                        width: 38,
+                        height: 38,
                         decoration: BoxDecoration(
-                          color: isSelected
-                              ? Colors.green.withOpacity(rippleOpacity)
-                              : Colors.transparent,
+                          color: isSelected ? glow : Colors.transparent,
                           shape: BoxShape.circle,
                         ),
                       ),
-                      // Icon pop animation
-                      AnimatedScale(
+                      Transform.scale(
                         scale: scale,
-                        duration: const Duration(milliseconds: 300),
-                        curve: Curves.easeOutBack,
                         child: Icon(
                           isSelected ? (selectedIcon ?? icon) : icon,
-                          color: isSelected ? Colors.black : Colors.grey,
+                          size: isSelected ? 28 : 26,
+                          color: isSelected
+                              ? const Color(0xFF00695C)
+                              : Colors.grey.shade500,
                         ),
                       ),
                     ],
                   ),
                 );
               },
+            ),
+
+            const SizedBox(height: 4),
+
+            // Label animation
+            AnimatedDefaultTextStyle(
+              duration: const Duration(milliseconds: 300),
+              style: TextStyle(
+                fontSize: isSelected ? 13 : 12,
+                color: isSelected
+                    ? const Color(0xFF004D40)
+                    : Colors.grey.shade500,
+                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+              ),
+              child: Text(label ?? ""),
             ),
           ],
         ),
@@ -124,15 +145,15 @@ class _BottomNavigationWidgetState extends State<BottomNavigationWidget> {
   Widget pages(int index) {
     switch (index) {
       case 0:
-        return const HomeScreen();
+        return const HomeScreen(); // Explore Page
       case 1:
-        return const Favourites();
+        return const Favourites(); // Favourites Page
       case 2:
-        return const StartTrip();
+        return const StartTrip(); // Start Trip Page
       case 3:
-        return const ChatScreen();
+        return const ChatScreen(); // Chat Page
       case 4:
-        return const ProfileScreen();
+        return const ProfileScreen(); // Profile Page
       default:
         return Container();
     }

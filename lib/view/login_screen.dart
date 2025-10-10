@@ -164,7 +164,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       }
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green, // Black button
+                      backgroundColor: Colors.teal[400], // Black button
                       foregroundColor: Colors.white, // White text
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(
