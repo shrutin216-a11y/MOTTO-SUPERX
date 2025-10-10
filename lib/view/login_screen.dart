@@ -47,10 +47,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 const Text(
                   "Log in to continue your journey",
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 18,
-                    color: Colors.black54,
-                  ),
+                  style: TextStyle(fontSize: 18, color: Colors.black54),
                 ),
                 const SizedBox(height: 40),
 
@@ -127,11 +124,11 @@ class _LoginScreenState extends State<LoginScreen> {
                       if (emailController.text.trim().isNotEmpty &&
                           passwordController.text.trim().isNotEmpty) {
                         try {
-                          UserCredential userCredentialObj =
-                              await _firebaseAuth.signInWithEmailAndPassword(
-                            email: emailController.text,
-                            password: passwordController.text,
-                          );
+                          UserCredential userCredentialObj = await _firebaseAuth
+                              .signInWithEmailAndPassword(
+                                email: emailController.text,
+                                password: passwordController.text,
+                              );
 
                           log("User Credentials: $userCredentialObj");
                           log("User Id: ${userCredentialObj.user!.uid}");
@@ -174,10 +171,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         borderRadius: BorderRadius.circular(20),
                       ),
                     ),
-                    child: const Text(
-                      "Login",
-                      style: TextStyle(fontSize: 20),
-                    ),
+                    child: const Text("Login", style: TextStyle(fontSize: 20)),
                   ),
                 ),
                 const SizedBox(height: 15),
