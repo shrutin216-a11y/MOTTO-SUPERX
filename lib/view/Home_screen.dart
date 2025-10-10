@@ -3,7 +3,7 @@ import "dart:developer";
 import "package:firebase_auth/firebase_auth.dart";
 import "package:flutter/material.dart";
 import "package:motto_app/view/card_Screen.dart";
-import "package:motto_app/view/login_screen.dart";
+import "package:motto_app/view/firstScreen.dart";
 import "package:motto_app/controller/shared_preference.dart";
 import "package:shared_preferences/shared_preferences.dart";
 import 'package:google_fonts/google_fonts.dart';

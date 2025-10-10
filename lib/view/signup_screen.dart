@@ -1,7 +1,7 @@
 import "dart:developer";
 import "package:firebase_auth/firebase_auth.dart";
 import "package:flutter/material.dart";
-import "package:motto_app/view/snackbar.dart";
+import "package:motto_app/controller/snackbar.dart";
 
 class signupScreen extends StatefulWidget {
   const signupScreen({super.key});
@@ -249,11 +249,11 @@ class _signupScreenState extends State<signupScreen>
                     }
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green[900],
+                    backgroundColor: Colors.green,
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(20),
                     ),
                   ),
                   child: const Text(

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:animated_text_kit/animated_text_kit.dart';
+import 'package:motto_app/view/bottom_navigation_screen.dart';
 
 class StartTrip extends StatefulWidget {
   const StartTrip({super.key});
@@ -10,7 +11,8 @@ class StartTrip extends StatefulWidget {
   State<StartTrip> createState() => _StartTripScreenState();
 }
 
-class _StartTripScreenState extends State<StartTrip> {
+class _StartTripScreenState extends State<StartTrip>
+    with SingleTickerProviderStateMixin {
   int currentStep = 0;
   final PageController _controller = PageController();
 
@@ -28,7 +30,6 @@ class _StartTripScreenState extends State<StartTrip> {
     "activities": "",
   };
 
-  // Dropdown Data
   final List<String> destinations = [
     "Mount Fuji",
     "Paris",
@@ -88,7 +89,6 @@ class _StartTripScreenState extends State<StartTrip> {
     "Shopping & Local Markets"
   ];
 
-  // Steps Definition
   List<Map<String, dynamic>> get questions => [
         {
           "key": "destination",
@@ -98,7 +98,7 @@ class _StartTripScreenState extends State<StartTrip> {
         },
         {
           "key": "country",
-          "label": "Select Country",
+          "label": "Select the Country of the Destination",
           "items": countries,
           "icon": Icons.flag
         },
@@ -116,7 +116,7 @@ class _StartTripScreenState extends State<StartTrip> {
         },
         {
           "key": "boardingPoint",
-          "label": "Boarding City",
+          "label": "Select the boarding City",
           "items": boardingPoints,
           "icon": Icons.location_on
         },
@@ -134,7 +134,7 @@ class _StartTripScreenState extends State<StartTrip> {
         },
         {
           "key": "budget",
-          "label": "Select Budget Range",
+          "label": "Select Budget per person",
           "items": budgets,
           "icon": Icons.currency_rupee
         },
@@ -152,7 +152,6 @@ class _StartTripScreenState extends State<StartTrip> {
         },
       ];
 
-  // Navigation
   void nextStep() {
     String key = questions[currentStep]["key"];
     var value = formData[key];
@@ -185,100 +184,11 @@ class _StartTripScreenState extends State<StartTrip> {
       setState(() => currentStep--);
       _controller.previousPage(
           duration: const Duration(milliseconds: 400), curve: Curves.easeInOut);
+    } else {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (context) => const BottomNavigationWidget()),
+      );
     }
-  }
-
-  // UI for Each Question
-  Widget buildQuestion(Map<String, dynamic> q) {
-    String key = q["key"];
-    String label = q["label"];
-    IconData icon = q["icon"];
-    List<String> items = List<String>.from(q["items"]);
-
-    return Padding(
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          LinearProgressIndicator(
-            value: (currentStep + 1) / questions.length,
-            color: Colors.teal,
-            backgroundColor: Colors.grey.shade300,
-            borderRadius: BorderRadius.circular(8),
-          ),
-          const SizedBox(height: 15),
-          Center(
-            child: Text(
-              "Step ${currentStep + 1} of ${questions.length}",
-              style: GoogleFonts.poppins(
-                  fontSize: 14, fontWeight: FontWeight.w500, color: Colors.grey),
-            ),
-          ),
-          const SizedBox(height: 25),
-
-          AnimatedTextKit(
-            animatedTexts: [
-              TypewriterAnimatedText(
-                label,
-                textStyle: GoogleFonts.poppins(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 22,
-                    color: Colors.black87),
-                speed: const Duration(milliseconds: 60),
-              ),
-            ],
-            totalRepeatCount: 1,
-          ),
-          const SizedBox(height: 30),
-
-          // Conditional Fields
-          if (key == "date") buildDateSelector(icon),
-          if (key == "details") buildTextInput(icon),
-          if (key != "date" && key != "details")
-            buildDropdownField(items, icon, key),
-
-          const Spacer(),
-
-          // Navigation Buttons
-          Row(
-            children: [
-              if (currentStep > 0)
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: previousStep,
-                    style: OutlinedButton.styleFrom(
-                      minimumSize: const Size(double.infinity, 50),
-                      side: const BorderSide(color: Colors.teal),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14)),
-                    ),
-                    child: Text("← Back",
-                        style: GoogleFonts.poppins(color: Colors.teal)),
-                  ),
-                ),
-              if (currentStep > 0) const SizedBox(width: 12),
-              Expanded(
-                child: ElevatedButton(
-                  onPressed: nextStep,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.teal,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14)),
-                    minimumSize: const Size(double.infinity, 50),
-                  ),
-                  child: Text(
-                    currentStep == questions.length - 1 ? "Finish" : "Next →",
-                    style: GoogleFonts.poppins(
-                        fontWeight: FontWeight.w600, color: Colors.white),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
-        ],
-      ),
-    );
   }
 
   Widget buildDropdownField(List<String> items, IconData icon, String key) {
@@ -289,7 +199,7 @@ class _StartTripScreenState extends State<StartTrip> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-              color: Colors.grey.withOpacity(0.1),
+              color: Colors.teal.withOpacity(0.08),
               blurRadius: 8,
               offset: const Offset(0, 4))
         ],
@@ -314,11 +224,6 @@ class _StartTripScreenState extends State<StartTrip> {
                   ))
               .toList(),
           onChanged: (value) => setState(() => formData[key] = value),
-          dropdownStyleData: DropdownStyleData(
-            maxHeight: 250,
-            decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12), color: Colors.white),
-          ),
         ),
       ),
     );
@@ -332,7 +237,7 @@ class _StartTripScreenState extends State<StartTrip> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-              color: Colors.grey.withOpacity(0.1),
+              color: Colors.teal.withOpacity(0.08),
               blurRadius: 8,
               offset: const Offset(0, 4))
         ],
@@ -428,6 +333,164 @@ class _StartTripScreenState extends State<StartTrip> {
     );
   }
 
+  Widget buildQuestion(Map<String, dynamic> q) {
+    String key = q["key"];
+    String label = q["label"];
+    IconData icon = q["icon"];
+    List<String> items = List<String>.from(q["items"]);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // 🌈 Gradient Header with Decorative Icons
+        Stack(
+          children: [
+            Container(
+              height: 160,
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Color(0xFF00BFA5), Color(0xFF4DB6AC)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(45),
+                  bottomRight: Radius.circular(45),
+                ),
+              ),
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text("Plan Your Trip",
+                        style: GoogleFonts.poppins(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white)),
+                    const SizedBox(height: 6),
+                    Text("Answer a few quick questions to start your journey",
+                        style: GoogleFonts.poppins(
+                            fontSize: 13, color: Colors.white70)),
+                  ],
+                ),
+              ),
+            ),
+
+            // ✈️ Decorative Travel Icons
+            Positioned(
+              top: 35,
+              left: 25,
+              child: Icon(Icons.flight_takeoff,
+                  color: Colors.white.withOpacity(0.2), size: 70),
+            ),
+            Positioned(
+              top: 100,
+              right: 40,
+              child: Icon(Icons.terrain,
+                  color: Colors.white.withOpacity(0.25), size: 60),
+            ),
+            Positioned(
+              bottom: 20,
+              left: 80,
+              child: Icon(Icons.location_on,
+                  color: Colors.white.withOpacity(0.15), size: 65),
+            ),
+            Positioned(
+              top: 20,
+              right: 90,
+              child: Icon(Icons.train,
+                  color: Colors.white.withOpacity(0.2), size: 50),
+            ),
+          ],
+        ),
+
+        // 🧭 Progress + Question Section
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              LinearProgressIndicator(
+                value: (currentStep + 1) / questions.length,
+                color: Colors.teal,
+                backgroundColor: Colors.grey.shade300,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              const SizedBox(height: 15),
+              Center(
+                child: Text(
+                  "Step ${currentStep + 1} of ${questions.length}",
+                  style: GoogleFonts.poppins(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.grey),
+                ),
+              ),
+              const SizedBox(height: 25),
+              AnimatedTextKit(
+                animatedTexts: [
+                  TypewriterAnimatedText(
+                    label,
+                    textStyle: GoogleFonts.poppins(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 22,
+                        color: Colors.black87),
+                    speed: const Duration(milliseconds: 60),
+                  ),
+                ],
+                totalRepeatCount: 1,
+              ),
+              const SizedBox(height: 30),
+              if (key == "date") buildDateSelector(icon),
+              if (key == "details") buildTextInput(icon),
+              if (key != "date" && key != "details")
+                buildDropdownField(items, icon, key),
+              const SizedBox(height: 40),
+              Row(
+                children: [
+                  if (currentStep > 0)
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: previousStep,
+                        style: OutlinedButton.styleFrom(
+                          side: const BorderSide(color: Colors.teal),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(14)),
+                        ),
+                        child: Text("← Back",
+                            style:
+                                GoogleFonts.poppins(color: Colors.teal)),
+                      ),
+                    ),
+                  if (currentStep > 0) const SizedBox(width: 12),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: nextStep,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.teal,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14)),
+                        minimumSize: const Size(double.infinity, 50),
+                      ),
+                      child: Text(
+                        currentStep == questions.length - 1
+                            ? "Finish"
+                            : "Next →",
+                        style: GoogleFonts.poppins(
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget buildSummary() {
     return Padding(
       padding: const EdgeInsets.all(24.0),
@@ -465,7 +528,8 @@ class _StartTripScreenState extends State<StartTrip> {
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(14)),
             ),
-            child: Text("Done", style: GoogleFonts.poppins(color: Colors.white)),
+            child:
+                Text("Done", style: GoogleFonts.poppins(color: Colors.white)),
           ),
         ],
       ),
@@ -476,16 +540,14 @@ class _StartTripScreenState extends State<StartTrip> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: SafeArea(
-        child: PageView.builder(
-          controller: _controller,
-          physics: const NeverScrollableScrollPhysics(),
-          itemCount: questions.length + 1,
-          itemBuilder: (context, index) {
-            if (index == questions.length) return buildSummary();
-            return buildQuestion(questions[index]);
-          },
-        ),
+      body: PageView.builder(
+        controller: _controller,
+        physics: const NeverScrollableScrollPhysics(),
+        itemCount: questions.length + 1,
+        itemBuilder: (context, index) {
+          if (index == questions.length) return buildSummary();
+          return buildQuestion(questions[index]);
+        },
       ),
     );
   }

@@ -25,6 +25,8 @@ dependencies:
   custom_animation_appbar: ^2.0.0
   apptomate_custom_silver_appbar: ^0.0.1
   scrollable_list_tabview: ^0.2.0-nullsafety
+  image_picker: ^1.2.0
+  stylish_bottom_bar: ^1.1.1
 
 dev_dependencies:
   flutter_test:
@@ -40,9 +42,10 @@ flutter:
     - assets/img3.png
     - assets/img4.png
     - assets/img5.png
-    - assets/motto.jpg
     - assets/animated_img.png
     - assets/CardImages/fuji1.jpg
     - assets/CardImages/fuji2.jpg
     - assets/CardImages/fuji3.jpg
-    - assets/profile_img.png
+    - assets/login.png
+    - assets/logo2.png
+
