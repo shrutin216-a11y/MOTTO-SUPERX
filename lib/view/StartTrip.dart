@@ -97,7 +97,7 @@ class _StartTripScreenState extends State<StartTrip> {
         },
         {
           "key": "country",
-          "label": "Select Country",
+          "label": "Select the Country of the Destination",
           "items": countries,
           "icon": Icons.flag
         },
@@ -115,7 +115,7 @@ class _StartTripScreenState extends State<StartTrip> {
         },
         {
           "key": "boardingPoint",
-          "label": "Boarding City",
+          "label": "Select the boarding City",
           "items": boardingPoints,
           "icon": Icons.location_on
         },
@@ -133,7 +133,7 @@ class _StartTripScreenState extends State<StartTrip> {
         },
         {
           "key": "budget",
-          "label": "Select Budget Range",
+          "label": "Select Budget per person",
           "items": budgets,
           "icon": Icons.currency_rupee
         },
@@ -151,7 +151,6 @@ class _StartTripScreenState extends State<StartTrip> {
         },
       ];
 
-  // 🔹 Move to next step
   void nextStep() {
     String key = questions[currentStep]["key"];
     var value = formData[key];
