@@ -82,15 +82,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ),
                               ],
                             ),
-                            const Spacer(),
-                            CircleAvatar(
-                              radius: 18,
-                              backgroundColor: Colors.white24,
-                              child: const Text(
-                                'A',
-                                style: TextStyle(color: Colors.white),
-                              ),
-                            ),
                           ],
                         ),
                         const SizedBox(height: 12),
@@ -119,67 +110,67 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
 
           // 🧭 HORIZONTAL SCROLLABLE TABS
-          SliverToBoxAdapter(
-            child: Container(
-              color: Colors.white,
-              padding: const EdgeInsets.only(top: 15, bottom: 10),
-              child: SizedBox(
-                height: 50,
-                child: ListView.separated(
-                  scrollDirection: Axis.horizontal,
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  separatorBuilder: (_, __) => const SizedBox(width: 10),
-                  itemCount: tabItems.length,
-                  itemBuilder: (context, i) {
-                    final isSel = selectedTab == i;
-                    return GestureDetector(
-                      onTap: () => setState(() => selectedTab = i),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 14,
-                          vertical: 8,
-                        ),
-                        decoration: BoxDecoration(
-                          color: isSel ? Colors.black : Colors.grey.shade100,
-                          borderRadius: BorderRadius.circular(18),
-                          border: Border.all(
-                            color: isSel ? Colors.black : Colors.grey.shade300,
-                          ),
-                        ),
-                        child: Text(
-                          tabItems[i],
-                          style: TextStyle(
-                            color: isSel ? Colors.white : Colors.grey.shade900,
-                            fontWeight: isSel
-                                ? FontWeight.w700
-                                : FontWeight.w600,
-                          ),
+          // 🧭 HORIZONTAL SCROLLABLE TABS (Pinned at top)
+          SliverAppBar(
+            pinned: true, // 👈 This keeps it locked at top
+            backgroundColor: Colors.white,
+            elevation: 2,
+            automaticallyImplyLeading: false,
+            toolbarHeight: 15,
+            flexibleSpace: Padding(
+              padding: const EdgeInsets.only(top: 10, bottom: 10),
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                separatorBuilder: (context, index) => const SizedBox(width: 10),
+                itemCount: tabItems.length,
+                itemBuilder: (context, i) {
+                  final isSel = selectedTab == i;
+                  return GestureDetector(
+                    onTap: () => setState(() => selectedTab = i),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 8,
+                      ),
+                      decoration: BoxDecoration(
+                        color: isSel ? Colors.black : Colors.grey.shade100,
+                        borderRadius: BorderRadius.circular(18),
+                        border: Border.all(
+                          color: isSel ? Colors.black : Colors.grey.shade300,
                         ),
                       ),
-                    );
-                  },
-                ),
+                      child: Text(
+                        tabItems[i],
+                        style: TextStyle(
+                          color: isSel ? Colors.white : Colors.grey.shade900,
+                          fontWeight: isSel ? FontWeight.w700 : FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  );
+                },
               ),
             ),
           ),
 
           // 🪄 FILTER CHIPS
-          SliverToBoxAdapter(
-            child: Container(
-              color: Colors.white,
-              padding: const EdgeInsets.all(12),
-              child: Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: [
-                  _buildFilterChip('Filters', Icons.tune),
-                  _buildFilterChip('Under 30 mins', null),
-                  _buildFilterChip('Under ₹250', null),
-                  _buildFilterChip('Loved by Pune', null),
-                ],
-              ),
-            ),
-          ),
+          // SliverToBoxAdapter(
+          //   child: Container(
+          //     color: Colors.white,
+          //     padding: const EdgeInsets.all(12),
+          //     child: Wrap(
+          //       spacing: 8,
+          //       runSpacing: 8,
+          //       children: [
+          //         _buildFilterChip('Filters', Icons.tune),
+          //         _buildFilterChip('Under 30 mins', null),
+          //         _buildFilterChip('Under ₹250', null),
+          //         _buildFilterChip('Loved by Pune', null),
+          //       ],
+          //     ),
+          //   ),
+          // ),
 
           // 🧾 Section title
           SliverToBoxAdapter(
@@ -206,7 +197,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 return GestureDetector(
                   onTap: () => Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (_) => const CardScreen()),
+                    MaterialPageRoute(
+                      builder: (context) {
+                        return CardScreen();
+                      },
+                    ),
                   ),
                   child: Container(
                     width: double.infinity,
@@ -230,11 +225,23 @@ class _HomeScreenState extends State<HomeScreen> {
                           borderRadius: const BorderRadius.vertical(
                             top: Radius.circular(16),
                           ),
-                          child: Image.network(
-                            "https://skyhookcontentful.imgix.net/6MPvB1nbHtL2AQbxMi2D7y/af0829fe9fc4733a754e15705d99d33d/pixabay-pehrlich-himalayas.jpg?auto=compress,format,enhance&crop=faces,center&fit=crop&ar=1:1&w=576px&ixlib=react-9.10.0",
-                            height: 200,
-                            width: double.infinity,
-                            fit: BoxFit.cover,
+                          child: Stack(
+                            children: [
+                              Image.network(
+                                "https://skyhookcontentful.imgix.net/6MPvB1nbHtL2AQbxMi2D7y/af0829fe9fc4733a754e15705d99d33d/pixabay-pehrlich-himalayas.jpg?auto=compress,format,enhance&crop=faces,center&fit=crop&ar=1:1&w=576px&ixlib=react-9.10.0",
+                                height: 200,
+                                width: double.infinity,
+                                fit: BoxFit.cover,
+                              ),
+                              Positioned(
+                                top: 20,
+                                right: 12,
+                                child: Icon(
+                                  Icons.favorite_border_outlined,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                         Padding(
