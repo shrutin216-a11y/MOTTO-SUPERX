@@ -1,7 +1,7 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:motto_app/view/signup_screen.dart';
-import 'package:motto_app/view/login_screen.dart'; 
+import 'package:motto_app/view/login_screen.dart';
 
 class FirstScreen extends StatefulWidget {
   const FirstScreen({super.key});
@@ -16,8 +16,8 @@ class _FirstScreenState extends State<FirstScreen> {
     'assets/img2.png',
     'assets/img3.png',
     'assets/img4.png',
-    'assets/img5.png'
-    ];
+    'assets/img5.png',
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -53,37 +53,40 @@ class _FirstScreenState extends State<FirstScreen> {
 
           SafeArea(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 20),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 24.0,
+                vertical: 20,
+              ),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Center(
                     child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      SizedBox(height: 70),
-                    Text(
-                       "MOTTO",
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                        fontSize: 30,
-                        color: Colors.white,
-                        fontWeight: FontWeight.w600,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        SizedBox(height: 70),
+                        Text(
+                          "MOTTO",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 30,
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
-                      ),
-                      SizedBox(height: 30),
-                    Text(
-                       "Where journeys begin with connections",
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                        fontSize: 24,
-                        color: Colors.white,
-                        fontWeight: FontWeight.w600,
+                        SizedBox(height: 30),
+                        Text(
+                          "Where journeys begin with connections",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 24,
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
 
                   Column(
                     children: [
@@ -91,11 +94,14 @@ class _FirstScreenState extends State<FirstScreen> {
                         width: double.infinity,
                         child: ElevatedButton(
                           onPressed: () {
-                            Navigator.of(context).push(MaterialPageRoute(
-                                builder: (context) => const LoginScreen()));
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => const LoginScreen(),
+                              ),
+                            );
                           },
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.green,
+                            backgroundColor: Colors.teal[400],
                             foregroundColor: Colors.white,
                             padding: const EdgeInsets.symmetric(vertical: 16),
                             shape: RoundedRectangleBorder(
@@ -115,8 +121,11 @@ class _FirstScreenState extends State<FirstScreen> {
                         width: double.infinity,
                         child: ElevatedButton(
                           onPressed: () {
-                            Navigator.of(context).push(MaterialPageRoute(
-                                builder: (context) => const signupScreen()));
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => const signupScreen(),
+                              ),
+                            );
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.green[50],
@@ -137,12 +146,9 @@ class _FirstScreenState extends State<FirstScreen> {
                       const Text(
                         "By signing up, you agree to our Terms. See how we use your data in our Privacy Policy.",
                         textAlign: TextAlign.center,
-                        style: TextStyle(
-                          color: Colors.white70,
-                          fontSize: 12,
-                        ),
+                        style: TextStyle(color: Colors.white70, fontSize: 12),
                       ),
-                      SizedBox(height: 20)
+                      SizedBox(height: 20),
                     ],
                   ),
                 ],
