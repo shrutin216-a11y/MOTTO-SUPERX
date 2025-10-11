@@ -17,33 +17,54 @@ class BottomNavigationWidget extends StatefulWidget {
 
 class _BottomNavigationWidgetState extends State<BottomNavigationWidget> {
   int currentSelectedIndex = 0;
+   
+
+  void resetToHome() {
+    if (currentSelectedIndex != 0) {
+      setState(() {
+        currentSelectedIndex = 0;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: pages(currentSelectedIndex),
-      bottomNavigationBar: StylishBottomBar(
-        currentIndex: currentSelectedIndex,
-        onTap: (value) {
-          log("Index: $value");
-          setState(() {
-            currentSelectedIndex = value;
-          });
-        },
-        items: [
-          _bottomBarItem(Icons.public_sharp, 0, label: "Explore"),
-          _bottomBarItem(Icons.favorite_outline, 1,
-              selectedIcon: Icons.favorite, label: "Favourites"),
-          _bottomBarItem(Icons.navigation_outlined, 2,
-              selectedIcon: Icons.alt_route_rounded, label: "Start Trip"),
-          _bottomBarItem(CupertinoIcons.chat_bubble_2_fill, 3,
-              selectedIcon: CupertinoIcons.chat_bubble_2_fill, label: "Chat"),
-          _bottomBarItem(Icons.account_circle_outlined, 4,
-              selectedIcon: Icons.account_circle_rounded, label: "Profile"),
-        ],
-        option: AnimatedBarOptions(
-          barAnimation: BarAnimation.fade,
-          iconStyle: IconStyle.Default,
+    return PopScope(
+  onPopInvokedWithResult: (didPop, _) {
+    if (currentSelectedIndex != 0) {
+      setState(() {
+        currentSelectedIndex = 0; // Go to first tab
+      });
+      // Don't call Navigator.pop(), so it stays in app
+    } else {
+      Navigator.of(context).pop(); // Exit app if already on first tab
+    }
+  },
+      child: Scaffold(
+        body: pages(currentSelectedIndex),
+        bottomNavigationBar: StylishBottomBar(
+          currentIndex: currentSelectedIndex,
+          onTap: (value) {
+            log("Index: $value");
+            setState(() {
+              currentSelectedIndex = value;
+            });
+          },
+          items: [
+            _bottomBarItem(Icons.public_sharp, 0, label: "Explore"),
+            _bottomBarItem(Icons.favorite_outline, 1,
+                selectedIcon: Icons.favorite, label: "Favourites"),
+            _bottomBarItem(Icons.navigation_outlined, 2,
+                selectedIcon: Icons.alt_route_rounded, label: "Start Trip"),
+            _bottomBarItem(CupertinoIcons.chat_bubble_2_fill, 3,
+                selectedIcon: CupertinoIcons.chat_bubble_2_fill, label: "Chat"),
+            _bottomBarItem(Icons.account_circle_outlined, 4,
+                selectedIcon: Icons.account_circle_rounded, label: "Profile"),
+          ],
+          option: AnimatedBarOptions(
+            barAnimation: BarAnimation.fade,
+            iconStyle: IconStyle.Default,
+          ),
         ),
       ),
     );

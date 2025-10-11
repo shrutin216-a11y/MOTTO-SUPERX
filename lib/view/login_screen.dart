@@ -142,11 +142,12 @@ class _LoginScreenState extends State<LoginScreen> {
                           emailController.clear();
                           passwordController.clear();
 
-                          Navigator.of(context).pushReplacement(
+                          Navigator.of(context).pushAndRemoveUntil(
                             MaterialPageRoute(
                               builder: (context) =>
                                   const BottomNavigationWidget(),
                             ),
+                            (route) => false,
                           );
                         } on FirebaseAuthException catch (error) {
                           CustomSnackbar().showCustomSnackBar(
