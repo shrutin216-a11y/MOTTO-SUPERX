@@ -9,7 +9,7 @@ void main() {
   Firebase.initializeApp(
     options: FirebaseOptions(
       apiKey: "AIzaSyAlE7itPYjgoluoyF_Ihq69eNEa1y0E0f8",
-      appId: "1:251210101725:android:989ee2f705690479f13c34",    
+      appId: "1:251210101725:android:989ee2f705690479f13c34",
       messagingSenderId: "251210101725",
       projectId: "project1-c5126",
     ),
@@ -23,6 +23,9 @@ class MainApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      themeMode: ThemeMode.system,
+
+      title: "MOTTO",
       theme: ThemeData(textTheme: GoogleFonts.interTextTheme()),
       debugShowCheckedModeBanner: false,
       home: Scaffold(body: SplashScreen()),
