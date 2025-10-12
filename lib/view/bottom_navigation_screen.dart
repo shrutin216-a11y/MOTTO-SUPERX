@@ -6,6 +6,7 @@ import 'package:motto_app/view/Home_screen.dart';
 import 'package:motto_app/view/Favourites.dart';
 import 'package:motto_app/view/StartTrip.dart';
 import 'package:motto_app/view/chat.dart';
+import 'package:flutter/services.dart';
 import 'package:motto_app/view/profile_screen.dart';
 
 class BottomNavigationWidget extends StatefulWidget {
@@ -17,7 +18,6 @@ class BottomNavigationWidget extends StatefulWidget {
 
 class _BottomNavigationWidgetState extends State<BottomNavigationWidget> {
   int currentSelectedIndex = 0;
-   
 
   void resetToHome() {
     if (currentSelectedIndex != 0) {
@@ -30,16 +30,19 @@ class _BottomNavigationWidgetState extends State<BottomNavigationWidget> {
   @override
   Widget build(BuildContext context) {
     return PopScope(
-  onPopInvokedWithResult: (didPop, _) {
-    if (currentSelectedIndex != 0) {
-      setState(() {
-        currentSelectedIndex = 0; // Go to first tab
-      });
-      // Don't call Navigator.pop(), so it stays in app
-    } else {
-      Navigator.of(context).pop(); // Exit app if already on first tab
-    }
-  },
+      canPop: false, // we'll handle back manually
+      onPopInvokedWithResult: (didPop, _) {
+        // ✅ If NOT on Home → Go to Home
+        if (currentSelectedIndex != 0) {
+          setState(() {
+            currentSelectedIndex = 0;
+          });
+          return;
+        }
+
+        // ✅ If already on Home → Exit app cleanly
+        SystemNavigator.pop();
+      },
       child: Scaffold(
         body: pages(currentSelectedIndex),
         bottomNavigationBar: StylishBottomBar(
@@ -52,14 +55,30 @@ class _BottomNavigationWidgetState extends State<BottomNavigationWidget> {
           },
           items: [
             _bottomBarItem(Icons.public_sharp, 0, label: "Explore"),
-            _bottomBarItem(Icons.favorite_outline, 1,
-                selectedIcon: Icons.favorite, label: "Favourites"),
-            _bottomBarItem(Icons.navigation_outlined, 2,
-                selectedIcon: Icons.alt_route_rounded, label: "Start Trip"),
-            _bottomBarItem(CupertinoIcons.chat_bubble_2_fill, 3,
-                selectedIcon: CupertinoIcons.chat_bubble_2_fill, label: "Chat"),
-            _bottomBarItem(Icons.account_circle_outlined, 4,
-                selectedIcon: Icons.account_circle_rounded, label: "Profile"),
+            _bottomBarItem(
+              Icons.favorite_outline,
+              1,
+              selectedIcon: Icons.favorite,
+              label: "Favourites",
+            ),
+            _bottomBarItem(
+              Icons.navigation_outlined,
+              2,
+              selectedIcon: Icons.alt_route_rounded,
+              label: "Start Trip",
+            ),
+            _bottomBarItem(
+              CupertinoIcons.chat_bubble_2_fill,
+              3,
+              selectedIcon: CupertinoIcons.chat_bubble_2_fill,
+              label: "Chat",
+            ),
+            _bottomBarItem(
+              Icons.account_circle_outlined,
+              4,
+              selectedIcon: Icons.account_circle_rounded,
+              label: "Profile",
+            ),
           ],
           option: AnimatedBarOptions(
             barAnimation: BarAnimation.fade,
@@ -71,8 +90,12 @@ class _BottomNavigationWidgetState extends State<BottomNavigationWidget> {
   }
 
   // 🌊 Animated Bottom Bar Item
-  BottomBarItem _bottomBarItem(IconData icon, int index,
-      {IconData? selectedIcon, String? label}) {
+  BottomBarItem _bottomBarItem(
+    IconData icon,
+    int index, {
+    IconData? selectedIcon,
+    String? label,
+  }) {
     bool isSelected = currentSelectedIndex == index;
 
     return BottomBarItem(

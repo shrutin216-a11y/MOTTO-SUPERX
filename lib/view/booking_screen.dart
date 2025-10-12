@@ -35,8 +35,10 @@ class _BookingScreenState extends State<BookingScreen>
   @override
   void initState() {
     super.initState();
-    _controller =
-        AnimationController(vsync: this, duration: const Duration(seconds: 1));
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 1),
+    );
     _fadeAnim = CurvedAnimation(parent: _controller, curve: Curves.easeInOut);
     _controller.forward();
   }
@@ -75,14 +77,20 @@ class _BookingScreenState extends State<BookingScreen>
           Positioned(
             top: 50,
             left: 30,
-            child: Icon(Icons.flight_takeoff,
-                color: Colors.white.withOpacity(0.3), size: 70),
+            child: Icon(
+              Icons.flight_takeoff,
+              color: Colors.white.withOpacity(0.3),
+              size: 70,
+            ),
           ),
           Positioned(
             right: 40,
             top: 90,
-            child: Icon(Icons.location_on,
-                color: Colors.white.withOpacity(0.2), size: 60),
+            child: Icon(
+              Icons.location_on,
+              color: Colors.white.withOpacity(0.2),
+              size: 60,
+            ),
           ),
 
           // 📋 Content layout
@@ -151,8 +159,9 @@ class _BookingScreenState extends State<BookingScreen>
                                     items: _passCount,
                                     decoration: CustomDropdownDecoration(
                                       closedFillColor: Colors.grey.shade50,
-                                      closedBorderRadius:
-                                          BorderRadius.circular(12),
+                                      closedBorderRadius: BorderRadius.circular(
+                                        12,
+                                      ),
                                     ),
                                     onChanged: (value) =>
                                         log('Traveller count: $value'),
@@ -161,35 +170,43 @@ class _BookingScreenState extends State<BookingScreen>
                                 const SizedBox(height: 18),
 
                                 buildLabel("Passenger Name"),
-                                buildAnimated(buildTextField(
-                                  nameController,
-                                  "Enter Full Name",
-                                  icon: Icons.person,
-                                )),
+                                buildAnimated(
+                                  buildTextField(
+                                    nameController,
+                                    "Enter Full Name",
+                                    icon: Icons.person,
+                                  ),
+                                ),
                                 const SizedBox(height: 18),
 
                                 buildLabel("Contact Number"),
-                                buildAnimated(buildTextField(
-                                  contactController,
-                                  "Enter Mobile Number",
-                                  icon: Icons.phone,
-                                )),
+                                buildAnimated(
+                                  buildTextField(
+                                    contactController,
+                                    "Enter Mobile Number",
+                                    icon: Icons.phone,
+                                  ),
+                                ),
                                 const SizedBox(height: 18),
 
                                 buildLabel("Email"),
-                                buildAnimated(buildTextField(
-                                  emailController,
-                                  "Enter Email Address",
-                                  icon: Icons.email_outlined,
-                                )),
+                                buildAnimated(
+                                  buildTextField(
+                                    emailController,
+                                    "Enter Email Address",
+                                    icon: Icons.email_outlined,
+                                  ),
+                                ),
                                 const SizedBox(height: 18),
 
                                 buildLabel("Age"),
-                                buildAnimated(buildTextField(
-                                  ageController,
-                                  "Enter Age",
-                                  icon: Icons.cake_outlined,
-                                )),
+                                buildAnimated(
+                                  buildTextField(
+                                    ageController,
+                                    "Enter Age",
+                                    icon: Icons.cake_outlined,
+                                  ),
+                                ),
                                 const SizedBox(height: 18),
 
                                 buildLabel("Gender"),
@@ -199,11 +216,11 @@ class _BookingScreenState extends State<BookingScreen>
                                     items: _passGender,
                                     decoration: CustomDropdownDecoration(
                                       closedFillColor: Colors.grey.shade50,
-                                      closedBorderRadius:
-                                          BorderRadius.circular(12),
+                                      closedBorderRadius: BorderRadius.circular(
+                                        12,
+                                      ),
                                     ),
-                                    onChanged: (value) =>
-                                        log('Gender: $value'),
+                                    onChanged: (value) => log('Gender: $value'),
                                   ),
                                 ),
                                 const SizedBox(height: 18),
@@ -215,8 +232,9 @@ class _BookingScreenState extends State<BookingScreen>
                                     items: _passId,
                                     decoration: CustomDropdownDecoration(
                                       closedFillColor: Colors.grey.shade50,
-                                      closedBorderRadius:
-                                          BorderRadius.circular(12),
+                                      closedBorderRadius: BorderRadius.circular(
+                                        12,
+                                      ),
                                     ),
                                     onChanged: (value) =>
                                         log('ID Type: $value'),
@@ -225,11 +243,13 @@ class _BookingScreenState extends State<BookingScreen>
                                 const SizedBox(height: 18),
 
                                 buildLabel("ID Number"),
-                                buildAnimated(buildTextField(
-                                  idNumController,
-                                  "Enter ID Number",
-                                  icon: Icons.credit_card,
-                                )),
+                                buildAnimated(
+                                  buildTextField(
+                                    idNumController,
+                                    "Enter ID Number",
+                                    icon: Icons.credit_card,
+                                  ),
+                                ),
                                 const SizedBox(height: 25),
 
                                 // ✅ Buttons Row
@@ -244,16 +264,20 @@ class _BookingScreenState extends State<BookingScreen>
                                           backgroundColor: Colors.redAccent,
                                           minimumSize: const Size(0, 55),
                                           shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(14),
+                                            borderRadius: BorderRadius.circular(
+                                              14,
+                                            ),
                                           ),
                                           elevation: 4,
                                         ),
-                                        child: Text("Cancel",
-                                            style: GoogleFonts.poppins(
-                                                color: Colors.white,
-                                                fontWeight: FontWeight.w600,
-                                                fontSize: 18)),
+                                        child: Text(
+                                          "Cancel",
+                                          style: GoogleFonts.poppins(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 18,
+                                          ),
+                                        ),
                                       ),
                                     ),
                                     const SizedBox(width: 15),
@@ -262,18 +286,16 @@ class _BookingScreenState extends State<BookingScreen>
                                         onTap: () {
                                           if (nameController.text.isNotEmpty &&
                                               contactController
-                                                  .text.isNotEmpty &&
-                                              emailController
-                                                  .text.isNotEmpty &&
-                                              ageController
-                                                  .text.isNotEmpty &&
-                                              idNumController
-                                                  .text.isNotEmpty) {
+                                                  .text
+                                                  .isNotEmpty &&
+                                              emailController.text.isNotEmpty &&
+                                              ageController.text.isNotEmpty &&
+                                              idNumController.text.isNotEmpty) {
                                             Navigator.push(
                                               context,
                                               MaterialPageRoute(
-                                                  builder: (_) =>
-                                                      SubmitPage()),
+                                                builder: (_) => SubmitPage(),
+                                              ),
                                             );
                                           } else {
                                             floatingSnackBar(
@@ -282,10 +304,12 @@ class _BookingScreenState extends State<BookingScreen>
                                               context: context,
                                               textColor: Colors.black,
                                               textStyle: const TextStyle(
-                                                  color: Colors.red,
-                                                  fontWeight: FontWeight.bold),
-                                              duration:
-                                                  const Duration(seconds: 2),
+                                                color: Colors.red,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                              duration: const Duration(
+                                                seconds: 2,
+                                              ),
                                               backgroundColor: Colors.white,
                                             );
                                           }
@@ -296,28 +320,33 @@ class _BookingScreenState extends State<BookingScreen>
                                             gradient: const LinearGradient(
                                               colors: [
                                                 Color(0xFF009688),
-                                                Color(0xFF4DB6AC)
+                                                Color(0xFF4DB6AC),
                                               ],
                                               begin: Alignment.centerLeft,
                                               end: Alignment.centerRight,
                                             ),
-                                            borderRadius:
-                                                BorderRadius.circular(14),
+                                            borderRadius: BorderRadius.circular(
+                                              14,
+                                            ),
                                             boxShadow: [
                                               BoxShadow(
-                                                color: Colors.teal
-                                                    .withOpacity(0.3),
+                                                color: Colors.teal.withOpacity(
+                                                  0.3,
+                                                ),
                                                 blurRadius: 10,
                                                 offset: const Offset(0, 4),
                                               ),
                                             ],
                                           ),
                                           child: Center(
-                                            child: Text("Submit",
-                                                style: GoogleFonts.poppins(
-                                                    color: Colors.white,
-                                                    fontWeight: FontWeight.w600,
-                                                    fontSize: 18)),
+                                            child: Text(
+                                              "Submit",
+                                              style: GoogleFonts.poppins(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.w600,
+                                                fontSize: 18,
+                                              ),
+                                            ),
                                           ),
                                         ),
                                       ),
@@ -363,8 +392,11 @@ class _BookingScreenState extends State<BookingScreen>
   }
 
   // 🧾 Custom TextField
-  Widget buildTextField(TextEditingController controller, String hint,
-      {IconData? icon}) {
+  Widget buildTextField(
+    TextEditingController controller,
+    String hint, {
+    IconData? icon,
+  }) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.grey.shade50,
@@ -381,19 +413,24 @@ class _BookingScreenState extends State<BookingScreen>
         controller: controller,
         style: GoogleFonts.poppins(fontSize: 16),
         decoration: InputDecoration(
-          prefixIcon:
-              icon != null ? Icon(icon, color: Colors.teal.shade400) : null,
+          prefixIcon: icon != null
+              ? Icon(icon, color: Colors.teal.shade400)
+              : null,
           hintText: hint,
-          hintStyle:
-              GoogleFonts.poppins(color: Colors.grey.shade500, fontSize: 15),
+          hintStyle: GoogleFonts.poppins(
+            color: Colors.grey.shade500,
+            fontSize: 15,
+          ),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(14),
             borderSide: BorderSide.none,
           ),
           filled: true,
           fillColor: Colors.grey.shade50,
-          contentPadding:
-              const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 18,
+            vertical: 14,
+          ),
         ),
       ),
     );

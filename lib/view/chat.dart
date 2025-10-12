@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key});
@@ -12,9 +13,16 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(leading: 
-       Text("Chats", style: TextStyle(fontSize: 30))),
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        title: Text(
+          "Chat Screen",
+          style: GoogleFonts.quicksand(
+            fontWeight: FontWeight.w500,
+            fontSize: 28,
+          ),
+        ),
+      ),
     );
-    
   }
 }
