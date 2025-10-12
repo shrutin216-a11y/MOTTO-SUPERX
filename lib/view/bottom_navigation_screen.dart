@@ -1,6 +1,7 @@
 import 'dart:developer';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:motto_app/view/MypostedTrips.dart';
 import 'package:stylish_bottom_bar/stylish_bottom_bar.dart';
 import 'package:motto_app/view/Home_screen.dart';
 import 'package:motto_app/view/Favourites.dart';
@@ -52,12 +53,13 @@ class _BottomNavigationWidgetState extends State<BottomNavigationWidget> {
           },
           items: [
             _bottomBarItem(Icons.public_sharp, 0, label: "Explore"),
-            _bottomBarItem(Icons.favorite_outline, 1,
-                selectedIcon: Icons.favorite, label: "Favourites"),
+            _bottomBarItem(CupertinoIcons.chat_bubble_2_fill, 1,
+                selectedIcon: CupertinoIcons.chat_bubble_2_fill, label: "Chat"),
             _bottomBarItem(Icons.navigation_outlined, 2,
                 selectedIcon: Icons.alt_route_rounded, label: "Start Trip"),
-            _bottomBarItem(CupertinoIcons.chat_bubble_2_fill, 3,
-                selectedIcon: CupertinoIcons.chat_bubble_2_fill, label: "Chat"),
+            _bottomBarItem(Icons.terrain_rounded, 3,
+                selectedIcon: Icons.terrain_rounded, label: "My Trips"),
+            
             _bottomBarItem(Icons.account_circle_outlined, 4,
                 selectedIcon: Icons.account_circle_rounded, label: "Profile"),
           ],
@@ -168,11 +170,11 @@ class _BottomNavigationWidgetState extends State<BottomNavigationWidget> {
       case 0:
         return const HomeScreen(); // Explore Page
       case 1:
-        return const Favourites(); // Favourites Page
+        return const ChatScreen(); // Favourites Page
       case 2:
         return const StartTrip(); // Start Trip Page
       case 3:
-        return const ChatScreen(); // Chat Page
+        return const MypostedTrips(); // Chat Page
       case 4:
         return const ProfileScreen(); // Profile Page
       default:
