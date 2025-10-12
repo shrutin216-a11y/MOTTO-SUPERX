@@ -5,11 +5,11 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:motto_app/controller/shared_preference.dart';
 import 'package:motto_app/view/Favourites.dart';
-import 'package:motto_app/view/Reviews.dart';
+import 'package:motto_app/view/MyBookings.dart';
 import 'package:motto_app/view/StartTrip.dart';
 import 'package:motto_app/view/bottom_navigation_screen.dart';
 import 'package:motto_app/view/edit.dart';
-import 'package:motto_app/view/history.dart';
+import 'package:motto_app/view/MypostedTrips.dart';
 import 'package:motto_app/view/login_screen.dart';
 import 'package:motto_app/view/settings.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -245,7 +245,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  "Traveler Name",
+                                  userController.name,
                                   style: GoogleFonts.poppins(
                                     fontSize: 22,
                                     fontWeight: FontWeight.bold,
@@ -270,7 +270,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                                     ),
                                     const SizedBox(width: 6),
                                     Text(
-                                      "+91 95634 67567",
+                                      userController.email,
                                       style: GoogleFonts.poppins(
                                         fontSize: 15,
                                         color: Colors.black87,
@@ -350,19 +350,19 @@ class _ProfileScreenState extends State<ProfileScreen>
                               );
                             },
                           ),
-                          _buildMenuItem(Icons.history, "History", context, () {
+                          _buildMenuItem(Icons.map_rounded, "My Posted Trips", context, () {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => const HistoryScreen(),
+                                builder: (context) => const MypostedTrips(),
                               ),
                             );
                           }),
-                          _buildMenuItem(Icons.reviews, "Reviews", context, () {
+                          _buildMenuItem(Icons.reviews, "My bookings", context, () {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => Reviews(),
+                                builder: (context) => MyBookings(),
                               ),
                             );
                           }),

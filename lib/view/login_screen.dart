@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:motto_app/view/bottom_navigation_screen.dart';
@@ -114,13 +115,6 @@ class _LoginScreenState extends State<LoginScreen> {
                   width: double.infinity,
                   child: ElevatedButton(
                     onPressed: () async {
-                      Map<String, dynamic> data = {
-                        'email': emailController.text.trim(),
-                        'password': passwordController.text.trim(),
-                        "LoginFlag": true,
-                      };
-                      userController.setSharedPrefData(data);
-
                       if (emailController.text.trim().isNotEmpty &&
                           passwordController.text.trim().isNotEmpty) {
                         try {
@@ -132,6 +126,31 @@ class _LoginScreenState extends State<LoginScreen> {
 
                           log("User Credentials: $userCredentialObj");
                           log("User Id: ${userCredentialObj.user!.uid}");
+
+                          QuerySnapshot<Map<String, dynamic>> response =
+                              await FirebaseFirestore.instance
+                                  .collection("userData")
+                                  .get();
+
+                          for (int i = 0; i < response.docs.length; i++) {
+                            log("Name ${response.docs[i]['name']}");
+
+                            if (emailController.text ==
+                                response.docs[i]['email']) {
+                              Map userData = {
+                                "name": response.docs[i]['name'],
+                                "email": response.docs[i]['email'],
+                                "mob": response.docs[i]['mob'],
+                                "city": response.docs[i]['city'],
+
+                                "isLogin": true,
+                              };
+
+                              log("USER DATA : $userData");
+
+                              await userController.setSharedPrefData(userData);
+                            }
+                          }
 
                           CustomSnackbar().showCustomSnackBar(
                             context,

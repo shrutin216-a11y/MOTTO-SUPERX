@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:motto_app/view/Favourites.dart';
 import 'package:motto_app/view/card_Screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -82,6 +83,18 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ),
                               ],
                             ),
+                            Spacer(),
+                            GestureDetector(
+                              onTap: (){
+                                Navigator.of(context).push(MaterialPageRoute(
+                                  builder: (context){
+                                    return Favourites();
+                                  }));
+                              },
+                              child: Icon(
+                                Icons.favorite_outline_outlined,color: Colors.white)),
+                            SizedBox(width: 8),
+                            Icon(Icons.notifications,color: Colors.white)
                           ],
                         ),
                         const SizedBox(height: 12),

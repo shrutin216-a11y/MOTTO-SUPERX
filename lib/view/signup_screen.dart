@@ -1,7 +1,10 @@
 import "dart:developer";
+import "package:cloud_firestore/cloud_firestore.dart";
 import "package:firebase_auth/firebase_auth.dart";
 import "package:flutter/material.dart";
+import "package:motto_app/controller/shared_preference.dart";
 import "package:motto_app/controller/snackbar.dart";
+import "package:motto_app/model/Usermodel.dart";
 
 class signupScreen extends StatefulWidget {
   const signupScreen({super.key});
@@ -26,6 +29,8 @@ class _signupScreenState extends State<signupScreen>
   // Animation controller
   late AnimationController _animationController;
   late Animation<double> _fadeInAnimation;
+
+  UserController userController = UserController();
 
   @override
   void initState() {
@@ -231,6 +236,23 @@ class _signupScreenState extends State<signupScreen>
                             email: emailController.text.trim(),
                             password: passwordController.text.trim(),
                           );
+
+                      Usermodel usermodel = Usermodel(
+                        name: nameController.text,
+                        email: emailController.text,
+                        mob: phoneController.text,
+                        city: cityController.text,
+                      );
+
+                      await FirebaseFirestore.instance
+                          .collection("userData").doc(emailController.text).set({
+                             "name": nameController.text,
+                            "email": emailController.text,
+                            "mob": phoneController.text,
+                            "city": cityController.text,
+                          });
+                         
+
 
                       log("User Registered: ${userCredential.user?.email}");
                       CustomSnackbar().showCustomSnackBar(
