@@ -350,22 +350,32 @@ class _ProfileScreenState extends State<ProfileScreen>
                               );
                             },
                           ),
-                          _buildMenuItem(Icons.map_rounded, "My Posted Trips", context, () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const MypostedTrips(),
-                              ),
-                            );
-                          }),
-                          _buildMenuItem(Icons.reviews, "My bookings", context, () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => MyBookings(),
-                              ),
-                            );
-                          }),
+                          _buildMenuItem(
+                            Icons.map_rounded,
+                            "My Posted Trips",
+                            context,
+                            () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const MypostedTrips(),
+                                ),
+                              );
+                            },
+                          ),
+                          _buildMenuItem(
+                            Icons.reviews,
+                            "My bookings",
+                            context,
+                            () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => MyBookings(),
+                                ),
+                              );
+                            },
+                          ),
                           _buildMenuItem(
                             Icons.feedback_outlined,
                             "Feedback",
