@@ -63,7 +63,7 @@ CREATE TABLE postedtrip (
     await db.delete("postedtrip", where: "id=?", whereArgs: [id]);
   }
 
-  // 🔄 SYNC TO FIREBASE (with image upload)
+  // 🔄 SYNC TO FIREBASE (with multiple image upload fix)
   Future<void> syncToFirebase(String userEmail) async {
     final db = await createDB();
     List<Map> unsyncedTrips = await db.query(
@@ -73,17 +73,24 @@ CREATE TABLE postedtrip (
     );
 
     for (var trip in unsyncedTrips) {
-      List<String> imagePaths = (trip['imagePath'] ?? '').toString().split(',');
+      // ✅ Properly split and clean image paths
+      List<String> imagePaths = (trip['imagePath'] ?? '')
+          .toString()
+          .split(',')
+          .map((e) => e.trim())
+          .where((e) => e.isNotEmpty)
+          .toList();
 
-      List<String> imageUrls = []; // Initialize once per trip
+      List<String> imageUrls = [];
 
+      // ✅ Upload all images sequentially
       for (var path in imagePaths) {
         File file = File(path);
 
         if (!file.existsSync()) continue; // skip missing files
 
         String fileName =
-            '${DateTime.now().millisecondsSinceEpoch}_${file.path.split('/').last}';
+            '${DateTime.now().millisecondsSinceEpoch}_${basename(file.path)}';
         var snapshot = await FirebaseStorage.instance
             .ref('tripImages/$fileName')
             .putFile(file);
@@ -91,11 +98,19 @@ CREATE TABLE postedtrip (
         imageUrls.add(downloadUrl);
       }
 
-      // Save all images in one Firestore document
+      // ✅ Destination key formatting (safe Firestore subcollection name)
+      String destinationKey = trip['destination']
+          .toString()
+          .trim()
+          .replaceAll(RegExp(r'[^a-zA-Z0-9_]'), '_')
+          .toLowerCase();
+
+      // ✅ Save all images in one Firestore document
       await FirebaseFirestore.instance
           .collection('postedTrips')
           .doc(userEmail)
-          .set({
+          .collection(destinationKey)
+          .add({
             'destination': trip['destination'],
             'groupSize': trip['groupSize'],
             'startDate': trip['startDate'],
@@ -106,10 +121,11 @@ CREATE TABLE postedtrip (
             'maxBudget': trip['maxBudget'],
             'details': trip['details'],
             'activities': trip['activities'],
-            'images': imageUrls, // all uploaded images
+            'images': imageUrls, // ✅ all uploaded images now stored
             'createdAt': FieldValue.serverTimestamp(),
           });
 
+      // ✅ Mark trip as synced
       await db.update(
         "postedtrip",
         {'synced': 1},
