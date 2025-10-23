@@ -85,16 +85,22 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                             Spacer(),
                             GestureDetector(
-                              onTap: (){
-                                Navigator.of(context).push(MaterialPageRoute(
-                                  builder: (context){
-                                    return Favourites();
-                                  }));
+                              onTap: () {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (context) {
+                                      return Favourites();
+                                    },
+                                  ),
+                                );
                               },
                               child: Icon(
-                                Icons.favorite_outline_outlined,color: Colors.white)),
+                                Icons.favorite_outline_outlined,
+                                color: Colors.white,
+                              ),
+                            ),
                             SizedBox(width: 8),
-                            Icon(Icons.notifications,color: Colors.white)
+                            Icon(Icons.notifications, color: Colors.white),
                           ],
                         ),
                         const SizedBox(height: 12),
@@ -167,24 +173,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
 
-          // 🪄 FILTER CHIPS
-          // SliverToBoxAdapter(
-          //   child: Container(
-          //     color: Colors.white,
-          //     padding: const EdgeInsets.all(12),
-          //     child: Wrap(
-          //       spacing: 8,
-          //       runSpacing: 8,
-          //       children: [
-          //         _buildFilterChip('Filters', Icons.tune),
-          //         _buildFilterChip('Under 30 mins', null),
-          //         _buildFilterChip('Under ₹250', null),
-          //         _buildFilterChip('Loved by Pune', null),
-          //       ],
-          //     ),
-          //   ),
-          // ),
-
+        
           // 🧾 Section title
           SliverToBoxAdapter(
             child: Container(

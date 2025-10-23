@@ -12,14 +12,14 @@ class PlaceSearchController {
       TextEditingController();
   static final ValueNotifier<List<dynamic>> destinationSuggestions =
       ValueNotifier<List<dynamic>>([]);
-  static String _destinationSessionToken = _uuid.v4();
+  static final String _destinationSessionToken = _uuid.v4();
 
   // Boarding Controller
   static final TextEditingController boardingController =
       TextEditingController();
   static final ValueNotifier<List<dynamic>> boardingSuggestions =
       ValueNotifier<List<dynamic>>([]);
-  static String _boardingSessionToken = _uuid.v4();
+  static final String _boardingSessionToken = _uuid.v4();
 
   // ✅ Your Google Places API Key
   static const String _apiKey =

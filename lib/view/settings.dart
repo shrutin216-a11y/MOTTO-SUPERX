@@ -251,7 +251,7 @@ class _SettingScreenState extends State<SettingScreen>
               ),
             ),
           ),
-          Switch(activeColor: Colors.teal, value: value, onChanged: onChanged),
+          Switch(activeThumbColor: Colors.teal, value: value, onChanged: onChanged),
         ],
       ),
     );
