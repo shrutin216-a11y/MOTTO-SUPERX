@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:motto_app/view/splash_screen.dart';
 
-/////GIT SETUP DONE
+
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   Firebase.initializeApp(
@@ -22,7 +22,7 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return MaterialApp( 
       themeMode: ThemeMode.system,
 
       title: "MOTTO",

@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:confirmation_success/confirmation_success.dart';
-import 'package:motto_app/view/Home_screen.dart';
+
 import 'package:motto_app/view/bottom_navigation_screen.dart'; // example package
 
 class SubmitTrip extends StatefulWidget {
+  const SubmitTrip({super.key});
+
   @override
   State<SubmitTrip> createState() => _SubmitTripState();
 }
 
 class _SubmitTripState extends State<SubmitTrip> {
+  @override
   void initState() {
     super.initState();
     Future.delayed(const Duration(seconds: 3), () {

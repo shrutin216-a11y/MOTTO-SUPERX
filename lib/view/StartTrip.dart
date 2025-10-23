@@ -5,8 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:motto_app/controller/placesApi_controller.dart';
-import 'package:motto_app/controller/postTrip_database.dart';
+
 import 'package:motto_app/controller/shared_preference.dart';
+import 'package:motto_app/model/postTrip_model.dart';
 import 'package:motto_app/view/bottom_navigation_screen.dart';
 
 class StartTrip extends StatefulWidget {
@@ -128,25 +129,23 @@ class _StartTripScreenState extends State<StartTrip>
           .toList();
 
       // Prepare trip object for SQLite
-      Map<String, dynamic> trip = {
-        "destination": formData["destination"],
-        "groupSize": formData["groupSize"],
-        "startDate": formData["startDate"],
-        "endDate": formData["endDate"],
-        "boardingPoint": formData["boardingPoint"],
-        "mode": (formData["mode"] as List<String>).join(", "),
-        "minBudget": formData["minBudget"],
-        "maxBudget": formData["maxBudget"],
-        "details": formData["details"],
-        "activities": (formData["activities"] as List<String>).join(", "),
-        "imagePath": imagePaths.join(
-          ", ",
-        ), // store multiple images as comma-separated
-        "synced": 0,
-      };
+      TripPostModel trip = TripPostModel(
+        destination: formData["destination"],
+        groupSize: formData["groupSize"],
+        startDate: formData["startDate"],
+        endDate: formData["endDate"],
+        boardingPoint: formData["boardingPoint"],
+        mode: (formData["mode"] as List<String>).join(", "),
+        minBudget: formData["minBudget"],
+        maxBudget: formData["maxBudget"],
+        details: formData["details"],
+        activities: (formData["activities"] as List<String>).join(", "),
+        imagePath: imagePaths.join(", "),
+        synced: 0,
+      );
 
       // Insert into local DB
-      await TripPostDatabase().insertPostedTrip(trip);
+
       log("DATA ADDED TO SQFLITE");
 
       // Optional: sync immediately to Firebase
@@ -157,12 +156,13 @@ class _StartTripScreenState extends State<StartTrip>
       final User? user = FirebaseAuth.instance.currentUser;
       if (user != null && user.email != null) {
         String currentUserEmail = user.email!;
+        String currentUserId = user.uid;
 
-        await TripPostDatabase().syncToFirebase(currentUserEmail);
         log("DATA ADDED TO Firebase");
       } else {
         print("User not logged in, cannot sync trips");
       }
+      //controller.clear();
 
       // Show success and navigate back
       ScaffoldMessenger.of(context).showSnackBar(
@@ -217,7 +217,7 @@ class _StartTripScreenState extends State<StartTrip>
       case "mode":
       case "activities":
         if ((formData[key] as List).isEmpty) {
-          _showSnack("Please select at least one ${key}");
+          _showSnack("Please select at least one $key");
           return false;
         }
         break;
@@ -377,10 +377,11 @@ class _StartTripScreenState extends State<StartTrip>
               lastDate: DateTime(2030),
               initialDate: DateTime.now(),
             );
-            if (date != null)
+            if (date != null) {
               setState(
                 () => formData[d] = "${date.day}/${date.month}/${date.year}",
               );
+            }
           },
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.teal.shade400,
@@ -476,10 +477,11 @@ class _StartTripScreenState extends State<StartTrip>
           final XFile? image = await _picker.pickImage(
             source: ImageSource.gallery,
           );
-          if (image != null && (formData["photos"] as List<File>).length < 4)
+          if (image != null && (formData["photos"] as List<File>).length < 4) {
             setState(
               () => (formData["photos"] as List<File>).add(File(image.path)),
             );
+          }
         },
       ),
       const SizedBox(height: 12),

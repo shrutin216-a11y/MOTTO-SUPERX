@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
-import 'package:motto_app/view/card_Screen.dart';
 
 class AppColors {
   static const bg = Color(0xFFF8F9FB);
