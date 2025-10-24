@@ -632,4 +632,49 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
       },
     );
   }
+
+  Widget _buildDetailItem(String label, dynamic value) {
+    String displayValue;
+
+    if (value == null) {
+      displayValue = 'N/A';
+    } else if (value is List) {
+      // Convert list to comma-separated string
+      displayValue = value.join(', ');
+    } else if (value is Map) {
+      // Convert map to readable format
+      displayValue = value.toString();
+    } else {
+      displayValue = value.toString();
+    }
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 120,
+            child: Text(
+              '$label:',
+              style: GoogleFonts.poppins(
+                fontSize: 14,
+                color: Colors.grey.shade600,
+              ),
+            ),
+          ),
+          Expanded(
+            child: Text(
+              displayValue,
+              style: GoogleFonts.poppins(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: Colors.black87,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
