@@ -6,10 +6,10 @@ import 'package:image_picker/image_picker.dart';
 import 'package:motto_app/controller/shared_preference.dart';
 import 'package:motto_app/view/Favourites.dart';
 import 'package:motto_app/view/MyBookings.dart';
+import 'package:motto_app/view/MypostedTrips.dart';
 import 'package:motto_app/view/StartTrip.dart';
 import 'package:motto_app/view/bottom_navigation_screen.dart';
 import 'package:motto_app/view/edit.dart';
-import 'package:motto_app/view/MypostedTrips.dart';
 import 'package:motto_app/view/login_screen.dart';
 import 'package:motto_app/view/settings.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -73,7 +73,7 @@ class _ProfileScreenState extends State<ProfileScreen>
       backgroundColor: Colors.teal[50],
       body: Stack(
         children: [
-          // 🌈 Gradient Header
+          //Gradient Header
           Container(
             height: 240,
             decoration: const BoxDecoration(
@@ -245,7 +245,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  userController.name,
+                                  "Traveler Name",
                                   style: GoogleFonts.poppins(
                                     fontSize: 22,
                                     fontWeight: FontWeight.bold,
@@ -270,7 +270,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                                     ),
                                     const SizedBox(width: 6),
                                     Text(
-                                      userController.email,
+                                      "+91 95634 67567",
                                       style: GoogleFonts.poppins(
                                         fontSize: 15,
                                         color: Colors.black87,
