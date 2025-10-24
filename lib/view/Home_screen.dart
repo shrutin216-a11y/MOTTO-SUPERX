@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:motto_app/view/Favourites.dart';
 import 'package:motto_app/view/card_Screen.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -30,7 +31,6 @@ class _HomeScreenState extends State<HomeScreen> {
           // 🌄 HEADER IMAGE + LOCATION + SEARCH BAR
           SliverAppBar(
             automaticallyImplyLeading: false,
-
             pinned: false,
             floating: false,
             expandedHeight: 260,
@@ -129,9 +129,8 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
 
           // 🧭 HORIZONTAL SCROLLABLE TABS
-          // 🧭 HORIZONTAL SCROLLABLE TABS (Pinned at top)
           SliverAppBar(
-            pinned: true, // 👈 This keeps it locked at top
+            pinned: true,
             backgroundColor: Colors.white,
             elevation: 2,
             automaticallyImplyLeading: false,
@@ -173,7 +172,6 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
 
-        
           // 🧾 Section title
           SliverToBoxAdapter(
             child: Container(
@@ -190,137 +188,204 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
 
-          // 🏔️ PLACE CARDS
+          // 🏔️ PLACE CARDS FROM FIREBASE
           SliverPadding(
             padding: const EdgeInsets.fromLTRB(12, 8, 12, 24),
-            sliver: SliverList.builder(
-              itemCount: 6,
-              itemBuilder: (context, index) {
-                return GestureDetector(
-                  onTap: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) {
-                        return CardScreen();
+            sliver: StreamBuilder<QuerySnapshot>(
+              stream: FirebaseFirestore.instance
+                  .collection('trips')
+                  .orderBy('createdAt', descending: true)
+                  .snapshots(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return SliverToBoxAdapter(
+                    child: Center(child: CircularProgressIndicator()),
+                  );
+                }
+                if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                  return SliverToBoxAdapter(
+                    child: Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(20),
+                        child: Text(
+                          "No trips available",
+                          style: TextStyle(color: Colors.grey),
+                        ),
+                      ),
+                    ),
+                  );
+                }
+
+                final trips = snapshot.data!.docs;
+
+                return SliverList(
+                  delegate: SliverChildBuilderDelegate((context, index) {
+                    final trip = trips[index];
+                    final tripData = trip.data() as Map<String, dynamic>;
+                    final photos =
+                        (tripData['photoPaths'] as List<dynamic>?)
+                            ?.map((e) => e.toString())
+                            .toList() ??
+                        [];
+                    final firstPhoto = photos.isNotEmpty ? photos[0] : '';
+
+                    return GestureDetector(
+                      onTap: () {
+                        // ✅ FIXED: Include document ID in tripData
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => CardScreen(
+                              tripData: {
+                                'id': trip.id, // ← Add document ID here
+                                ...tripData, // ← Spread all other trip data
+                              },
+                              tripId:
+                                  trip.id, // ← Also pass as separate parameter
+                            ),
+                          ),
+                        );
                       },
-                    ),
-                  ),
-                  child: Container(
-                    width: double.infinity,
-                    margin: const EdgeInsets.symmetric(vertical: 10),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(16),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.15),
-                          blurRadius: 10,
-                          spreadRadius: 2,
-                          offset: const Offset(0, 5),
+                      child: Container(
+                        width: double.infinity,
+                        margin: const EdgeInsets.symmetric(vertical: 10),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.15),
+                              blurRadius: 10,
+                              spreadRadius: 2,
+                              offset: const Offset(0, 5),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        ClipRRect(
-                          borderRadius: const BorderRadius.vertical(
-                            top: Radius.circular(16),
-                          ),
-                          child: Stack(
-                            children: [
-                              Image.network(
-                                "https://skyhookcontentful.imgix.net/6MPvB1nbHtL2AQbxMi2D7y/af0829fe9fc4733a754e15705d99d33d/pixabay-pehrlich-himalayas.jpg?auto=compress,format,enhance&crop=faces,center&fit=crop&ar=1:1&w=576px&ixlib=react-9.10.0",
-                                height: 200,
-                                width: double.infinity,
-                                fit: BoxFit.cover,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            ClipRRect(
+                              borderRadius: const BorderRadius.vertical(
+                                top: Radius.circular(16),
                               ),
-                              Positioned(
-                                top: 20,
-                                right: 12,
-                                child: Icon(
-                                  Icons.favorite_border_outlined,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 10,
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
+                              child: Stack(
                                 children: [
-                                  Text(
-                                    "Mount Fuji",
-                                    style: GoogleFonts.quicksand(
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  const Spacer(),
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 6,
-                                      vertical: 3,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: Colors.green.shade600,
-                                      borderRadius: BorderRadius.circular(6),
-                                    ),
-                                    child: const Icon(
-                                      Icons.flight,
+                                  firstPhoto.isNotEmpty
+                                      ? Image.network(
+                                          firstPhoto,
+                                          height: 200,
+                                          width: double.infinity,
+                                          fit: BoxFit.cover,
+                                          errorBuilder: (_, __, ___) =>
+                                              Container(
+                                                height: 200,
+                                                color: Colors.grey.shade300,
+                                                child: const Icon(
+                                                  Icons.broken_image,
+                                                  size: 80,
+                                                  color: Colors.grey,
+                                                ),
+                                              ),
+                                        )
+                                      : Container(
+                                          height: 200,
+                                          color: Colors.grey.shade300,
+                                          child: const Icon(
+                                            Icons.image,
+                                            size: 80,
+                                            color: Colors.grey,
+                                          ),
+                                        ),
+                                  Positioned(
+                                    top: 20,
+                                    right: 12,
+                                    child: Icon(
+                                      Icons.favorite_border_outlined,
                                       color: Colors.white,
-                                      size: 18,
                                     ),
                                   ),
                                 ],
                               ),
-                              const SizedBox(height: 6),
-                              Row(
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 10,
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  const Icon(
-                                    Icons.calendar_month_rounded,
-                                    size: 20,
-                                    color: Colors.grey,
+                                  Row(
+                                    children: [
+                                      Text(
+                                        tripData['destination'] ?? "Trip",
+                                        style: GoogleFonts.quicksand(
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      const Spacer(),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 6,
+                                          vertical: 3,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: Colors.green.shade600,
+                                          borderRadius: BorderRadius.circular(
+                                            6,
+                                          ),
+                                        ),
+                                        child: const Icon(
+                                          Icons.flight,
+                                          color: Colors.white,
+                                          size: 18,
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                  const SizedBox(width: 5),
-                                  Text(
-                                    "7 days  •  8 Nights",
-                                    style: GoogleFonts.quicksand(
-                                      fontSize: 13,
-                                      color: Colors.grey,
-                                    ),
-                                  ),
-                                  const Spacer(),
+                                  const SizedBox(height: 6),
                                   Row(
                                     children: [
                                       const Icon(
-                                        Icons.currency_rupee,
-                                        size: 16,
+                                        Icons.calendar_month_rounded,
+                                        size: 20,
+                                        color: Colors.grey,
                                       ),
+                                      const SizedBox(width: 5),
                                       Text(
-                                        "8000/person",
+                                        "${tripData['startDate'] ?? '-'} to ${tripData['endDate'] ?? '-'}",
                                         style: GoogleFonts.quicksand(
                                           fontSize: 13,
-                                          fontWeight: FontWeight.w600,
+                                          color: Colors.grey,
                                         ),
+                                      ),
+                                      const Spacer(),
+                                      Row(
+                                        children: [
+                                          const Icon(
+                                            Icons.currency_rupee,
+                                            size: 16,
+                                          ),
+                                          Text(
+                                            "${tripData['minBudget'] ?? '-'} - ${tripData['maxBudget'] ?? '-'} /person",
+                                            style: GoogleFonts.quicksand(
+                                              fontSize: 13,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ],
                                   ),
                                 ],
                               ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
-                  ),
+                      ),
+                    );
+                  }, childCount: trips.length),
                 );
               },
             ),
@@ -330,7 +395,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // helper for Filter chips
   Widget _buildFilterChip(String label, IconData? icon) {
     return Material(
       color: Colors.white,

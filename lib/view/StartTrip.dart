@@ -1,13 +1,17 @@
 import 'dart:developer';
 import 'dart:io';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:motto_app/controller/placesApi_controller.dart';
+import 'package:motto_app/controller/tripDatabase.dart';
 
 import 'package:motto_app/controller/shared_preference.dart';
-import 'package:motto_app/model/postTrip_model.dart';
+import 'package:motto_app/model/startTripModel.dart';
+
 import 'package:motto_app/view/bottom_navigation_screen.dart';
 
 class StartTrip extends StatefulWidget {
@@ -123,56 +127,79 @@ class _StartTripScreenState extends State<StartTrip>
         curve: Curves.easeInOut,
       );
     } else {
-      // Convert photos to paths for database
-      List<String> imagePaths = (formData["photos"] as List<File>)
-          .map((f) => f.path)
-          .toList();
+      // ✅ Get logged-in user
+      final user = FirebaseAuth.instance.currentUser;
 
-      // Prepare trip object for SQLite
-      TripPostModel trip = TripPostModel(
-        destination: formData["destination"],
-        groupSize: formData["groupSize"],
-        startDate: formData["startDate"],
-        endDate: formData["endDate"],
-        boardingPoint: formData["boardingPoint"],
-        mode: (formData["mode"] as List<String>).join(", "),
-        minBudget: formData["minBudget"],
-        maxBudget: formData["maxBudget"],
-        details: formData["details"],
-        activities: (formData["activities"] as List<String>).join(", "),
-        imagePath: imagePaths.join(", "),
-        synced: 0,
-      );
+      if (user != null) {
+        // ✅ Upload photos to Firebase Storage
+        List<File> localPhotos = List<File>.from(formData["photos"]);
+        List<String> uploadedPhotoUrls = [];
 
-      // Insert into local DB
+        for (File photo in localPhotos) {
+          String fileName = DateTime.now().millisecondsSinceEpoch.toString();
+          Reference ref = FirebaseStorage.instance.ref().child(
+            'trip_images/$fileName.jpg',
+          );
 
-      log("DATA ADDED TO SQFLITE");
+          UploadTask uploadTask = ref.putFile(photo);
+          TaskSnapshot snapshot = await uploadTask;
+          String downloadUrl = await snapshot.ref.getDownloadURL();
 
-      // Optional: sync immediately to Firebase
-      // String currentUserEmail = userControllerObj.email;
-      // await TripPostDatabase().syncToFirebase(currentUserEmail);
-      // log("DATA ADDED TO Firebase");
+          uploadedPhotoUrls.add(downloadUrl);
+        }
 
-      final User? user = FirebaseAuth.instance.currentUser;
-      if (user != null && user.email != null) {
-        String currentUserEmail = user.email!;
-        String currentUserId = user.uid;
+        // ✅ Prepare trip data
+        final trip = {
+          'destination': formData["destination"],
+          'groupSize': formData["groupSize"],
+          'startDate': formData["startDate"],
+          'endDate': formData["endDate"],
+          'boardingPoint': formData["boardingPoint"],
+          'mode': (formData["mode"] as List).join(", "),
+          'minBudget': formData["minBudget"],
+          'maxBudget': formData["maxBudget"],
+          'details': formData["details"],
+          'activities': (formData["activities"] as List).join(", "),
+          'photoPaths': uploadedPhotoUrls.join(", "), // for SQLite
+          'userId': user.uid,
+          'userEmail': user.email ?? '',
+        };
 
-        log("DATA ADDED TO Firebase");
+        // ✅ Save to SQLite
+        final TripDatabase localDb = TripDatabase();
+        await localDb.insertTrip(trip);
+        log("✅ Trip added locally to SQLite");
+
+        // ✅ Save to Firebase Firestore
+        await FirebaseFirestore.instance.collection("trips").add({
+          "destination": formData["destination"],
+          "groupSize": formData["groupSize"],
+          "startDate": formData["startDate"],
+          "endDate": formData["endDate"],
+          "boardingPoint": formData["boardingPoint"],
+          "mode": List<String>.from(formData["mode"]),
+          "minBudget": formData["minBudget"],
+          "maxBudget": formData["maxBudget"],
+          "details": formData["details"],
+          "activities": List<String>.from(formData["activities"]),
+          "photoPaths": uploadedPhotoUrls, // store as list in Firestore
+          "userId": user.uid,
+          "userEmail": user.email ?? "",
+          "createdAt": DateTime.now().toIso8601String(),
+        });
+        log("✅ Trip added to Firebase");
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Trip posted successfully!")),
+        );
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const BottomNavigationWidget()),
+        );
       } else {
-        print("User not logged in, cannot sync trips");
+        _showSnack("User not logged in, please sign in first.");
       }
-      //controller.clear();
-
-      // Show success and navigate back
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Trip posted successfully!")),
-      );
-
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const BottomNavigationWidget()),
-      );
     }
   }
 
