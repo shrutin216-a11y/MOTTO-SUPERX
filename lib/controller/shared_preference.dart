@@ -1,6 +1,6 @@
 import 'dart:developer';
 
-import 'package:motto_app/model/Usermodel.dart';
+
 import 'package:shared_preferences/shared_preferences.dart';
 
 class UserController {

@@ -351,7 +351,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                             },
                           ),
                           _buildMenuItem(
-                            Icons.history,
+                            Icons.map_rounded,
                             "My Posted Trips",
                             context,
                             () {
@@ -365,7 +365,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                           ),
                           _buildMenuItem(
                             Icons.reviews,
-                            "My Bookings",
+                            "My bookings",
                             context,
                             () {
                               Navigator.push(

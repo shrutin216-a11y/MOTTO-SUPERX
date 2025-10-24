@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:motto_app/view/MypostedTrips.dart';
 import 'package:stylish_bottom_bar/stylish_bottom_bar.dart';
 import 'package:motto_app/view/Home_screen.dart';
-import 'package:motto_app/view/Favourites.dart';
 import 'package:motto_app/view/StartTrip.dart';
 import 'package:motto_app/view/chat.dart';
 import 'package:flutter/services.dart';

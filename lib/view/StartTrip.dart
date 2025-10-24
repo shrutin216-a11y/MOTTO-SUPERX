@@ -1,9 +1,13 @@
+import 'dart:developer';
+import 'dart:io';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:dropdown_button2/dropdown_button2.dart';
-import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:image_picker/image_picker.dart';
-import 'dart:io';
+import 'package:motto_app/controller/placesApi_controller.dart';
+
+import 'package:motto_app/controller/shared_preference.dart';
+import 'package:motto_app/model/postTrip_model.dart';
 import 'package:motto_app/view/bottom_navigation_screen.dart';
 
 class StartTrip extends StatefulWidget {
@@ -17,6 +21,8 @@ class _StartTripScreenState extends State<StartTrip>
     with SingleTickerProviderStateMixin {
   int currentStep = 0;
   final PageController _controller = PageController();
+  final ImagePicker _picker = ImagePicker();
+  UserController userControllerObj = UserController();
 
   Map<String, dynamic> formData = {
     "destination": "",
@@ -32,28 +38,7 @@ class _StartTripScreenState extends State<StartTrip>
     "photos": <File>[],
   };
 
-  final List<String> destinations = [
-    "Mount Fuji",
-    "Paris",
-    "Bali",
-    "Tokyo",
-    "Dubai",
-    "New York",
-    "Santorini",
-    "Maldives"
-  ];
-
-  final List<String> boardingPoints = [
-    "Pune",
-    "Mumbai",
-    "Delhi",
-    "Bangalore",
-    "Hyderabad",
-    "Chennai"
-  ];
-
   final List<String> modes = ["Car", "Aeroplane", "Train", "Cruise"];
-
   final List<String> activities = [
     "Hiking",
     "Skiing",
@@ -62,82 +47,132 @@ class _StartTripScreenState extends State<StartTrip>
     "Cultural Tour",
     "Wildlife Safari",
     "Scuba Diving",
-    "Shopping & Local Markets"
+    "Shopping & Local Markets",
   ];
 
-  final ImagePicker _picker = ImagePicker();
+  List<Map<String, dynamic>> get questions => [
+    {
+      "key": "destination",
+      "label": "Choose your Destination",
+      "type": "dropdown",
 
-  void nextStep() {
+      "icon": Icons.landscape,
+    },
+    {
+      "key": "groupSize",
+      "label": "Select Group Size",
+      "type": "counter",
+      "icon": Icons.group,
+    },
+    {
+      "key": "date",
+      "label": "Select Start & End Date",
+      "type": "date",
+      "icon": Icons.calendar_month,
+    },
+    {
+      "key": "boardingPoint",
+      "label": "Select Boarding City",
+      "type": "dropdown",
+
+      "icon": Icons.location_on,
+    },
+    {
+      "key": "mode",
+      "label": "Preferred Mode of Travel",
+      "type": "multiselect",
+      "items": modes,
+      "icon": Icons.directions_car,
+    },
+    {
+      "key": "budget",
+      "label": "Enter Budget per Person",
+      "type": "budget",
+      "icon": Icons.currency_rupee,
+    },
+    {
+      "key": "details",
+      "label": "Trip Details",
+      "type": "text",
+      "icon": Icons.notes,
+    },
+    {
+      "key": "activities",
+      "label": "Preferred Activities",
+      "type": "multiselect",
+      "items": activities,
+      "icon": Icons.surfing,
+    },
+    {
+      "key": "photos",
+      "label": "Upload 4 Photos of Destination",
+      "type": "image",
+      "icon": Icons.photo,
+    },
+  ];
+
+  // ------------------ VALIDATION & NAVIGATION ------------------
+  void nextStep() async {
     String key = questions[currentStep]["key"];
+    if (!_validateStep(key)) return;
 
-    // Validations for each question
-    if (key == "destination" && (formData[key] == null || formData[key].toString().isEmpty)) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text("Please choose a destination."),
-      ));
-      return;
-    }
-    if (key == "groupSize" && formData[key] <= 0) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text("Please select a valid group size."),
-      ));
-      return;
-    }
-    if (key == "date" && (formData["startDate"].isEmpty || formData["endDate"].isEmpty)) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text("Please select both start and end dates."),
-      ));
-      return;
-    }
-    if (key == "boardingPoint" && (formData[key] == null || formData[key].toString().isEmpty)) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text("Please select a boarding city."),
-      ));
-      return;
-    }
-    if (key == "mode" && (formData[key] as List<String>).isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text("Please select at least one travel mode."),
-      ));
-      return;
-    }
-    if (key == "budget" &&
-        (formData["minBudget"].toString().isEmpty || formData["maxBudget"].toString().isEmpty)) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text("Please enter both min and max budget."),
-      ));
-      return;
-    }
-    if (key == "details") {
-      final words = formData["details"].toString().trim().split(RegExp(r'\s+'));
-      if (words.length < 50) { // Only trip details validation
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text("Please enter at least 50 words in trip details."),
-        ));
-        return;
-      }
-    }
-    if (key == "activities" && (formData[key] as List<String>).isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text("Please select at least one activity."),
-      ));
-      return;
-    }
-    if (key == "photos" && (formData[key] as List<File>).isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text("Please upload at least one photo."),
-      ));
-      return;
-    }
-
-    // Move to next step
     if (currentStep < questions.length - 1) {
       setState(() => currentStep++);
       _controller.nextPage(
-          duration: const Duration(milliseconds: 400), curve: Curves.easeInOut);
+        duration: const Duration(milliseconds: 400),
+        curve: Curves.easeInOut,
+      );
     } else {
-      setState(() => currentStep++);
-      // TODO: Handle final submission
+      // Convert photos to paths for database
+      List<String> imagePaths = (formData["photos"] as List<File>)
+          .map((f) => f.path)
+          .toList();
+
+      // Prepare trip object for SQLite
+      TripPostModel trip = TripPostModel(
+        destination: formData["destination"],
+        groupSize: formData["groupSize"],
+        startDate: formData["startDate"],
+        endDate: formData["endDate"],
+        boardingPoint: formData["boardingPoint"],
+        mode: (formData["mode"] as List<String>).join(", "),
+        minBudget: formData["minBudget"],
+        maxBudget: formData["maxBudget"],
+        details: formData["details"],
+        activities: (formData["activities"] as List<String>).join(", "),
+        imagePath: imagePaths.join(", "),
+        synced: 0,
+      );
+
+      // Insert into local DB
+
+      log("DATA ADDED TO SQFLITE");
+
+      // Optional: sync immediately to Firebase
+      // String currentUserEmail = userControllerObj.email;
+      // await TripPostDatabase().syncToFirebase(currentUserEmail);
+      // log("DATA ADDED TO Firebase");
+
+      final User? user = FirebaseAuth.instance.currentUser;
+      if (user != null && user.email != null) {
+        String currentUserEmail = user.email!;
+        String currentUserId = user.uid;
+
+        log("DATA ADDED TO Firebase");
+      } else {
+        print("User not logged in, cannot sync trips");
+      }
+      //controller.clear();
+
+      // Show success and navigate back
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Trip posted successfully!")),
+      );
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const BottomNavigationWidget()),
+      );
     }
   }
 
@@ -145,408 +180,394 @@ class _StartTripScreenState extends State<StartTrip>
     if (currentStep > 0) {
       setState(() => currentStep--);
       _controller.previousPage(
-          duration: const Duration(milliseconds: 400), curve: Curves.easeInOut);
+        duration: const Duration(milliseconds: 400),
+        curve: Curves.easeInOut,
+      );
     } else {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => const BottomNavigationWidget()),
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const BottomNavigationWidget()),
       );
     }
   }
 
-  List<Map<String, dynamic>> get questions => [
-        {
-          "key": "destination",
-          "label": "Choose your Destination",
-          "type": "dropdown",
-          "items": destinations,
-          "icon": Icons.landscape
-        },
-        {
-          "key": "groupSize",
-          "label": "Select Group Size",
-          "type": "counter",
-          "icon": Icons.group
-        },
-        {
-          "key": "date",
-          "label": "Select Start & End Date",
-          "type": "date",
-          "icon": Icons.calendar_month
-        },
-        {
-          "key": "boardingPoint",
-          "label": "Select Boarding City",
-          "type": "dropdown",
-          "items": boardingPoints,
-          "icon": Icons.location_on
-        },
-        {
-          "key": "mode",
-          "label": "Preferred Mode of Travel",
-          "type": "multiselect",
-          "items": modes,
-          "icon": Icons.directions_car
-        },
-        {
-          "key": "budget",
-          "label": "Enter Budget per Person",
-          "type": "budget",
-          "icon": Icons.currency_rupee
-        },
-        {
-          "key": "details",
-          "label": "Trip Details",
-          "type": "text",
-          "icon": Icons.notes
-        },
-        {
-          "key": "activities",
-          "label": "Preferred Activities",
-          "type": "multiselect",
-          "items": activities,
-          "icon": Icons.surfing
-        },
-        {
-          "key": "photos",
-          "label": "Upload 4 Photos of Destination",
-          "type": "image",
-          "icon": Icons.photo
-        },
-      ];
-
-  Widget buildDropdownField(List<String> items, IconData icon, String key) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 6),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-              color: Colors.teal.withOpacity(0.08),
-              blurRadius: 8,
-              offset: const Offset(0, 4))
-        ],
-      ),
-      child: DropdownButtonHideUnderline(
-        child: DropdownButton2<String>(
-          isExpanded: true,
-          hint: Row(
-            children: [
-              Icon(icon, color: Colors.teal),
-              const SizedBox(width: 12),
-              Text("Select an option",
-                  style: GoogleFonts.poppins(fontSize: 16)),
-            ],
-          ),
-          value: formData[key].isEmpty ? null : formData[key],
-          items: items
-              .map((item) => DropdownMenuItem<String>(
-                    value: item,
-                    child:
-                        Text(item, style: GoogleFonts.poppins(fontSize: 16)),
-                  ))
-              .toList(),
-          onChanged: (value) => setState(() => formData[key] = value),
-        ),
-      ),
-    );
+  bool _validateStep(String key) {
+    switch (key) {
+      case "destination":
+      case "boardingPoint":
+        if (formData[key].toString().isEmpty) {
+          _showSnack(
+            "Please select ${key == "destination" ? "destination" : "boarding city"}",
+          );
+          return false;
+        }
+        break;
+      case "groupSize":
+        if (formData[key] <= 0) {
+          _showSnack("Please select a valid group size");
+          return false;
+        }
+        break;
+      case "date":
+        if (formData["startDate"].isEmpty || formData["endDate"].isEmpty) {
+          _showSnack("Please select start and end dates");
+          return false;
+        }
+        break;
+      case "mode":
+      case "activities":
+        if ((formData[key] as List).isEmpty) {
+          _showSnack("Please select at least one $key");
+          return false;
+        }
+        break;
+      case "budget":
+        if (formData["minBudget"].toString().isEmpty ||
+            formData["maxBudget"].toString().isEmpty) {
+          _showSnack("Please enter min & max budget");
+          return false;
+        }
+        break;
+      case "details":
+        if ((formData["details"]
+                .toString()
+                .trim()
+                .split(RegExp(r'\s+'))
+                .length) <
+            50) {
+          _showSnack("Please enter at least 50 words");
+          return false;
+        }
+        break;
+      case "photos":
+        if ((formData[key] as List<File>).isEmpty) {
+          _showSnack("Please upload at least one photo");
+          return false;
+        }
+        break;
+    }
+    return true;
   }
 
-  Widget buildCounterField(String key) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        IconButton(
-            iconSize: 40,
-            onPressed: () {
-              if (formData[key] > 1) setState(() => formData[key]--);
-            },
-            icon: const Icon(Icons.remove_circle_outline, color: Colors.teal)),
-        Text(
-          "${formData[key]}",
-          style: GoogleFonts.poppins(fontSize: 22, fontWeight: FontWeight.bold),
-        ),
-        IconButton(
-            iconSize: 40,
-            onPressed: () {
-              setState(() => formData[key]++);
-            },
-            icon: const Icon(Icons.add_circle_outline, color: Colors.teal)),
-      ],
-    );
-  }
+  void _showSnack(String msg) =>
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
 
-  Widget buildDateSelector(IconData icon) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-              color: Colors.teal.withOpacity(0.08),
-              blurRadius: 8,
-              offset: const Offset(0, 4))
-        ],
-      ),
-      child: Column(
-        children: [
-          Row(
-            children: [
-              Icon(icon, color: Colors.teal),
-              const SizedBox(width: 8),
-              Text("Select Start & End Date",
-                  style: GoogleFonts.poppins(fontSize: 16)),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              Expanded(
-                child: ElevatedButton.icon(
-                  icon: const Icon(Icons.calendar_today, color: Colors.white),
-                  onPressed: () async {
-                    final start = await showDatePicker(
-                      context: context,
-                      firstDate: DateTime.now(),
-                      lastDate: DateTime(2030),
-                      initialDate: DateTime.now(),
-                    );
-                    if (start != null) {
-                      setState(() => formData["startDate"] =
-                          "${start.day}/${start.month}/${start.year}");
-                    }
-                  },
-                  style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.teal.shade400),
-                  label: Text(
-                    formData["startDate"].isEmpty
-                        ? "Start Date"
-                        : formData["startDate"],
-                    style: GoogleFonts.poppins(color: Colors.white),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: ElevatedButton.icon(
-                  icon: const Icon(Icons.date_range, color: Colors.white),
-                  onPressed: () async {
-                    final end = await showDatePicker(
-                      context: context,
-                      firstDate: DateTime.now(),
-                      lastDate: DateTime(2030),
-                      initialDate: DateTime.now(),
-                    );
-                    if (end != null) {
-                      setState(() => formData["endDate"] =
-                          "${end.day}/${end.month}/${end.year}");
-                    }
-                  },
-                  style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.teal.shade400),
-                  label: Text(
-                    formData["endDate"].isEmpty
-                        ? "End Date"
-                        : formData["endDate"],
-                    style: GoogleFonts.poppins(color: Colors.white),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget buildTextInput(String key, IconData icon) {
-    return TextField(
-      onChanged: (val) => setState(() => formData[key] = val),
-      maxLines: key == "details" ? 5 : 1,
-      keyboardType:
-          key.contains("Budget") ? TextInputType.number : TextInputType.text,
-      decoration: InputDecoration(
+  // ------------------ WIDGET BUILDERS ------------------
+  InputDecoration _inputDecoration(IconData icon, String hint) =>
+      InputDecoration(
         prefixIcon: Icon(icon, color: Colors.teal),
-        hintText: key == "details" ? "Enter trip details..." : "Enter amount",
-        hintStyle: GoogleFonts.poppins(color: Colors.grey.shade500),
+        hintText: hint,
         filled: true,
         fillColor: Colors.white,
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 14,
+        ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
           borderSide: BorderSide.none,
         ),
-      ),
-    );
-  }
+      );
 
-  Widget buildBudgetInput() {
-    return Row(
+  Widget buildPlaceField(String key, IconData icon) {
+    final isDest = key == "destination";
+    final controller = isDest
+        ? PlaceSearchController.destinationController
+        : PlaceSearchController.boardingController;
+    final suggestions = isDest
+        ? PlaceSearchController.destinationSuggestions
+        : PlaceSearchController.boardingSuggestions;
+
+    return Column(
       children: [
-        Expanded(
-          child: TextField(
-            onChanged: (val) => formData["minBudget"] = val,
-            keyboardType: TextInputType.number,
-            decoration: InputDecoration(
-              prefixIcon: const Icon(Icons.currency_rupee, color: Colors.teal),
-              hintText: "Min Budget",
-              filled: true,
-              fillColor: Colors.white,
-              contentPadding:
-                  const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(16),
-                borderSide: BorderSide.none,
-              ),
-            ),
+        TextField(
+          controller: controller,
+          onChanged: (val) => PlaceSearchController.onChange(
+            val,
+            isDest ? "destination" : "boarding",
+          ),
+          decoration: _inputDecoration(
+            icon,
+            "Search ${isDest ? "destination" : "boarding city"}...",
           ),
         ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: TextField(
-            onChanged: (val) => formData["maxBudget"] = val,
-            keyboardType: TextInputType.number,
-            decoration: InputDecoration(
-              prefixIcon: const Icon(Icons.currency_rupee, color: Colors.teal),
-              hintText: "Max Budget",
-              filled: true,
-              fillColor: Colors.white,
-              contentPadding:
-                  const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(16),
-                borderSide: BorderSide.none,
+        const SizedBox(height: 6),
+        ValueListenableBuilder<List<dynamic>>(
+          valueListenable: suggestions,
+          builder: (context, list, _) {
+            if (list.isEmpty) return const SizedBox.shrink();
+            return Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.teal.withOpacity(0.1),
+                    blurRadius: 6,
+                    offset: const Offset(0, 3),
+                  ),
+                ],
               ),
-            ),
-          ),
+              child: ListView.builder(
+                shrinkWrap: true,
+                itemCount: list.length,
+                itemBuilder: (_, i) {
+                  final text = list[i]['description'];
+                  return ListTile(
+                    leading: const Icon(
+                      Icons.location_on_outlined,
+                      color: Colors.teal,
+                    ),
+                    title: Text(text, style: GoogleFonts.poppins(fontSize: 15)),
+                    onTap: () {
+                      setState(() => formData[key] = text);
+                      controller.text = text;
+                      list.clear();
+                    },
+                  );
+                },
+              ),
+            );
+          },
         ),
       ],
     );
   }
 
-  Widget buildMultiSelect(String key, List<String> items, IconData icon) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.teal.withOpacity(0.08),
-            blurRadius: 8,
-            offset: const Offset(0, 4),
-          )
-        ],
+  Widget buildCounterField(String key) => Row(
+    mainAxisAlignment: MainAxisAlignment.center,
+    children: [
+      IconButton(
+        iconSize: 40,
+        onPressed: () => setState(
+          () => formData[key] = formData[key] > 1 ? formData[key] - 1 : 1,
+        ),
+        icon: const Icon(Icons.remove_circle_outline, color: Colors.teal),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(children: [
-            Icon(icon, color: Colors.teal),
-            const SizedBox(width: 8),
-            Text(
-              key == "mode" ? "Select Travel Mode(s)" : "Select Activities",
-              style: GoogleFonts.poppins(fontSize: 16),
+      Text(
+        "${formData[key]}",
+        style: GoogleFonts.poppins(fontSize: 22, fontWeight: FontWeight.bold),
+      ),
+      IconButton(
+        iconSize: 40,
+        onPressed: () => setState(() => formData[key]++),
+        icon: const Icon(Icons.add_circle_outline, color: Colors.teal),
+      ),
+    ],
+  );
+
+  Widget buildDateSelector() => Row(
+    children: ["startDate", "endDate"].map((d) {
+      return Expanded(
+        child: ElevatedButton.icon(
+          icon: Icon(
+            d == "startDate" ? Icons.calendar_today : Icons.date_range,
+            color: Colors.white,
+          ),
+          label: Text(
+            formData[d].isEmpty
+                ? (d == "startDate" ? "Start Date" : "End Date")
+                : formData[d],
+            style: const TextStyle(color: Colors.white),
+          ),
+          onPressed: () async {
+            final date = await showDatePicker(
+              context: context,
+              firstDate: DateTime.now(),
+              lastDate: DateTime(2030),
+              initialDate: DateTime.now(),
+            );
+            if (date != null) {
+              setState(
+                () => formData[d] = "${date.day}/${date.month}/${date.year}",
+              );
+            }
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.teal.shade400,
+          ),
+        ),
+      );
+    }).toList(),
+  );
+
+  Widget buildTextInput(String key, IconData icon, {bool isDetails = false}) =>
+      TextField(
+        onChanged: (val) => setState(() => formData[key] = val),
+        maxLines: isDetails ? 5 : 1,
+        keyboardType: key.contains("Budget")
+            ? TextInputType.number
+            : TextInputType.text,
+        decoration: _inputDecoration(
+          icon,
+          isDetails ? "Enter trip details..." : "Enter amount",
+        ),
+      );
+
+  Widget buildBudgetInput() => Row(
+    children: ["minBudget", "maxBudget"].map((k) {
+      return Expanded(
+        child: Padding(
+          padding: EdgeInsets.only(right: k == "minBudget" ? 12 : 0),
+          child: buildTextInput(k, Icons.currency_rupee),
+        ),
+      );
+    }).toList(),
+  );
+
+  Widget buildMultiSelect(String key, List<String> items, IconData icon) =>
+      Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.teal.withOpacity(0.08),
+              blurRadius: 8,
+              offset: const Offset(0, 4),
             ),
-          ]),
-          const SizedBox(height: 12),
-          Wrap(
-            spacing: 8,
-            children: items
-                .map((item) => FilterChip(
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(icon, color: Colors.teal),
+                const SizedBox(width: 8),
+                Text(
+                  key == "mode" ? "Select Travel Mode(s)" : "Select Activities",
+                  style: GoogleFonts.poppins(fontSize: 16),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Wrap(
+              spacing: 8,
+              children: items
+                  .map(
+                    (item) => FilterChip(
                       label: Text(item, style: GoogleFonts.poppins()),
                       selected: (formData[key] as List<String>).contains(item),
-                      onSelected: (selected) {
-                        setState(() {
-                          if (selected) {
-                            (formData[key] as List<String>).add(item);
-                          } else {
-                            (formData[key] as List<String>).remove(item);
-                          }
-                        });
+                      onSelected: (sel) {
+                        setState(
+                          () => sel
+                              ? (formData[key] as List<String>).add(item)
+                              : (formData[key] as List<String>).remove(item),
+                        );
                       },
                       selectedColor: Colors.teal.shade200,
                       checkmarkColor: Colors.white,
-                    ))
-                .toList(),
-          )
-        ],
-      ),
-    );
-  }
-
-  Widget buildPhotoPicker() {
-    return Column(
-      children: [
-        ElevatedButton.icon(
-          icon: const Icon(Icons.add_a_photo),
-          label: const Text("Pick Photo"),
-          onPressed: () async {
-            final XFile? image =
-                await _picker.pickImage(source: ImageSource.gallery);
-            if (image != null && (formData["photos"] as List<File>).length < 4) {
-              setState(() => (formData["photos"] as List<File>).add(File(image.path)));
-            }
-          },
-          style: ElevatedButton.styleFrom(backgroundColor: Colors.teal),
+                    ),
+                  )
+                  .toList(),
+            ),
+          ],
         ),
-        const SizedBox(height: 12),
-        Wrap(
-          spacing: 8,
-          children: (formData["photos"] as List<File>)
-              .map((file) => Image.file(file, width: 80, height: 80, fit: BoxFit.cover))
-              .toList(),
-        )
-      ],
-    );
-  }
+      );
+
+  Widget buildPhotoPicker() => Column(
+    children: [
+      ElevatedButton.icon(
+        icon: const Icon(Icons.add_a_photo),
+        label: const Text("Pick Photo"),
+        style: ElevatedButton.styleFrom(backgroundColor: Colors.teal),
+        onPressed: () async {
+          final XFile? image = await _picker.pickImage(
+            source: ImageSource.gallery,
+          );
+          if (image != null && (formData["photos"] as List<File>).length < 4) {
+            setState(
+              () => (formData["photos"] as List<File>).add(File(image.path)),
+            );
+          }
+        },
+      ),
+      const SizedBox(height: 12),
+      Wrap(
+        spacing: 8,
+        children: (formData["photos"] as List<File>)
+            .map((f) => Image.file(f, width: 80, height: 80, fit: BoxFit.cover))
+            .toList(),
+      ),
+    ],
+  );
 
   Widget buildQuestion(Map<String, dynamic> q) {
-    String key = q["key"];
-    String label = q["label"];
-    IconData icon = q["icon"];
-    String type = q["type"];
-    List<String> items = q.containsKey("items") ? List<String>.from(q["items"]) : [];
+    final key = q["key"];
+    final type = q["type"];
+    final items = q["items"] ?? [];
+    final icon = q["icon"];
+    final label = q["label"];
+    Widget field;
+    switch (type) {
+      case "dropdown":
+        field = buildPlaceField(key, icon);
+        break;
+      case "counter":
+        field = buildCounterField(key);
+        break;
+      case "date":
+        field = buildDateSelector();
+        break;
+      case "text":
+        field = buildTextInput(key, icon, isDetails: true);
+        break;
+      case "budget":
+        field = buildBudgetInput();
+        break;
+      case "multiselect":
+        field = buildMultiSelect(key, List<String>.from(items), icon);
+        break;
+      case "image":
+        field = buildPhotoPicker();
+        break;
+      default:
+        field = const SizedBox();
+        break;
+    }
 
     return SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Stack(
-            children: [
-              Container(
-                height: 160,
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [Color(0xFF00BFA5), Color(0xFF4DB6AC)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  borderRadius: BorderRadius.only(
-                    bottomLeft: Radius.circular(45),
-                    bottomRight: Radius.circular(45),
-                  ),
-                ),
-                child: Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text("Plan Your Trip",
-                          style: GoogleFonts.poppins(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white)),
-                      const SizedBox(height: 6),
-                      Text("Answer a few quick questions to start your journey",
-                          style: GoogleFonts.poppins(
-                              fontSize: 13, color: Colors.white70)),
-                    ],
-                  ),
-                ),
+          Container(
+            height: 160,
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Color(0xFF00BFA5), Color(0xFF4DB6AC)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
               ),
-            ],
+              borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(45),
+                bottomRight: Radius.circular(45),
+              ),
+            ),
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    "Plan Your Trip",
+                    style: GoogleFonts.poppins(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    "Answer a few quick questions to start your journey",
+                    style: GoogleFonts.poppins(
+                      fontSize: 13,
+                      color: Colors.white70,
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
@@ -557,40 +578,32 @@ class _StartTripScreenState extends State<StartTrip>
                   value: (currentStep + 1) / questions.length,
                   color: Colors.teal,
                   backgroundColor: Colors.grey.shade300,
-                  borderRadius: BorderRadius.circular(8),
+                  minHeight: 6,
                 ),
                 const SizedBox(height: 15),
                 Center(
                   child: Text(
                     "Step ${currentStep + 1} of ${questions.length}",
                     style: GoogleFonts.poppins(
-                        fontSize: 14, fontWeight: FontWeight.w500, color: Colors.grey),
+                      fontSize: 14,
+                      color: Colors.grey,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 25),
-                AnimatedTextKit(
-                  animatedTexts: [
-                    TypewriterAnimatedText(
-                      label,
-                      textStyle: GoogleFonts.poppins(
-                          fontWeight: FontWeight.bold, fontSize: 22, color: Colors.black87),
-                      speed: const Duration(milliseconds: 60),
-                    ),
-                  ],
-                  totalRepeatCount: 1,
+                Text(
+                  label,
+                  style: GoogleFonts.poppins(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 const SizedBox(height: 30),
-                if (type == "dropdown") buildDropdownField(items, icon, key),
-                if (type == "counter") buildCounterField(key),
-                if (type == "date") buildDateSelector(icon),
-                if (type == "text" || type == "number") buildTextInput(key, icon),
-                if (type == "budget") buildBudgetInput(),
-                if (type == "multiselect") buildMultiSelect(key, items, icon),
-                if (type == "image") buildPhotoPicker(),
-                const SizedBox(height: 100), // Space for bottom buttons
+                field,
+                const SizedBox(height: 100),
               ],
             ),
-          )
+          ),
         ],
       ),
     );
@@ -606,9 +619,7 @@ class _StartTripScreenState extends State<StartTrip>
             controller: _controller,
             physics: const NeverScrollableScrollPhysics(),
             itemCount: questions.length,
-            itemBuilder: (context, index) {
-              return buildQuestion(questions[index]);
-            },
+            itemBuilder: (_, i) => buildQuestion(questions[i]),
           ),
           Positioned(
             bottom: 0,
@@ -626,13 +637,17 @@ class _StartTripScreenState extends State<StartTrip>
                         style: OutlinedButton.styleFrom(
                           side: const BorderSide(color: Colors.teal),
                           shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(14)),
+                            borderRadius: BorderRadius.circular(14),
+                          ),
                         ),
-                        child: Text("← Back",
-                            style: GoogleFonts.poppins(
-                                fontSize: 16,
-                                color: Colors.teal,
-                                fontWeight: FontWeight.w500)),
+                        child: Text(
+                          "← Back",
+                          style: GoogleFonts.poppins(
+                            fontSize: 16,
+                            color: Colors.teal,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
                       ),
                     ),
                   if (currentStep > 0) const SizedBox(width: 20),
@@ -640,20 +655,27 @@ class _StartTripScreenState extends State<StartTrip>
                     child: ElevatedButton(
                       onPressed: nextStep,
                       style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.teal,
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(14))),
-                      child: Text(currentStep == questions.length - 1 ? "Submit" : "Next →",
-                          style: GoogleFonts.poppins(
-                              fontSize: 16,
-                              color: Colors.white,
-                              fontWeight: FontWeight.w500)),
+                        backgroundColor: Colors.teal,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                      ),
+                      child: Text(
+                        currentStep == questions.length - 1
+                            ? "Submit"
+                            : "Next →",
+                        style: GoogleFonts.poppins(
+                          fontSize: 16,
+                          color: Colors.white,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
                     ),
-                  )
+                  ),
                 ],
               ),
             ),
-          )
+          ),
         ],
       ),
     );
