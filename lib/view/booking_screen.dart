@@ -1,12 +1,24 @@
 import 'dart:developer';
 import 'package:animated_custom_dropdown/custom_dropdown.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:floating_snackbar/floating_snackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:motto_app/controller/shared_preference.dart';
 import 'package:motto_app/view/booking_sucessScreen.dart';
 
 class BookingScreen extends StatefulWidget {
-  const BookingScreen({super.key});
+  final Map<String, dynamic> tripData;
+  final bool isLoggedIn; // New flag to check login
+  final String tripId; // Add this line
+
+  const BookingScreen({
+    Key? key,
+    required this.tripData,
+    required this.tripId,
+    this.isLoggedIn = false,
+  }) : super(key: key);
 
   @override
   State<BookingScreen> createState() => _BookingScreenState();
@@ -14,8 +26,10 @@ class BookingScreen extends StatefulWidget {
 
 class _BookingScreenState extends State<BookingScreen>
     with SingleTickerProviderStateMixin {
-  final List<int> _passCount = [1, 2, 3, 4, 5];
   final List<String> _passGender = ["Male", "Female", "Transgender"];
+  UserController userControllerobj = UserController();
+  FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
+
   final List<String> _passId = [
     "Aadhar Card",
     "PAN Card",
@@ -23,14 +37,16 @@ class _BookingScreenState extends State<BookingScreen>
     "Driving License",
   ];
 
-  TextEditingController nameController = TextEditingController();
-  TextEditingController contactController = TextEditingController();
-  TextEditingController emailController = TextEditingController();
-  TextEditingController ageController = TextEditingController();
-  TextEditingController idNumController = TextEditingController();
+  List<int> get passCount {
+    int max = widget.tripData['groupSize'] ?? 1;
+    return List<int>.generate(max, (index) => index + 1);
+  }
 
   late AnimationController _controller;
   late Animation<double> _fadeAnim;
+
+  int selectedTravellers = 1;
+  List<PassengerController> passengerControllers = [PassengerController()];
 
   @override
   void initState() {
@@ -49,13 +65,84 @@ class _BookingScreenState extends State<BookingScreen>
     super.dispose();
   }
 
+  Future<void> submitBooking() async {
+    final currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser == null) {
+      floatingSnackBar(
+        message: "You must log in to book a trip",
+        context: context,
+        textColor: Colors.white,
+        backgroundColor: Colors.redAccent,
+      );
+      return;
+    }
+
+    // Validate all passenger fields
+    bool allFilled = passengerControllers.every(
+      (p) =>
+          p.name.text.isNotEmpty &&
+          p.contact.text.isNotEmpty &&
+          p.email.text.isNotEmpty &&
+          p.age.text.isNotEmpty &&
+          p.gender.isNotEmpty &&
+          p.idType.isNotEmpty &&
+          p.idNum.text.isNotEmpty,
+    );
+
+    if (!allFilled) {
+      floatingSnackBar(
+        message: "Please fill all passenger details",
+        context: context,
+        textColor: Colors.black,
+        backgroundColor: Colors.white,
+      );
+      return;
+    }
+
+    try {
+      // Save booking under trip document
+      final tripId = widget.tripData['tripId'];
+      await FirebaseFirestore.instance
+          .collection("trips")
+          .doc(widget.tripId) // use the passed tripId
+          .collection("bookings")
+          .add({
+            "bookedBy": currentUser.uid,
+            "bookedByEmail": currentUser.email ?? "",
+            "passengers": passengerControllers.map((p) {
+              return {
+                "name": p.name.text,
+                "contact": p.contact.text,
+                "email": p.email.text,
+                "age": p.age.text,
+                "gender": p.gender,
+                "idType": p.idType,
+                "idNumber": p.idNum.text,
+              };
+            }).toList(),
+            "timestamp": FieldValue.serverTimestamp(),
+          });
+
+      log("TripBooked Successfully");
+      // Navigate to success page
+      Navigator.push(context, MaterialPageRoute(builder: (_) => SubmitPage()));
+    } catch (e) {
+      log("Error saving booking: $e");
+      floatingSnackBar(
+        message: "Failed to book. Try again!",
+        context: context,
+        textColor: Colors.white,
+        backgroundColor: Colors.redAccent,
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.teal[50],
       body: Stack(
         children: [
-          // 🌈 Gradient Header (fixed)
           AnimatedContainer(
             duration: const Duration(seconds: 3),
             curve: Curves.easeInOut,
@@ -72,8 +159,6 @@ class _BookingScreenState extends State<BookingScreen>
               ),
             ),
           ),
-
-          // ✈️ Decorative icons in header
           Positioned(
             top: 50,
             left: 30,
@@ -92,14 +177,10 @@ class _BookingScreenState extends State<BookingScreen>
               size: 60,
             ),
           ),
-
-          // 📋 Content layout
           SafeArea(
             child: Column(
               children: [
                 const SizedBox(height: 15),
-
-                // 🏷️ Fixed Header
                 FadeTransition(
                   opacity: _fadeAnim,
                   child: Column(
@@ -124,10 +205,7 @@ class _BookingScreenState extends State<BookingScreen>
                     ],
                   ),
                 ),
-
                 const SizedBox(height: 25),
-
-                // 🧾 Scrollable Form Section
                 Expanded(
                   child: FadeTransition(
                     opacity: _fadeAnim,
@@ -156,103 +234,125 @@ class _BookingScreenState extends State<BookingScreen>
                                 buildAnimated(
                                   CustomDropdown(
                                     hintText: "Select number of passengers",
-                                    items: _passCount,
+                                    items: passCount,
                                     decoration: CustomDropdownDecoration(
                                       closedFillColor: Colors.grey.shade50,
                                       closedBorderRadius: BorderRadius.circular(
                                         12,
                                       ),
                                     ),
-                                    onChanged: (value) =>
-                                        log('Traveller count: $value'),
+                                    onChanged: (value) {
+                                      setState(() {
+                                        selectedTravellers =
+                                            int.tryParse(value.toString()) ?? 1;
+                                        passengerControllers = List.generate(
+                                          selectedTravellers,
+                                          (_) => PassengerController(),
+                                        );
+                                      });
+                                    },
                                   ),
                                 ),
                                 const SizedBox(height: 18),
 
-                                buildLabel("Passenger Name"),
-                                buildAnimated(
-                                  buildTextField(
-                                    nameController,
-                                    "Enter Full Name",
-                                    icon: Icons.person,
-                                  ),
+                                Column(
+                                  children: List.generate(selectedTravellers, (
+                                    index,
+                                  ) {
+                                    final passenger =
+                                        passengerControllers[index];
+                                    return Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        buildLabel(
+                                          "Passenger ${index + 1} Name",
+                                        ),
+                                        buildAnimated(
+                                          buildTextField(
+                                            passenger.name,
+                                            "Enter Full Name",
+                                            icon: Icons.person,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 18),
+                                        buildLabel("Contact Number"),
+                                        buildAnimated(
+                                          buildTextField(
+                                            passenger.contact,
+                                            "Enter Mobile Number",
+                                            icon: Icons.phone,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 18),
+                                        buildLabel("Email"),
+                                        buildAnimated(
+                                          buildTextField(
+                                            passenger.email,
+                                            "Enter Email",
+                                            icon: Icons.email_outlined,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 18),
+                                        buildLabel("Age"),
+                                        buildAnimated(
+                                          buildTextField(
+                                            passenger.age,
+                                            "Enter Age",
+                                            icon: Icons.cake_outlined,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 18),
+                                        buildLabel("Gender"),
+                                        buildAnimated(
+                                          CustomDropdown(
+                                            hintText: "Select Gender",
+                                            items: _passGender,
+                                            decoration:
+                                                CustomDropdownDecoration(
+                                                  closedFillColor:
+                                                      Colors.grey.shade50,
+                                                  closedBorderRadius:
+                                                      BorderRadius.circular(12),
+                                                ),
+                                            onChanged: (value) =>
+                                                passenger.gender = value
+                                                    .toString(),
+                                          ),
+                                        ),
+                                        const SizedBox(height: 18),
+                                        buildLabel("Identity Proof"),
+                                        buildAnimated(
+                                          CustomDropdown(
+                                            hintText: "Select Identity Proof",
+                                            items: _passId,
+                                            decoration:
+                                                CustomDropdownDecoration(
+                                                  closedFillColor:
+                                                      Colors.grey.shade50,
+                                                  closedBorderRadius:
+                                                      BorderRadius.circular(12),
+                                                ),
+                                            onChanged: (value) =>
+                                                passenger.idType = value
+                                                    .toString(),
+                                          ),
+                                        ),
+                                        const SizedBox(height: 18),
+                                        buildLabel("ID Number"),
+                                        buildAnimated(
+                                          buildTextField(
+                                            passenger.idNum,
+                                            "Enter ID Number",
+                                            icon: Icons.credit_card,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 25),
+                                      ],
+                                    );
+                                  }),
                                 ),
-                                const SizedBox(height: 18),
 
-                                buildLabel("Contact Number"),
-                                buildAnimated(
-                                  buildTextField(
-                                    contactController,
-                                    "Enter Mobile Number",
-                                    icon: Icons.phone,
-                                  ),
-                                ),
-                                const SizedBox(height: 18),
-
-                                buildLabel("Email"),
-                                buildAnimated(
-                                  buildTextField(
-                                    emailController,
-                                    "Enter Email Address",
-                                    icon: Icons.email_outlined,
-                                  ),
-                                ),
-                                const SizedBox(height: 18),
-
-                                buildLabel("Age"),
-                                buildAnimated(
-                                  buildTextField(
-                                    ageController,
-                                    "Enter Age",
-                                    icon: Icons.cake_outlined,
-                                  ),
-                                ),
-                                const SizedBox(height: 18),
-
-                                buildLabel("Gender"),
-                                buildAnimated(
-                                  CustomDropdown(
-                                    hintText: "Select Gender",
-                                    items: _passGender,
-                                    decoration: CustomDropdownDecoration(
-                                      closedFillColor: Colors.grey.shade50,
-                                      closedBorderRadius: BorderRadius.circular(
-                                        12,
-                                      ),
-                                    ),
-                                    onChanged: (value) => log('Gender: $value'),
-                                  ),
-                                ),
-                                const SizedBox(height: 18),
-
-                                buildLabel("Identity Proof"),
-                                buildAnimated(
-                                  CustomDropdown(
-                                    hintText: "Select Identity Proof",
-                                    items: _passId,
-                                    decoration: CustomDropdownDecoration(
-                                      closedFillColor: Colors.grey.shade50,
-                                      closedBorderRadius: BorderRadius.circular(
-                                        12,
-                                      ),
-                                    ),
-                                    onChanged: (value) =>
-                                        log('ID Type: $value'),
-                                  ),
-                                ),
-                                const SizedBox(height: 18),
-
-                                buildLabel("ID Number"),
-                                buildAnimated(
-                                  buildTextField(
-                                    idNumController,
-                                    "Enter ID Number",
-                                    icon: Icons.credit_card,
-                                  ),
-                                ),
-                                const SizedBox(height: 25),
-
-                                // ✅ Buttons Row
                                 Row(
                                   children: [
                                     Expanded(
@@ -283,37 +383,7 @@ class _BookingScreenState extends State<BookingScreen>
                                     const SizedBox(width: 15),
                                     Expanded(
                                       child: InkWell(
-                                        onTap: () {
-                                          if (nameController.text.isNotEmpty &&
-                                              contactController
-                                                  .text
-                                                  .isNotEmpty &&
-                                              emailController.text.isNotEmpty &&
-                                              ageController.text.isNotEmpty &&
-                                              idNumController.text.isNotEmpty) {
-                                            Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                builder: (_) => SubmitPage(),
-                                              ),
-                                            );
-                                          } else {
-                                            floatingSnackBar(
-                                              message:
-                                                  "Please fill all details",
-                                              context: context,
-                                              textColor: Colors.black,
-                                              textStyle: const TextStyle(
-                                                color: Colors.red,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                              duration: const Duration(
-                                                seconds: 2,
-                                              ),
-                                              backgroundColor: Colors.white,
-                                            );
-                                          }
-                                        },
+                                        onTap: submitBooking,
                                         child: Container(
                                           height: 55,
                                           decoration: BoxDecoration(
@@ -370,7 +440,6 @@ class _BookingScreenState extends State<BookingScreen>
     );
   }
 
-  // 🪶 Field animation wrapper
   Widget buildAnimated(Widget child) {
     return AnimatedOpacity(
       duration: const Duration(milliseconds: 600),
@@ -379,7 +448,6 @@ class _BookingScreenState extends State<BookingScreen>
     );
   }
 
-  // 🏷️ Label Builder
   Widget buildLabel(String label) {
     return Text(
       label,
@@ -391,7 +459,6 @@ class _BookingScreenState extends State<BookingScreen>
     );
   }
 
-  // 🧾 Custom TextField
   Widget buildTextField(
     TextEditingController controller,
     String hint, {
@@ -435,4 +502,14 @@ class _BookingScreenState extends State<BookingScreen>
       ),
     );
   }
+}
+
+class PassengerController {
+  TextEditingController name = TextEditingController();
+  TextEditingController contact = TextEditingController();
+  TextEditingController email = TextEditingController();
+  TextEditingController age = TextEditingController();
+  String gender = "";
+  String idType = "";
+  TextEditingController idNum = TextEditingController();
 }

@@ -4,24 +4,62 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:motto_app/view/booking_screen.dart';
 
 class CardScreen extends StatefulWidget {
-  const CardScreen({super.key});
+  final Map<String, dynamic> tripData;
+  final String? tripId; // Add tripId as a separate parameter
+
+  const CardScreen({
+    super.key,
+    required this.tripData,
+    this.tripId, // Optional but recommended
+  });
 
   @override
   State<CardScreen> createState() => _CardScreenState();
 }
 
 class _CardScreenState extends State<CardScreen> {
-  final List<String> imageList = [
-    'assets/CardImages/fuji1.jpg',
-    'assets/CardImages/fuji2.jpg',
-    'assets/CardImages/fuji3.jpg',
-    'assets/img4.png',
-    'assets/img5.png',
-  ];
+  late final List<String> imageList;
+  late final String effectiveTripId;
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Get tripId from either the parameter or tripData
+    effectiveTripId = widget.tripId ?? widget.tripData['id'] ?? '';
+
+    // Debug: Check if tripId is available
+    if (effectiveTripId.isEmpty) {
+      print('WARNING: No tripId found in CardScreen!');
+    } else {
+      print('CardScreen initialized with tripId: $effectiveTripId');
+    }
+
+    // Safe parsing of photoPaths
+    final photosDynamic = widget.tripData['photoPaths'];
+    if (photosDynamic is List) {
+      imageList = photosDynamic.map((e) => e.toString()).toList();
+    } else if (photosDynamic is String) {
+      imageList = [photosDynamic];
+    } else {
+      imageList = [];
+    }
+  }
+
+  // Helper method to safely convert dynamic data to String
+  String _safeToString(dynamic value, String fallback) {
+    if (value == null) return fallback;
+    if (value is String) return value;
+    if (value is List) {
+      return value.join(', ');
+    }
+    return value.toString();
+  }
 
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+
     return Scaffold(
       body: LayoutBuilder(
         builder: (context, constraints) {
@@ -32,7 +70,6 @@ class _CardScreenState extends State<CardScreen> {
                 children: [
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       Stack(
                         children: [
@@ -47,17 +84,30 @@ class _CardScreenState extends State<CardScreen> {
                               ),
                               enlargeCenterPage: false,
                             ),
-                            items: imageList.map((imagePath) {
-                              return Container(
-                                width: size.width,
-                                decoration: BoxDecoration(
-                                  image: DecorationImage(
-                                    image: AssetImage(imagePath),
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
-                              );
-                            }).toList(),
+                            items: imageList.isNotEmpty
+                                ? imageList.map((imagePath) {
+                                    return Container(
+                                      width: size.width,
+                                      decoration: BoxDecoration(
+                                        image: DecorationImage(
+                                          image: NetworkImage(imagePath),
+                                          fit: BoxFit.cover,
+                                        ),
+                                      ),
+                                    );
+                                  }).toList()
+                                : [
+                                    Container(
+                                      width: size.width,
+                                      height: size.height * 0.6,
+                                      color: Colors.grey.shade300,
+                                      child: const Icon(
+                                        Icons.image,
+                                        size: 80,
+                                        color: Colors.grey,
+                                      ),
+                                    ),
+                                  ],
                           ),
                           Positioned(
                             top: 50,
@@ -75,7 +125,7 @@ class _CardScreenState extends State<CardScreen> {
                             top: 50,
                             right: 20,
                             child: GestureDetector(
-                              onTap: () => Navigator.pop(context),
+                              onTap: () {},
                               child: const Icon(
                                 Icons.favorite_border_outlined,
                                 size: 30,
@@ -87,13 +137,12 @@ class _CardScreenState extends State<CardScreen> {
                       ),
                     ],
                   ),
-
                   Container(
                     margin: const EdgeInsets.only(top: 400),
-                    width: MediaQuery.of(context).size.width,
+                    width: size.width,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(40),
-                      color: const Color.fromRGBO(255, 255, 255, 1),
+                      color: Colors.white,
                     ),
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 30),
@@ -101,52 +150,31 @@ class _CardScreenState extends State<CardScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const SizedBox(height: 30),
-                          Row(
-                            children: [
-                              Text(
-                                "Mount Fuji",
-                                style: GoogleFonts.quicksand(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 24,
-                                  color: Colors.black,
-                                ),
-                              ),
-                              const Spacer(),
-                              const Icon(Icons.currency_rupee, size: 15),
-                              Text(
-                                "8000/Person",
-                                style: GoogleFonts.quicksand(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 15,
-                                  color: Colors.black,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 10),
-                          Row(
-                            children: [
-                              const Icon(
-                                Icons.location_pin,
-                                color: Color.fromARGB(255, 156, 148, 148),
-                              ),
-                              Text(
-                                "South Tokyo,Japan",
-                                style: GoogleFonts.quicksand(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 15,
-                                  color: const Color.fromARGB(
-                                    255,
-                                    156,
-                                    148,
-                                    148,
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width,
+                            child: Row(
+                              children: [
+                                SizedBox(
+                                  width:
+                                      MediaQuery.of(context).size.width * 0.8,
+                                  child: Text(
+                                    _safeToString(
+                                      widget.tripData['destination'],
+                                      "Trip",
+                                    ),
+                                    style: GoogleFonts.quicksand(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 24,
+                                    ),
                                   ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                           const SizedBox(height: 10),
+                          const SizedBox(height: 10),
                           Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Container(
                                 padding: const EdgeInsets.symmetric(
@@ -168,19 +196,18 @@ class _CardScreenState extends State<CardScreen> {
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
                                     Row(
-                                      children: const [
-                                        Icon(
+                                      children: [
+                                        const Icon(
                                           Icons.group_outlined,
                                           size: 20,
                                           color: Colors.black54,
                                         ),
-                                        SizedBox(width: 6),
+                                        const SizedBox(width: 6),
                                         Text(
-                                          "Max 12 Group Size",
-                                          style: TextStyle(
+                                          "Max ${widget.tripData['groupSize'] ?? 12} Group Size",
+                                          style: const TextStyle(
                                             fontSize: 14,
                                             fontWeight: FontWeight.w500,
-                                            color: Colors.black87,
                                           ),
                                         ),
                                       ],
@@ -194,19 +221,18 @@ class _CardScreenState extends State<CardScreen> {
                                       color: Colors.grey.shade300,
                                     ),
                                     Row(
-                                      children: const [
-                                        Icon(
-                                          Icons.access_time,
+                                      children: [
+                                        const Icon(
+                                          Icons.currency_rupee,
                                           size: 20,
                                           color: Colors.black54,
                                         ),
-                                        SizedBox(width: 6),
+                                        const SizedBox(width: 6),
                                         Text(
-                                          "7 Day Trip Duration",
-                                          style: TextStyle(
+                                          "${widget.tripData['maxBudget']}/ Person",
+                                          style: const TextStyle(
                                             fontSize: 14,
                                             fontWeight: FontWeight.w500,
-                                            color: Colors.black87,
                                           ),
                                         ),
                                       ],
@@ -220,7 +246,6 @@ class _CardScreenState extends State<CardScreen> {
                           Text(
                             "Boarding Point",
                             style: GoogleFonts.quicksand(
-                              color: Colors.black,
                               fontWeight: FontWeight.w700,
                               fontSize: 16,
                             ),
@@ -230,21 +255,21 @@ class _CardScreenState extends State<CardScreen> {
                             children: [
                               const Icon(Icons.pin_drop_outlined),
                               Text(
-                                "Pune",
+                                _safeToString(
+                                  widget.tripData['boardingPoint'],
+                                  "",
+                                ),
                                 style: GoogleFonts.quicksand(
-                                  color: Colors.black,
-                                  fontWeight: FontWeight.w700,
+                                  fontWeight: FontWeight.w500,
                                   fontSize: 16,
                                 ),
                               ),
                             ],
                           ),
                           const SizedBox(height: 20),
-
                           Text(
                             "Date of Journey",
                             style: GoogleFonts.quicksand(
-                              color: Colors.black,
                               fontWeight: FontWeight.w700,
                               fontSize: 16,
                             ),
@@ -254,10 +279,9 @@ class _CardScreenState extends State<CardScreen> {
                             children: [
                               const Icon(Icons.calendar_month),
                               Text(
-                                "26 Nov 2025",
+                                "${_safeToString(widget.tripData['startDate'], '-')} to ${_safeToString(widget.tripData['endDate'], '-')}",
                                 style: GoogleFonts.quicksand(
-                                  color: Colors.black,
-                                  fontWeight: FontWeight.w700,
+                                  fontWeight: FontWeight.w500,
                                   fontSize: 16,
                                 ),
                               ),
@@ -267,7 +291,6 @@ class _CardScreenState extends State<CardScreen> {
                           Text(
                             "Mode",
                             style: GoogleFonts.quicksand(
-                              color: Colors.black,
                               fontWeight: FontWeight.w700,
                               fontSize: 16,
                             ),
@@ -277,26 +300,11 @@ class _CardScreenState extends State<CardScreen> {
                             children: [
                               const Icon(Icons.car_rental_outlined),
                               Text(
-                                "Car ",
-                                style: GoogleFonts.quicksand(
-                                  color: Colors.black,
-                                  fontWeight: FontWeight.w400,
-                                  fontSize: 16,
+                                _safeToString(
+                                  widget.tripData['mode'],
+                                  "Car | Aeroplane",
                                 ),
-                              ),
-                              Text(
-                                "|",
                                 style: GoogleFonts.quicksand(
-                                  color: Colors.black,
-                                  fontWeight: FontWeight.w400,
-                                  fontSize: 16,
-                                ),
-                              ),
-                              const Icon(Icons.flight),
-                              Text(
-                                "Aeroplane ",
-                                style: GoogleFonts.quicksand(
-                                  color: Colors.black,
                                   fontWeight: FontWeight.w400,
                                   fontSize: 16,
                                 ),
@@ -307,56 +315,71 @@ class _CardScreenState extends State<CardScreen> {
                           Text(
                             "Description",
                             style: GoogleFonts.quicksand(
-                              color: Colors.black,
                               fontWeight: FontWeight.w700,
                               fontSize: 16,
                             ),
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            "Mount Fuji offers a breathtaking adventure with scenic trails, stunning sunrise views, and peaceful surroundings. Explore the Fuji Five Lakes, local culture, and unforgettable mountain landscapes.",
+                            _safeToString(
+                              widget.tripData['details'],
+                              "Trip description goes here.",
+                            ),
                             style: GoogleFonts.quicksand(
-                              color: Colors.black,
                               fontWeight: FontWeight.w400,
                               fontSize: 16,
                             ),
                           ),
                           const SizedBox(height: 20),
                           Text(
-                            "Activites",
+                            "Activities",
                             style: GoogleFonts.quicksand(
-                              color: Colors.black,
                               fontWeight: FontWeight.w700,
                               fontSize: 16,
                             ),
                           ),
                           Text(
-                            "Hike Mount Fuji, catch sunrise views, explore lakes, enjoy local food, and capture unforgettable moments.",
+                            _safeToString(
+                              widget.tripData['activities'],
+                              "Trip activities go here.",
+                            ),
                             style: GoogleFonts.quicksand(
-                              color: Colors.black,
                               fontWeight: FontWeight.w400,
                               fontSize: 16,
                             ),
                           ),
                           const SizedBox(height: 30),
-
                           GestureDetector(
                             onTap: () {
+                              // Validate tripId before navigating
+                              if (effectiveTripId.isEmpty) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text(
+                                      'Trip ID not found. Cannot proceed with booking.',
+                                    ),
+                                    backgroundColor: Colors.red,
+                                  ),
+                                );
+                                return;
+                              }
+
                               Navigator.of(context).push(
                                 MaterialPageRoute(
-                                  builder: (context) {
-                                    return BookingScreen();
-                                  },
+                                  builder: (context) => BookingScreen(
+                                    tripData: widget.tripData,
+                                    tripId: effectiveTripId,
+                                  ),
                                 ),
                               );
                             },
                             child: Container(
                               height: 70,
-                              width: MediaQuery.of(context).size.width,
+                              width: size.width,
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(20),
                                 color: Colors.green,
-                                boxShadow: [
+                                boxShadow: const [
                                   BoxShadow(
                                     color: Colors.grey,
                                     offset: Offset.zero,
