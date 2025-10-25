@@ -28,7 +28,6 @@ class _HomeScreenState extends State<HomeScreen> {
       backgroundColor: Colors.white,
       body: CustomScrollView(
         slivers: [
-          // 🌄 HEADER IMAGE + LOCATION + SEARCH BAR
           SliverAppBar(
             automaticallyImplyLeading: false,
             pinned: false,
@@ -128,7 +127,6 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
 
-          // 🧭 HORIZONTAL SCROLLABLE TABS
           SliverAppBar(
             pinned: true,
             backgroundColor: Colors.white,
@@ -172,7 +170,6 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
 
-          // 🧾 Section title
           SliverToBoxAdapter(
             child: Container(
               color: Colors.white,
@@ -188,7 +185,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
 
-          // 🏔️ PLACE CARDS FROM FIREBASE
+
           SliverPadding(
             padding: const EdgeInsets.fromLTRB(12, 8, 12, 24),
             sliver: StreamBuilder<QuerySnapshot>(
@@ -231,17 +228,16 @@ class _HomeScreenState extends State<HomeScreen> {
 
                     return GestureDetector(
                       onTap: () {
-                        // ✅ FIXED: Include document ID in tripData
                         Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder: (_) => CardScreen(
                               tripData: {
-                                'id': trip.id, // ← Add document ID here
-                                ...tripData, // ← Spread all other trip data
+                                'id': trip.id, 
+                                ...tripData,
                               },
                               tripId:
-                                  trip.id, // ← Also pass as separate parameter
+                                  trip.id, 
                             ),
                           ),
                         );
@@ -422,3 +418,4 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 }
+////HOME SCREEN CHECK KARA
