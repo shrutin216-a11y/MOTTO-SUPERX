@@ -196,7 +196,7 @@ class _BottomNavigationWidgetState extends State<BottomNavigationWidget> {
       case 2:
         return const StartTrip(); // Start Trip Page
       case 3:
-        return const MypostedTrips(); // Chat Page
+        return const MyPostedTripsScreen(); // Chat Page
       case 4:
         return const ProfileScreen(); // Profile Page
       default:

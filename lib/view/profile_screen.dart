@@ -245,7 +245,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  "Traveler Name",
+                                  userController.name,
                                   style: GoogleFonts.poppins(
                                     fontSize: 22,
                                     fontWeight: FontWeight.bold,
@@ -270,7 +270,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                                     ),
                                     const SizedBox(width: 6),
                                     Text(
-                                      "+91 95634 67567",
+                                      userController.mob,
                                       style: GoogleFonts.poppins(
                                         fontSize: 15,
                                         color: Colors.black87,
@@ -358,7 +358,8 @@ class _ProfileScreenState extends State<ProfileScreen>
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => const MypostedTrips(),
+                                  builder: (context) =>
+                                      const MyPostedTripsScreen(),
                                 ),
                               );
                             },
