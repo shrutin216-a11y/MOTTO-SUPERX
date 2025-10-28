@@ -55,15 +55,31 @@ class _BottomNavigationWidgetState extends State<BottomNavigationWidget> {
           },
           items: [
             _bottomBarItem(Icons.public_sharp, 0, label: "Explore"),
-            _bottomBarItem(CupertinoIcons.chat_bubble_2_fill, 1,
-                selectedIcon: CupertinoIcons.chat_bubble_2_fill, label: "Chat"),
-            _bottomBarItem(Icons.navigation_outlined, 2,
-                selectedIcon: Icons.alt_route_rounded, label: "Start Trip"),
-            _bottomBarItem(Icons.terrain_rounded, 3,
-                selectedIcon: Icons.terrain_rounded, label: "My Trips"),
-            
-            _bottomBarItem(Icons.account_circle_outlined, 4,
-                selectedIcon: Icons.account_circle_rounded, label: "Profile"),
+            _bottomBarItem(
+              CupertinoIcons.chat_bubble_2_fill,
+              1,
+              selectedIcon: CupertinoIcons.chat_bubble_2_fill,
+              label: "Chat",
+            ),
+            _bottomBarItem(
+              Icons.navigation_outlined,
+              2,
+              selectedIcon: Icons.alt_route_rounded,
+              label: "Start Trip",
+            ),
+            _bottomBarItem(
+              Icons.terrain_rounded,
+              3,
+              selectedIcon: Icons.terrain_rounded,
+              label: "My Trips",
+            ),
+
+            _bottomBarItem(
+              Icons.account_circle_outlined,
+              4,
+              selectedIcon: Icons.account_circle_rounded,
+              label: "Profile",
+            ),
           ],
           option: AnimatedBarOptions(
             barAnimation: BarAnimation.fade,
