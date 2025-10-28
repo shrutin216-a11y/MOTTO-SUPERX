@@ -185,7 +185,8 @@ class _StartTripScreenState extends State<StartTrip>
           "photoPaths": uploadedPhotoUrls, // store as list in Firestore
           "userId": user.uid,
           "userEmail": user.email ?? "",
-          "createdAt": DateTime.now().toIso8601String(),
+          "createdAt": FieldValue.serverTimestamp(),
+
         });
         log("✅ Trip added to Firebase");
 
