@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:motto_app/view/Favourites.dart';
 import 'package:motto_app/view/card_Screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -22,12 +23,59 @@ class _HomeScreenState extends State<HomeScreen> {
     'Devotional',
   ];
 
+  final user = FirebaseAuth.instance.currentUser;
+
+  // 🔥 Check if a trip is favourite
+  Future<bool> _isFavourite(String tripId) async {
+    if (user == null) return false;
+    final doc = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(user!.uid)
+        .collection('favourites')
+        .doc(tripId)
+        .get();
+    return doc.exists;
+  }
+
+  // ❤️ Toggle Favourite
+  Future<void> _toggleFavourite(String tripId, Map<String, dynamic> tripData) async {
+    if (user == null) return;
+    final favRef = FirebaseFirestore.instance
+        .collection('users')
+        .doc(user!.uid)
+        .collection('favourites')
+        .doc(tripId);
+
+    final favDoc = await favRef.get();
+
+    if (favDoc.exists) {
+      await favRef.delete();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Removed from favourites"),
+          backgroundColor: Colors.redAccent,
+        ),
+      );
+    } else {
+      await favRef.set(tripData);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Added to favourites"),
+          backgroundColor: Colors.green,
+        ),
+      );
+    }
+
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       body: CustomScrollView(
         slivers: [
+          // 🔹 Top Banner Section
           SliverAppBar(
             automaticallyImplyLeading: false,
             pinned: false,
@@ -53,14 +101,11 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // 📍 Location row
+                        // 📍 Top Row
                         Row(
                           children: [
-                            const Icon(
-                              Icons.pin_drop_outlined,
-                              color: Colors.white,
-                              size: 22,
-                            ),
+                            const Icon(Icons.pin_drop_outlined,
+                                color: Colors.white, size: 22),
                             const SizedBox(width: 6),
                             const Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -82,33 +127,28 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ),
                               ],
                             ),
-                            Spacer(),
+                            const Spacer(),
                             GestureDetector(
                               onTap: () {
                                 Navigator.of(context).push(
                                   MaterialPageRoute(
-                                    builder: (context) {
-                                      return Favourites();
-                                    },
+                                    builder: (context) => const Favourites(),
                                   ),
                                 );
                               },
-                              child: Icon(
-                                Icons.favorite_outline_outlined,
-                                color: Colors.white,
-                              ),
+                              child: const Icon(Icons.favorite_outline_outlined,
+                                  color: Colors.white),
                             ),
-                            SizedBox(width: 8),
-                            Icon(Icons.notifications, color: Colors.white),
+                            const SizedBox(width: 8),
+                            const Icon(Icons.notifications, color: Colors.white),
                           ],
                         ),
                         const SizedBox(height: 12),
                         SearchBar(
                           hintText: "Search Spots",
                           leading: const Icon(Icons.search),
-                          backgroundColor: const WidgetStatePropertyAll(
-                            Colors.white,
-                          ),
+                          backgroundColor:
+                              const WidgetStatePropertyAll(Colors.white),
                         ),
                         const SizedBox(height: 25),
                         Text(
@@ -127,6 +167,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
 
+          // 🔹 Category Tabs
           SliverAppBar(
             pinned: true,
             backgroundColor: Colors.white,
@@ -138,7 +179,8 @@ class _HomeScreenState extends State<HomeScreen> {
               child: ListView.separated(
                 scrollDirection: Axis.horizontal,
                 padding: const EdgeInsets.symmetric(horizontal: 16),
-                separatorBuilder: (context, index) => const SizedBox(width: 10),
+                separatorBuilder: (context, index) =>
+                    const SizedBox(width: 10),
                 itemCount: tabItems.length,
                 itemBuilder: (context, i) {
                   final isSel = selectedTab == i;
@@ -160,7 +202,8 @@ class _HomeScreenState extends State<HomeScreen> {
                         tabItems[i],
                         style: TextStyle(
                           color: isSel ? Colors.white : Colors.grey.shade900,
-                          fontWeight: isSel ? FontWeight.w700 : FontWeight.w600,
+                          fontWeight:
+                              isSel ? FontWeight.w700 : FontWeight.w600,
                         ),
                       ),
                     ),
@@ -170,6 +213,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
 
+          // 🔹 Recommended Label
           SliverToBoxAdapter(
             child: Container(
               color: Colors.white,
@@ -185,7 +229,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
 
-
+          // 🔹 Trip Cards
           SliverPadding(
             padding: const EdgeInsets.fromLTRB(12, 8, 12, 24),
             sliver: StreamBuilder<QuerySnapshot>(
@@ -195,15 +239,15 @@ class _HomeScreenState extends State<HomeScreen> {
                   .snapshots(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return SliverToBoxAdapter(
+                  return const SliverToBoxAdapter(
                     child: Center(child: CircularProgressIndicator()),
                   );
                 }
                 if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                  return SliverToBoxAdapter(
+                  return const SliverToBoxAdapter(
                     child: Center(
                       child: Padding(
-                        padding: const EdgeInsets.all(20),
+                        padding: EdgeInsets.all(20),
                         child: Text(
                           "No trips available",
                           style: TextStyle(color: Colors.grey),
@@ -219,61 +263,63 @@ class _HomeScreenState extends State<HomeScreen> {
                   delegate: SliverChildBuilderDelegate((context, index) {
                     final trip = trips[index];
                     final tripData = trip.data() as Map<String, dynamic>;
-                    final photos =
-                        (tripData['photoPaths'] as List<dynamic>?)
+                    final tripId = trip.id;
+
+                    final photos = (tripData['photoPaths'] as List<dynamic>?)
                             ?.map((e) => e.toString())
                             .toList() ??
                         [];
                     final firstPhoto = photos.isNotEmpty ? photos[0] : '';
 
-                    return GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => CardScreen(
-                              tripData: {
-                                'id': trip.id, 
-                                ...tripData,
-                              },
-                              tripId:
-                                  trip.id, 
-                            ),
-                          ),
-                        );
-                      },
-                      child: Container(
-                        width: double.infinity,
-                        margin: const EdgeInsets.symmetric(vertical: 10),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(16),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.15),
-                              blurRadius: 10,
-                              spreadRadius: 2,
-                              offset: const Offset(0, 5),
-                            ),
-                          ],
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            ClipRRect(
-                              borderRadius: const BorderRadius.vertical(
-                                top: Radius.circular(16),
+                    return FutureBuilder<bool>(
+                      future: _isFavourite(tripId),
+                      builder: (context, snapshot) {
+                        final isFav = snapshot.data ?? false;
+
+                        return GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => CardScreen(
+                                  tripData: {'id': tripId, ...tripData},
+                                  tripId: tripId,
+                                ),
                               ),
-                              child: Stack(
-                                children: [
-                                  firstPhoto.isNotEmpty
-                                      ? Image.network(
-                                          firstPhoto,
-                                          height: 200,
-                                          width: double.infinity,
-                                          fit: BoxFit.cover,
-                                          errorBuilder: (_, __, ___) =>
-                                              Container(
+                            );
+                          },
+                          child: Container(
+                            width: double.infinity,
+                            margin: const EdgeInsets.symmetric(vertical: 10),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(16),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.15),
+                                  blurRadius: 10,
+                                  spreadRadius: 2,
+                                  offset: const Offset(0, 5),
+                                ),
+                              ],
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                ClipRRect(
+                                  borderRadius: const BorderRadius.vertical(
+                                    top: Radius.circular(16),
+                                  ),
+                                  child: Stack(
+                                    children: [
+                                      firstPhoto.isNotEmpty
+                                          ? Image.network(
+                                              firstPhoto,
+                                              height: 200,
+                                              width: double.infinity,
+                                              fit: BoxFit.cover,
+                                              errorBuilder: (_, __, ___) =>
+                                                  Container(
                                                 height: 200,
                                                 color: Colors.grey.shade300,
                                                 child: const Icon(
@@ -282,104 +328,115 @@ class _HomeScreenState extends State<HomeScreen> {
                                                   color: Colors.grey,
                                                 ),
                                               ),
-                                        )
-                                      : Container(
-                                          height: 200,
-                                          color: Colors.grey.shade300,
-                                          child: const Icon(
-                                            Icons.image,
-                                            size: 80,
-                                            color: Colors.grey,
+                                            )
+                                          : Container(
+                                              height: 200,
+                                              color: Colors.grey.shade300,
+                                              child: const Icon(
+                                                Icons.image,
+                                                size: 80,
+                                                color: Colors.grey,
+                                              ),
+                                            ),
+                                      Positioned(
+                                        top: 15,
+                                        right: 12,
+                                        child: GestureDetector(
+                                          onTap: () =>
+                                              _toggleFavourite(tripId, tripData),
+                                          child: Icon(
+                                            isFav
+                                                ? Icons.favorite
+                                                : Icons.favorite_border,
+                                            color: isFav
+                                                ? Colors.red
+                                                : Colors.white,
+                                            size: 28,
                                           ),
-                                        ),
-                                  Positioned(
-                                    top: 20,
-                                    right: 12,
-                                    child: Icon(
-                                      Icons.favorite_border_outlined,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 12,
-                                vertical: 10,
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    children: [
-                                      Text(
-                                        tripData['destination'] ?? "Trip",
-                                        style: GoogleFonts.quicksand(
-                                          fontSize: 20,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                      const Spacer(),
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 6,
-                                          vertical: 3,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: Colors.green.shade600,
-                                          borderRadius: BorderRadius.circular(
-                                            6,
-                                          ),
-                                        ),
-                                        child: const Icon(
-                                          Icons.flight,
-                                          color: Colors.white,
-                                          size: 18,
                                         ),
                                       ),
                                     ],
                                   ),
-                                  const SizedBox(height: 6),
-                                  Row(
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 10,
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
-                                      const Icon(
-                                        Icons.calendar_month_rounded,
-                                        size: 20,
-                                        color: Colors.grey,
+                                      Row(
+                                        children: [
+                                          Text(
+                                            tripData['destination'] ?? "Trip",
+                                            style: GoogleFonts.quicksand(
+                                              fontSize: 20,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          const Spacer(),
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 6,
+                                              vertical: 3,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              color: Colors.green.shade600,
+                                              borderRadius:
+                                                  BorderRadius.circular(6),
+                                            ),
+                                            child: const Icon(
+                                              Icons.flight,
+                                              color: Colors.white,
+                                              size: 18,
+                                            ),
+                                          ),
+                                        ],
                                       ),
-                                      const SizedBox(width: 5),
-                                      Text(
-                                        "${tripData['startDate'] ?? '-'} to ${tripData['endDate'] ?? '-'}",
-                                        style: GoogleFonts.quicksand(
-                                          fontSize: 13,
-                                          color: Colors.grey,
-                                        ),
-                                      ),
-                                      const Spacer(),
+                                      const SizedBox(height: 6),
                                       Row(
                                         children: [
                                           const Icon(
-                                            Icons.currency_rupee,
-                                            size: 16,
+                                            Icons.calendar_month_rounded,
+                                            size: 20,
+                                            color: Colors.grey,
                                           ),
+                                          const SizedBox(width: 5),
                                           Text(
-                                            "${tripData['minBudget'] ?? '-'} - ${tripData['maxBudget'] ?? '-'} /person",
+                                            "${tripData['startDate'] ?? '-'} to ${tripData['endDate'] ?? '-'}",
                                             style: GoogleFonts.quicksand(
                                               fontSize: 13,
-                                              fontWeight: FontWeight.w600,
+                                              color: Colors.grey,
                                             ),
+                                          ),
+                                          const Spacer(),
+                                          Row(
+                                            children: [
+                                              const Icon(
+                                                Icons.currency_rupee,
+                                                size: 16,
+                                              ),
+                                              Text(
+                                                "${tripData['minBudget'] ?? '-'} - ${tripData['maxBudget'] ?? '-'} /person",
+                                                style: GoogleFonts.quicksand(
+                                                  fontSize: 13,
+                                                  fontWeight: FontWeight.w600,
+                                                ),
+                                              ),
+                                            ],
                                           ),
                                         ],
                                       ),
                                     ],
                                   ),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
-                      ),
+                          ),
+                        );
+                      },
                     );
                   }, childCount: trips.length),
                 );
@@ -390,32 +447,4 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
-
-  Widget _buildFilterChip(String label, IconData? icon) {
-    return Material(
-      color: Colors.white,
-      shape: StadiumBorder(side: BorderSide(color: Colors.grey.shade300)),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(999),
-        onTap: () {},
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (icon != null)
-                Row(
-                  children: [
-                    Icon(icon, size: 16, color: Colors.grey),
-                    const SizedBox(width: 6),
-                  ],
-                ),
-              Text(label, style: const TextStyle(fontWeight: FontWeight.w600)),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
 }
-////HOME SCREEN CHECK KARA

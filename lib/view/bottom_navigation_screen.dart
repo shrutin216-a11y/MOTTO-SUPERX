@@ -192,7 +192,7 @@ class _BottomNavigationWidgetState extends State<BottomNavigationWidget> {
       case 0:
         return const HomeScreen(); // Explore Page
       case 1:
-        return const ChatScreen(); // Favourites Page
+        return const ChatScreen(receiverId: '',receiverName: '',); // Favourites Page
       case 2:
         return const StartTrip(); // Start Trip Page
       case 3:
