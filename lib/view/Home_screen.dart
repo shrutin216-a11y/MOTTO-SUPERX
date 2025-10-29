@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:motto_app/view/Favourites.dart';
@@ -6,6 +8,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -18,8 +21,26 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+
+    saveFcmToken();
     _getCurrentLocation();
   }
+
+  Future<void> saveFcmToken() async {
+    try {
+      String? token = await FirebaseMessaging.instance.getToken();
+      if (token != null) {
+        await FirebaseFirestore.instance.collection('fcmTokens').doc(token).set(
+          {'createdAt': FieldValue.serverTimestamp()},
+        );
+        log("FCM token saved: $token");
+      }
+    } catch (e) {
+      log("Error saving FCM token: $e");
+    }
+  }
+
+  String searchQuery = '';
 
   int selectedTab = 0;
   final List<String> tabItems = [
@@ -79,6 +100,7 @@ class _HomeScreenState extends State<HomeScreen> {
     Placemark place = placemarks[0];
     setState(() {
       currentLocation = "${place.locality}, ${place.administrativeArea}";
+      log("Current Location: $currentLocation");
     });
   }
 
@@ -228,13 +250,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                     fontSize: 16,
                                   ),
                                 ),
-                                Text(
-                                  'Behind Crown Bakery • Narhe, Pune',
-                                  style: TextStyle(
-                                    color: Colors.white70,
-                                    fontSize: 12,
-                                  ),
-                                ),
                               ],
                             ),
                             const Spacer(),
@@ -265,7 +280,13 @@ class _HomeScreenState extends State<HomeScreen> {
                           backgroundColor: const WidgetStatePropertyAll(
                             Colors.white,
                           ),
+                          onChanged: (value) {
+                            setState(() {
+                              searchQuery = value.toLowerCase().trim();
+                            });
+                          },
                         ),
+
                         const SizedBox(height: 25),
                         Text(
                           "MOVE OUT \nTRAVEL TOGETHER",
@@ -284,64 +305,6 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
 
           // Category Tabs
-          SliverAppBar(
-            pinned: true,
-            backgroundColor: Colors.white,
-            elevation: 2,
-            automaticallyImplyLeading: false,
-            toolbarHeight: 15,
-            flexibleSpace: Padding(
-              padding: const EdgeInsets.only(top: 10, bottom: 10),
-              child: ListView.separated(
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                separatorBuilder: (context, index) => const SizedBox(width: 10),
-                itemCount: tabItems.length,
-                itemBuilder: (context, i) {
-                  final isSel = selectedTab == i;
-                  return GestureDetector(
-                    onTap: () => setState(() => selectedTab = i),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 14,
-                        vertical: 8,
-                      ),
-                      decoration: BoxDecoration(
-                        color: isSel ? Colors.black : Colors.grey.shade100,
-                        borderRadius: BorderRadius.circular(18),
-                        border: Border.all(
-                          color: isSel ? Colors.black : Colors.grey.shade300,
-                        ),
-                      ),
-                      child: Text(
-                        tabItems[i],
-                        style: TextStyle(
-                          color: isSel ? Colors.white : Colors.grey.shade900,
-                          fontWeight: isSel ? FontWeight.w700 : FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-          ),
-
-          // Recommended Label
-          SliverToBoxAdapter(
-            child: Container(
-              color: Colors.white,
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-              child: const Text(
-                'RECOMMENDED FOR YOU',
-                style: TextStyle(
-                  letterSpacing: 0.5,
-                  color: Colors.grey,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-          ),
 
           // Trip Cards
           SliverPadding(
@@ -371,7 +334,17 @@ class _HomeScreenState extends State<HomeScreen> {
                   );
                 }
 
-                final trips = snapshot.data!.docs;
+                final trips = snapshot.data!.docs.where((trip) {
+                  final data = trip.data() as Map<String, dynamic>;
+                  final destination = (data['destination'] ?? '')
+                      .toString()
+                      .toLowerCase();
+                  final details = (data['details'] ?? '')
+                      .toString()
+                      .toLowerCase();
+                  return destination.contains(searchQuery) ||
+                      details.contains(searchQuery);
+                }).toList();
 
                 return SliverList(
                   delegate: SliverChildBuilderDelegate((context, index) {
@@ -528,7 +501,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                 Icon(
                                                   isFullyBooked
                                                       ? Icons.cancel
-                                                      : Icons.flight,
+                                                      : Icons.people,
                                                   color: Colors.white,
                                                   size: 16,
                                                 ),
