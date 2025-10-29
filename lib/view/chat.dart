@@ -3,8 +3,93 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
+void main() {
+  runApp(
+    const MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: UserListScreen(),
+    ),
+  );
+}
+
+// 🧩 USER LIST SCREEN — shows all users and opens chat when tapped
+class UserListScreen extends StatelessWidget {
+  const UserListScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final currentUserId = FirebaseAuth.instance.currentUser!.uid;
+
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        title: Text(
+          "Chats",
+          style: GoogleFonts.quicksand(
+            fontWeight: FontWeight.w600,
+            fontSize: 24,
+          ),
+        ),
+        centerTitle: true,
+        backgroundColor: Colors.white,
+        elevation: 1,
+      ),
+      body: StreamBuilder<QuerySnapshot>(
+        stream: FirebaseFirestore.instance.collection('users').snapshots(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          final users = snapshot.data!.docs
+              .where((u) => u.id != currentUserId)
+              .toList();
+
+          if (users.isEmpty) {
+            return Center(
+              child: Text(
+                "No other users found.",
+                style: GoogleFonts.quicksand(fontSize: 16),
+              ),
+            );
+          }
+
+          return ListView.builder(
+            itemCount: users.length,
+            itemBuilder: (context, index) {
+              final user = users[index];
+              return ListTile(
+                leading: const CircleAvatar(
+                  backgroundColor: Colors.blueAccent,
+                  child: Icon(Icons.person, color: Colors.white),
+                ),
+                title: Text(
+                  user['name'] ?? "Unknown User",
+                  style: GoogleFonts.quicksand(fontSize: 18),
+                ),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => ChatScreen(
+                        receiverId: user.id,
+                        receiverName: user['name'] ?? "User",
+                      ),
+                    ),
+                  );
+                },
+              );
+            },
+          );
+        },
+      ),
+    );
+  }
+}
+
+// 💬 CHAT SCREEN — real-time one-to-one chat between two users
 class ChatScreen extends StatefulWidget {
-  final String receiverId; // the UID of the other user
+  final String receiverId;
   final String receiverName;
 
   const ChatScreen({
@@ -29,17 +114,47 @@ class _ChatScreenState extends State<ChatScreen> {
     String message = _messageController.text.trim();
     _messageController.clear();
 
-    // Create a unique chat room ID for both users (sorted so both see the same)
+    // Create a unique chat room ID (both users share the same)
     List<String> ids = [currentUserId, widget.receiverId];
     ids.sort();
     String chatRoomId = ids.join("_");
 
-    await _firestore.collection('chats').doc(chatRoomId).collection('messages').add({
-      'senderId': currentUserId,
-      'receiverId': widget.receiverId,
-      'message': message,
-      'timestamp': FieldValue.serverTimestamp(),
-    });
+    // Store the message
+    await _firestore
+        .collection('chats')
+        .doc(chatRoomId)
+        .collection('messages')
+        .add({
+          'senderId': currentUserId,
+          'receiverId': widget.receiverId,
+          'message': message,
+          'timestamp': FieldValue.serverTimestamp(),
+        });
+
+    // Store metadata for chat list
+    await _firestore
+        .collection('user_chats')
+        .doc(currentUserId)
+        .collection('contacts')
+        .doc(widget.receiverId)
+        .set({
+          'chatRoomId': chatRoomId,
+          'lastMessage': message,
+          'timestamp': FieldValue.serverTimestamp(),
+          'name': widget.receiverName,
+        });
+
+    await _firestore
+        .collection('user_chats')
+        .doc(widget.receiverId)
+        .collection('contacts')
+        .doc(currentUserId)
+        .set({
+          'chatRoomId': chatRoomId,
+          'lastMessage': message,
+          'timestamp': FieldValue.serverTimestamp(),
+          'name': _auth.currentUser!.displayName ?? "You",
+        });
   }
 
   @override
@@ -89,16 +204,21 @@ class _ChatScreenState extends State<ChatScreen> {
                     final isMe = msg['senderId'] == currentUserId;
 
                     return Align(
-                      alignment:
-                          isMe ? Alignment.centerRight : Alignment.centerLeft,
+                      alignment: isMe
+                          ? Alignment.centerRight
+                          : Alignment.centerLeft,
                       child: Container(
                         margin: const EdgeInsets.symmetric(
-                            vertical: 4, horizontal: 8),
+                          vertical: 4,
+                          horizontal: 8,
+                        ),
                         padding: const EdgeInsets.symmetric(
-                            vertical: 10, horizontal: 14),
+                          vertical: 10,
+                          horizontal: 14,
+                        ),
                         decoration: BoxDecoration(
                           color: isMe
-                              ? Colors.blueAccent.withOpacity(0.8)
+                              ? Colors.blueAccent.withOpacity(0.85)
                               : Colors.grey[300],
                           borderRadius: BorderRadius.circular(18),
                         ),
@@ -117,11 +237,10 @@ class _ChatScreenState extends State<ChatScreen> {
             ),
           ),
 
-          // Message input
+          // Message input box
           SafeArea(
             child: Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               decoration: BoxDecoration(
                 color: Colors.grey[100],
                 boxShadow: [
@@ -129,7 +248,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     color: Colors.black12,
                     offset: const Offset(0, -1),
                     blurRadius: 3,
-                  )
+                  ),
                 ],
               ),
               child: Row(
