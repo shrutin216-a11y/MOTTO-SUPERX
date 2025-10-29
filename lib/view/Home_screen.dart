@@ -25,7 +25,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   final user = FirebaseAuth.instance.currentUser;
 
-  // 🔥 Check if a trip is favourite
+  // Check Favourite
   Future<bool> _isFavourite(String tripId) async {
     if (user == null) return false;
     final doc = await FirebaseFirestore.instance
@@ -37,7 +37,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return doc.exists;
   }
 
-  // ❤️ Toggle Favourite
+  // Toggle Favourite
   Future<void> _toggleFavourite(String tripId, Map<String, dynamic> tripData) async {
     if (user == null) return;
     final favRef = FirebaseFirestore.instance
@@ -51,7 +51,7 @@ class _HomeScreenState extends State<HomeScreen> {
     if (favDoc.exists) {
       await favRef.delete();
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
+        const SnackBar(
           content: Text("Removed from favourites"),
           backgroundColor: Colors.redAccent,
         ),
@@ -59,7 +59,7 @@ class _HomeScreenState extends State<HomeScreen> {
     } else {
       await favRef.set(tripData);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
+        const SnackBar(
           content: Text("Added to favourites"),
           backgroundColor: Colors.green,
         ),
@@ -71,6 +71,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final double screenWidth = MediaQuery.of(context).size.width;
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: CustomScrollView(
@@ -101,7 +103,6 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // 📍 Top Row
                         Row(
                           children: [
                             const Icon(Icons.pin_drop_outlined,
@@ -167,18 +168,17 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
 
-          // 🔹 Category Tabs
-          SliverAppBar(
-            pinned: true,
-            backgroundColor: Colors.white,
-            elevation: 2,
-            automaticallyImplyLeading: false,
-            toolbarHeight: 15,
-            flexibleSpace: Padding(
-              padding: const EdgeInsets.only(top: 10, bottom: 10),
+          // 🔹 Category Tabs (Responsive Fix)
+          SliverToBoxAdapter(
+            child: Container(
+              color: Colors.white,
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              height: 60,
               child: ListView.separated(
                 scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: 16),
+                padding: EdgeInsets.symmetric(
+                  horizontal: screenWidth * 0.04,
+                ),
                 separatorBuilder: (context, index) =>
                     const SizedBox(width: 10),
                 itemCount: tabItems.length,
@@ -188,22 +188,25 @@ class _HomeScreenState extends State<HomeScreen> {
                     onTap: () => setState(() => selectedTab = i),
                     child: Container(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 14,
-                        vertical: 8,
+                        horizontal: 18,
+                        vertical: 10,
                       ),
                       decoration: BoxDecoration(
                         color: isSel ? Colors.black : Colors.grey.shade100,
-                        borderRadius: BorderRadius.circular(18),
+                        borderRadius: BorderRadius.circular(22),
                         border: Border.all(
                           color: isSel ? Colors.black : Colors.grey.shade300,
                         ),
                       ),
-                      child: Text(
-                        tabItems[i],
-                        style: TextStyle(
-                          color: isSel ? Colors.white : Colors.grey.shade900,
-                          fontWeight:
-                              isSel ? FontWeight.w700 : FontWeight.w600,
+                      child: Center(
+                        child: Text(
+                          tabItems[i],
+                          style: TextStyle(
+                            fontSize: screenWidth < 350 ? 12 : 14,
+                            color: isSel ? Colors.white : Colors.grey.shade900,
+                            fontWeight:
+                                isSel ? FontWeight.w700 : FontWeight.w600,
+                          ),
                         ),
                       ),
                     ),
@@ -229,7 +232,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
 
-          // 🔹 Trip Cards
+          // 🔹 Trip Cards (unchanged)
           SliverPadding(
             padding: const EdgeInsets.fromLTRB(12, 8, 12, 24),
             sliver: StreamBuilder<QuerySnapshot>(
