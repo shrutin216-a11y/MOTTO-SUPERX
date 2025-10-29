@@ -49,14 +49,12 @@ class _SplashScreenState extends State<SplashScreen>
 
       if (mounted) {
         if (userControllerObj.isUserLoggedIn) {
-          // Navigate to Home Screen
           Navigator.of(context).pushReplacement(
             MaterialPageRoute(
               builder: (context) => const BottomNavigationWidget(),
             ),
           );
         } else {
-          // Navigate to Login/First Screen
           Navigator.of(context).pushReplacement(
             MaterialPageRoute(
               builder: (context) => const FirstScreen(),
@@ -79,31 +77,24 @@ class _SplashScreenState extends State<SplashScreen>
     return Scaffold(
       backgroundColor: Colors.white,
       body: Center(
-        child: 
-          FadeTransition(
-            opacity: _fadeAnimation,
-            child: ScaleTransition(
-              scale: _scaleAnimation,
-              child: Container(
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.greenAccent,
-                      blurRadius: 30,
-                      spreadRadius: 5,
-                    ),
-                  ],
-                ),
-                child: Image.asset(
-                  "assets/logo2.png",
-                  height: 180,
-                  width: 180,
-                  fit: BoxFit.cover,
-                ),
+        child: FadeTransition(
+          opacity: _fadeAnimation,
+          child: ScaleTransition(
+            scale: _scaleAnimation,
+            child: Container(
+              // ✅ Removed outer glow (BoxShadow)
+              decoration: const BoxDecoration(
+                shape: BoxShape.circle,
+              ),
+              child: Image.asset(
+                "assets/Logo.png",
+                height: 180,
+                width: 180,
+                fit: BoxFit.cover,
               ),
             ),
           ),
+        ),
       ),
     );
   }

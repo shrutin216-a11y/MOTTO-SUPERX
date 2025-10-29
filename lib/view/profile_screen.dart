@@ -34,7 +34,6 @@ class _ProfileScreenState extends State<ProfileScreen>
   void initState() {
     super.initState();
     getData();
-
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 1),
@@ -43,13 +42,7 @@ class _ProfileScreenState extends State<ProfileScreen>
     _controller.forward();
   }
 
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  void getData() async {
+  Future<void> getData() async {
     await userController.getSharedPrefData();
     setState(() {});
   }
@@ -59,11 +52,11 @@ class _ProfileScreenState extends State<ProfileScreen>
       source: ImageSource.gallery,
       imageQuality: 80,
     );
-
     if (pickedFile != null) {
       setState(() {
         _imageFile = File(pickedFile.path);
       });
+      userController.setSharedPrefData({"profileImage": pickedFile.path});
     }
   }
 
@@ -73,7 +66,6 @@ class _ProfileScreenState extends State<ProfileScreen>
       backgroundColor: Colors.teal[50],
       body: Stack(
         children: [
-          //Gradient Header
           Container(
             height: 240,
             decoration: const BoxDecoration(
@@ -88,8 +80,6 @@ class _ProfileScreenState extends State<ProfileScreen>
               ),
             ),
           ),
-
-          // Decorative Icons
           Positioned(
             top: 40,
             left: 25,
@@ -108,8 +98,6 @@ class _ProfileScreenState extends State<ProfileScreen>
               size: 60,
             ),
           ),
-
-          // 📄 Content
           SafeArea(
             child: FadeTransition(
               opacity: _fadeAnim,
@@ -120,8 +108,6 @@ class _ProfileScreenState extends State<ProfileScreen>
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     const SizedBox(height: 25),
-
-                    // 🏷️ Header
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -130,13 +116,13 @@ class _ProfileScreenState extends State<ProfileScreen>
                             Icons.arrow_back,
                             color: Colors.white,
                           ),
-                          onPressed: () => Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) {
-                                return BottomNavigationWidget();
-                              },
-                            ),
-                          ),
+                          onPressed: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (_) => BottomNavigationWidget(),
+                              ),
+                            );
+                          },
                         ),
                         Text(
                           "Profile",
@@ -148,31 +134,27 @@ class _ProfileScreenState extends State<ProfileScreen>
                         ),
                         IconButton(
                           icon: const Icon(Icons.edit, color: Colors.white),
-                          onPressed: () {
-                            Navigator.push(
+                          onPressed: () async {
+                            await Navigator.push(
                               context,
                               MaterialPageRoute(
                                 builder: (context) => const EditScreen(),
                               ),
                             );
+                            await getData(); // Refresh updated data
                           },
                         ),
                       ],
                     ),
-
                     const SizedBox(height: 10),
-
                     Text(
-                      "Your travel identity at a glance ",
+                      "Your travel identity at a glance",
                       style: GoogleFonts.poppins(
                         color: Colors.white70,
                         fontSize: 14,
                       ),
                     ),
-
                     const SizedBox(height: 40),
-
-                    // 👤 Profile Info Card (Bigger Height)
                     Container(
                       padding: const EdgeInsets.all(25),
                       decoration: BoxDecoration(
@@ -189,7 +171,6 @@ class _ProfileScreenState extends State<ProfileScreen>
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          // Profile Circle (No default image)
                           Stack(
                             children: [
                               Container(
@@ -198,14 +179,25 @@ class _ProfileScreenState extends State<ProfileScreen>
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
                                   color: Colors.grey[300],
-                                  image: _imageFile != null
+                                  image: (_imageFile != null)
                                       ? DecorationImage(
                                           image: FileImage(_imageFile!),
                                           fit: BoxFit.cover,
                                         )
-                                      : null,
+                                      : (userController.profileImage.isNotEmpty
+                                            ? DecorationImage(
+                                                image: FileImage(
+                                                  File(
+                                                    userController.profileImage,
+                                                  ),
+                                                ),
+                                                fit: BoxFit.cover,
+                                              )
+                                            : null),
                                 ),
-                                child: _imageFile == null
+                                child:
+                                    (_imageFile == null &&
+                                        userController.profileImage.isEmpty)
                                     ? const Center(
                                         child: Icon(
                                           Icons.person,
@@ -236,16 +228,15 @@ class _ProfileScreenState extends State<ProfileScreen>
                               ),
                             ],
                           ),
-
                           const SizedBox(width: 20),
-
-                          // Name, Phone, Email
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  userController.name,
+                                  userController.name.isNotEmpty
+                                      ? userController.name
+                                      : "Traveler Name",
                                   style: GoogleFonts.poppins(
                                     fontSize: 22,
                                     fontWeight: FontWeight.bold,
@@ -254,7 +245,9 @@ class _ProfileScreenState extends State<ProfileScreen>
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
-                                  "Adventure Enthusiast",
+                                  userController.bio.isNotEmpty
+                                      ? userController.bio
+                                      : "Adventure Enthusiast",
                                   style: GoogleFonts.poppins(
                                     color: Colors.grey[600],
                                     fontSize: 15,
@@ -270,7 +263,9 @@ class _ProfileScreenState extends State<ProfileScreen>
                                     ),
                                     const SizedBox(width: 6),
                                     Text(
-                                      userController.mob,
+                                      userController.mob.isNotEmpty
+                                          ? userController.mob
+                                          : "+91 00000 00000",
                                       style: GoogleFonts.poppins(
                                         fontSize: 15,
                                         color: Colors.black87,
@@ -305,146 +300,8 @@ class _ProfileScreenState extends State<ProfileScreen>
                         ],
                       ),
                     ),
-
                     const SizedBox(height: 50),
-
-                    // 🧭 Menu Options Card
-                    Container(
-                      padding: const EdgeInsets.symmetric(vertical: 10),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(20),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.teal.withOpacity(0.1),
-                            blurRadius: 10,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        children: [
-                          _buildMenuItem(
-                            Icons.add_location_alt_outlined,
-                            "Create Trip",
-                            context,
-                            () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => const StartTrip(),
-                                ),
-                              );
-                            },
-                          ),
-                          _buildMenuItem(
-                            Icons.favorite_border,
-                            "Favourites",
-                            context,
-                            () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => const Favourites(),
-                                ),
-                              );
-                            },
-                          ),
-                          _buildMenuItem(
-                            Icons.map_rounded,
-                            "My Posted Trips",
-                            context,
-                            () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      const MyPostedTripsScreen(),
-                                ),
-                              );
-                            },
-                          ),
-                          _buildMenuItem(
-                            Icons.reviews,
-                            "My bookings",
-                            context,
-                            () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => MyBookingsScreen(),
-                                ),
-                              );
-                            },
-                          ),
-                          _buildMenuItem(
-                            Icons.feedback_outlined,
-                            "Feedback",
-                            context,
-                            () {
-                              _showFeedbackDialog(context);
-                            },
-                          ),
-                          _buildMenuItem(
-                            Icons.settings,
-                            "Settings",
-                            context,
-                            () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => const SettingScreen(),
-                                ),
-                              );
-                            },
-                          ),
-                          const Divider(),
-                          GestureDetector(
-                            onTap: () async {
-                              bool confirm = await _showLogoutConfirmation(
-                                context,
-                              );
-                              if (confirm) {
-                                SharedPreferences prefs =
-                                    await SharedPreferences.getInstance();
-                                await prefs.clear();
-                                await FirebaseAuth.instance.signOut();
-                                Navigator.of(context).pushAndRemoveUntil(
-                                  MaterialPageRoute(
-                                    builder: (context) => const LoginScreen(),
-                                  ),
-                                  (route) => false,
-                                );
-                              }
-                            },
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(
-                                vertical: 12,
-                                horizontal: 16,
-                              ),
-                              child: Row(
-                                children: [
-                                  const Icon(
-                                    Icons.logout,
-                                    color: Colors.redAccent,
-                                  ),
-                                  const SizedBox(width: 10),
-                                  Text(
-                                    "Logout",
-                                    style: GoogleFonts.poppins(
-                                      color: Colors.redAccent,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    const SizedBox(height: 60),
+                    _buildMenu(context),
                   ],
                 ),
               ),
@@ -455,13 +312,86 @@ class _ProfileScreenState extends State<ProfileScreen>
     );
   }
 
-  // Reusable Menu Item Widget
-  Widget _buildMenuItem(
-    IconData icon,
-    String title,
-    BuildContext context,
-    VoidCallback onTap,
-  ) {
+  Widget _buildMenu(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 10),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.teal.withOpacity(0.1),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          _menu(Icons.add_location_alt_outlined, "Create Trip", () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const StartTrip()),
+            );
+          }),
+          _menu(Icons.favorite_border, "Favourites", () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const Favourites()),
+            );
+          }),
+          _menu(Icons.explore_outlined, "My Posted Trips", () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const MyPostedTripsScreen()),
+            );
+          }),
+          _menu(Icons.confirmation_num_outlined, "My Bookings", () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const MyBookingsScreen()),
+            );
+          }),
+          _menu(Icons.settings, "Settings", () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const SettingScreen()),
+            );
+          }),
+          const Divider(),
+          GestureDetector(
+            onTap: () async {
+              final prefs = await SharedPreferences.getInstance();
+              await prefs.clear();
+              await FirebaseAuth.instance.signOut();
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (_) => const LoginScreen()),
+              );
+            },
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+              child: Row(
+                children: [
+                  const Icon(Icons.logout, color: Colors.redAccent),
+                  const SizedBox(width: 10),
+                  Text(
+                    "Logout",
+                    style: GoogleFonts.poppins(
+                      color: Colors.redAccent,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _menu(IconData icon, String title, VoidCallback onTap) {
     return GestureDetector(
       onTap: onTap,
       child: Padding(
@@ -485,67 +415,5 @@ class _ProfileScreenState extends State<ProfileScreen>
         ),
       ),
     );
-  }
-
-  // Feedback Dialog
-  void _showFeedbackDialog(BuildContext context) {
-    final TextEditingController feedbackController = TextEditingController();
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text("Feedback"),
-        content: TextField(
-          controller: feedbackController,
-          decoration: const InputDecoration(
-            hintText: "Share your feedback here...",
-          ),
-          maxLines: 3,
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text("Cancel"),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text("Thanks for your feedback!"),
-                  backgroundColor: Colors.teal,
-                ),
-              );
-            },
-            child: const Text("Submit"),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // Logout Confirmation Dialog
-  Future<bool> _showLogoutConfirmation(BuildContext context) async {
-    bool confirm = false;
-    await showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text("Logout"),
-        content: const Text("Are you sure you want to log out?"),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text("Cancel"),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              confirm = true;
-              Navigator.pop(context);
-            },
-            child: const Text("Logout"),
-          ),
-        ],
-      ),
-    );
-    return confirm;
   }
 }

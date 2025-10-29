@@ -20,12 +20,10 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
     List<Map<String, dynamic>> userBookings = [];
 
     try {
-      // Get all trips
       QuerySnapshot tripsSnapshot = await FirebaseFirestore.instance
           .collection('trips')
           .get();
 
-      // For each trip, get bookings made by current user
       for (var tripDoc in tripsSnapshot.docs) {
         QuerySnapshot bookingsSnapshot = await FirebaseFirestore.instance
             .collection('trips')
@@ -34,7 +32,6 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
             .where('bookedBy', isEqualTo: currentUser!.uid)
             .get();
 
-        // Add each booking with trip details
         for (var bookingDoc in bookingsSnapshot.docs) {
           Map<String, dynamic> tripData =
               tripDoc.data() as Map<String, dynamic>;
@@ -50,7 +47,6 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
         }
       }
 
-      // Sort by timestamp (newest first)
       userBookings.sort((a, b) {
         Timestamp? aTime = a['bookingData']['timestamp'];
         Timestamp? bTime = b['bookingData']['timestamp'];
@@ -76,15 +72,15 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
     if (currentUser == null) {
       return Scaffold(
         appBar: AppBar(
-          title: Text('My Bookings'),
+          title: const Text('My Bookings'),
           backgroundColor: Colors.teal,
         ),
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.login, size: 80, color: Colors.grey),
-              SizedBox(height: 20),
+              const Icon(Icons.login, size: 80, color: Colors.grey),
+              const SizedBox(height: 20),
               Text(
                 'Please login to view your bookings',
                 style: GoogleFonts.poppins(fontSize: 18, color: Colors.grey),
@@ -95,40 +91,58 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
       );
     }
 
+    // 🔹 Updated background UI below
     return Scaffold(
       backgroundColor: Colors.grey.shade50,
-      body: CustomScrollView(
-        slivers: [
-          // App Bar
-          SliverAppBar(
-            expandedHeight: 180,
-            pinned: true,
-            backgroundColor: Colors.teal,
-            flexibleSpace: FlexibleSpaceBar(
-              background: Container(
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [Colors.teal, Colors.green],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                ),
-                child: SafeArea(
-                  child: Padding(
-                    padding: const EdgeInsets.all(20),
+      body: Stack(
+        children: [
+          // Profile-style gradient header
+          Container(
+            height: 160,
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Color(0xFF00BFA5), Color(0xFF4DB6AC)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(45),
+                bottomRight: Radius.circular(45),
+              ),
+            ),
+          ),
+
+          // Main content (scroll view)
+          SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.only(top: 20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  // Header text (replacing SliverAppBar)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.end,
                       children: [
-                        Text(
-                          'My Bookings',
-                          style: GoogleFonts.poppins(
-                            fontSize: 32,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
+                        Row(
+                          //mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            IconButton(
+                              onPressed: () => Navigator.pop(context),
+                              icon: Icon(Icons.arrow_back, color: Colors.white),
+                            ),
+                            SizedBox(width: 35),
+                            Text(
+                              'My Bookings',
+                              style: GoogleFonts.poppins(
+                                fontSize: 28,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ],
                         ),
-                        SizedBox(height: 8),
+                        const SizedBox(height: 6),
                         Text(
                           'View all your trip bookings',
                           style: GoogleFonts.poppins(
@@ -139,382 +153,352 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                       ],
                     ),
                   ),
-                ),
-              ),
-            ),
-          ),
 
-          // Bookings List
-          SliverPadding(
-            padding: const EdgeInsets.all(16),
-            sliver: FutureBuilder<List<Map<String, dynamic>>>(
-              future: fetchUserBookings(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return SliverToBoxAdapter(
-                    child: Center(
-                      child: Padding(
-                        padding: const EdgeInsets.all(50),
-                        child: CircularProgressIndicator(color: Colors.teal),
-                      ),
-                    ),
-                  );
-                }
+                  const SizedBox(height: 50),
 
-                if (snapshot.hasError) {
-                  return SliverToBoxAdapter(
-                    child: Center(
-                      child: Padding(
-                        padding: const EdgeInsets.all(20),
-                        child: Column(
-                          children: [
-                            Icon(
-                              Icons.error_outline,
-                              size: 60,
-                              color: Colors.red,
-                            ),
-                            SizedBox(height: 16),
-                            Text(
-                              'Error loading bookings',
-                              style: GoogleFonts.poppins(
-                                fontSize: 16,
-                                color: Colors.red,
+                  // Expanded list content
+                  Expanded(
+                    child: FutureBuilder<List<Map<String, dynamic>>>(
+                      future: fetchUserBookings(),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const Center(
+                            child: Padding(
+                              padding: EdgeInsets.all(50),
+                              child: CircularProgressIndicator(
+                                color: Colors.teal,
                               ),
                             ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  );
-                }
+                          );
+                        }
 
-                final bookings = snapshot.data ?? [];
-
-                if (bookings.isEmpty) {
-                  return SliverToBoxAdapter(
-                    child: Center(
-                      child: Padding(
-                        padding: const EdgeInsets.all(50),
-                        child: Column(
-                          children: [
-                            Icon(
-                              Icons.event_busy,
-                              size: 80,
-                              color: Colors.grey,
-                            ),
-                            SizedBox(height: 20),
-                            Text(
-                              'No bookings yet',
-                              style: GoogleFonts.poppins(
-                                fontSize: 20,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.grey,
-                              ),
-                            ),
-                            SizedBox(height: 8),
-                            Text(
-                              'Start exploring and book your first trip!',
-                              style: GoogleFonts.poppins(
-                                fontSize: 14,
-                                color: Colors.grey,
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  );
-                }
-
-                return SliverList(
-                  delegate: SliverChildBuilderDelegate((context, index) {
-                    final booking = bookings[index];
-                    final tripData =
-                        booking['tripData'] as Map<String, dynamic>;
-                    final bookingData =
-                        booking['bookingData'] as Map<String, dynamic>;
-                    final passengers =
-                        bookingData['passengers'] as List<dynamic>? ?? [];
-
-                    // Get first photo
-                    final photos =
-                        (tripData['photoPaths'] as List<dynamic>?)
-                            ?.map((e) => e.toString())
-                            .toList() ??
-                        [];
-                    final firstPhoto = photos.isNotEmpty ? photos[0] : '';
-
-                    return Container(
-                      margin: const EdgeInsets.only(bottom: 16),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(16),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.08),
-                            blurRadius: 10,
-                            offset: Offset(0, 4),
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // Trip Image
-                          ClipRRect(
-                            borderRadius: BorderRadius.vertical(
-                              top: Radius.circular(16),
-                            ),
-                            child: firstPhoto.isNotEmpty
-                                ? Image.network(
-                                    firstPhoto,
-                                    height: 180,
-                                    width: double.infinity,
-                                    fit: BoxFit.cover,
-                                    errorBuilder: (_, __, ___) => Container(
-                                      height: 180,
-                                      color: Colors.grey.shade300,
-                                      child: Icon(
-                                        Icons.broken_image,
-                                        size: 60,
-                                        color: Colors.grey,
-                                      ),
-                                    ),
-                                  )
-                                : Container(
-                                    height: 180,
-                                    color: Colors.grey.shade300,
-                                    child: Icon(
-                                      Icons.image,
-                                      size: 60,
-                                      color: Colors.grey,
-                                    ),
-                                  ),
-                          ),
-
-                          Padding(
-                            padding: const EdgeInsets.all(16),
+                        if (snapshot.hasError) {
+                          return Center(
                             child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                // Trip Name & Status
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: Text(
-                                        tripData['destination'] ?? 'Trip',
-                                        style: GoogleFonts.poppins(
-                                          fontSize: 20,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ),
-                                    // Check booking status
-                                    Builder(
-                                      builder: (context) {
-                                        final status =
-                                            bookingData['status'] ??
-                                            'confirmed';
-                                        final isCancelled =
-                                            status == 'cancelled';
-                                        final isPartial = status == 'partial';
-
-                                        Color bgColor = Colors.green.shade50;
-                                        Color borderColor = Colors.green;
-                                        Color textColor = Colors.green;
-                                        IconData icon = Icons.check_circle;
-                                        String statusText = 'Confirmed';
-
-                                        if (isCancelled) {
-                                          bgColor = Colors.red.shade50;
-                                          borderColor = Colors.red;
-                                          textColor = Colors.red;
-                                          icon = Icons.cancel;
-                                          statusText = 'Cancelled';
-                                        } else if (isPartial) {
-                                          bgColor = Colors.orange.shade50;
-                                          borderColor = Colors.orange;
-                                          textColor = Colors.orange;
-                                          icon = Icons.warning_rounded;
-                                          statusText = 'Partial';
-                                        }
-
-                                        return Container(
-                                          padding: EdgeInsets.symmetric(
-                                            horizontal: 12,
-                                            vertical: 6,
-                                          ),
-                                          decoration: BoxDecoration(
-                                            color: bgColor,
-                                            borderRadius: BorderRadius.circular(
-                                              20,
-                                            ),
-                                            border: Border.all(
-                                              color: borderColor,
-                                              width: 1.5,
-                                            ),
-                                          ),
-                                          child: Row(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              Icon(
-                                                icon,
-                                                color: textColor,
-                                                size: 16,
-                                              ),
-                                              SizedBox(width: 4),
-                                              Text(
-                                                statusText,
-                                                style: GoogleFonts.poppins(
-                                                  color: textColor,
-                                                  fontWeight: FontWeight.w600,
-                                                  fontSize: 12,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        );
-                                      },
-                                    ),
-                                  ],
+                                const Icon(
+                                  Icons.error_outline,
+                                  size: 60,
+                                  color: Colors.red,
                                 ),
-
-                                SizedBox(height: 12),
-
-                                // Booking Details
-                                _buildInfoRow(
-                                  Icons.calendar_month,
-                                  'Journey Date',
-                                  '${tripData['startDate'] ?? '-'} to ${tripData['endDate'] ?? '-'}',
-                                ),
-                                SizedBox(height: 8),
-                                _buildInfoRow(
-                                  Icons.group,
-                                  'Passengers',
-                                  '${passengers.length} ${passengers.length == 1 ? 'person' : 'people'}',
-                                ),
-                                SizedBox(height: 8),
-                                _buildInfoRow(
-                                  Icons.pin_drop_outlined,
-                                  'Boarding Point',
-                                  tripData['boardingPoint'] ?? 'N/A',
-                                ),
-                                SizedBox(height: 8),
-                                _buildInfoRow(
-                                  Icons.access_time,
-                                  'Booked On',
-                                  formatTimestamp(bookingData['timestamp']),
-                                ),
-
-                                SizedBox(height: 16),
-                                Divider(),
-                                SizedBox(height: 8),
-
-                                // Passenger Names
+                                const SizedBox(height: 12),
                                 Text(
-                                  'Passengers:',
+                                  'Error loading bookings',
                                   style: GoogleFonts.poppins(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.grey.shade700,
-                                  ),
-                                ),
-                                SizedBox(height: 8),
-                                ...passengers.map((passenger) {
-                                  final isPassengerCancelled =
-                                      passenger['status'] == 'cancelled';
-
-                                  return Padding(
-                                    padding: const EdgeInsets.only(bottom: 4),
-                                    child: Row(
-                                      children: [
-                                        Icon(
-                                          isPassengerCancelled
-                                              ? Icons.cancel
-                                              : Icons.person,
-                                          size: 16,
-                                          color: isPassengerCancelled
-                                              ? Colors.red
-                                              : Colors.teal,
-                                        ),
-                                        SizedBox(width: 8),
-                                        Expanded(
-                                          child: Text(
-                                            passenger['name'] ?? 'N/A',
-                                            style: GoogleFonts.poppins(
-                                              fontSize: 14,
-                                              color: isPassengerCancelled
-                                                  ? Colors.red
-                                                  : Colors.grey.shade800,
-                                              decoration: isPassengerCancelled
-                                                  ? TextDecoration.lineThrough
-                                                  : null,
-                                            ),
-                                          ),
-                                        ),
-                                        if (isPassengerCancelled)
-                                          Container(
-                                            padding: EdgeInsets.symmetric(
-                                              horizontal: 6,
-                                              vertical: 2,
-                                            ),
-                                            decoration: BoxDecoration(
-                                              color: Colors.red,
-                                              borderRadius:
-                                                  BorderRadius.circular(8),
-                                            ),
-                                            child: Text(
-                                              'Cancelled',
-                                              style: GoogleFonts.poppins(
-                                                fontSize: 10,
-                                                fontWeight: FontWeight.bold,
-                                                color: Colors.white,
-                                              ),
-                                            ),
-                                          ),
-                                      ],
-                                    ),
-                                  );
-                                }),
-
-                                SizedBox(height: 16),
-
-                                // View Details Button
-                                SizedBox(
-                                  width: double.infinity,
-                                  child: ElevatedButton(
-                                    onPressed: () {
-                                      _showBookingDetails(context, booking);
-                                    },
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.teal,
-                                      padding: EdgeInsets.symmetric(
-                                        vertical: 14,
-                                      ),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
-                                    ),
-                                    child: Text(
-                                      'View Full Details',
-                                      style: GoogleFonts.poppins(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w600,
-                                        color: Colors.white,
-                                      ),
-                                    ),
+                                    fontSize: 16,
+                                    color: Colors.red,
                                   ),
                                 ),
                               ],
                             ),
+                          );
+                        }
+
+                        final bookings = snapshot.data ?? [];
+
+                        if (bookings.isEmpty) {
+                          return Center(
+                            child: Padding(
+                              padding: const EdgeInsets.all(50),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Icon(
+                                    Icons.event_busy,
+                                    size: 80,
+                                    color: Colors.grey,
+                                  ),
+                                  const SizedBox(height: 20),
+                                  Text(
+                                    'No bookings yet',
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.grey,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    'Start exploring and book your first trip!',
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 14,
+                                      color: Colors.grey,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        }
+
+                        // 🔹 Booking list
+                        return ListView.builder(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 8,
                           ),
-                        ],
-                      ),
-                    );
-                  }, childCount: bookings.length),
-                );
-              },
+                          itemCount: bookings.length,
+                          itemBuilder: (context, index) {
+                            final booking = bookings[index];
+                            final tripData =
+                                booking['tripData'] as Map<String, dynamic>;
+                            final bookingData =
+                                booking['bookingData'] as Map<String, dynamic>;
+                            final passengers =
+                                bookingData['passengers'] as List<dynamic>? ??
+                                [];
+                            final photos =
+                                (tripData['photoPaths'] as List<dynamic>?)
+                                    ?.map((e) => e.toString())
+                                    .toList() ??
+                                [];
+                            final firstPhoto = photos.isNotEmpty
+                                ? photos[0]
+                                : '';
+
+                            return Container(
+                              margin: const EdgeInsets.only(bottom: 16),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(16),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.08),
+                                    blurRadius: 10,
+                                    offset: const Offset(0, 4),
+                                  ),
+                                ],
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  ClipRRect(
+                                    borderRadius: const BorderRadius.vertical(
+                                      top: Radius.circular(16),
+                                    ),
+                                    child: firstPhoto.isNotEmpty
+                                        ? Image.network(
+                                            firstPhoto,
+                                            height: 180,
+                                            width: double.infinity,
+                                            fit: BoxFit.cover,
+                                            errorBuilder: (_, __, ___) =>
+                                                Container(
+                                                  height: 180,
+                                                  color: Colors.grey.shade300,
+                                                  child: const Icon(
+                                                    Icons.broken_image,
+                                                    size: 60,
+                                                    color: Colors.grey,
+                                                  ),
+                                                ),
+                                          )
+                                        : Container(
+                                            height: 180,
+                                            color: Colors.grey.shade300,
+                                            child: const Icon(
+                                              Icons.image,
+                                              size: 60,
+                                              color: Colors.grey,
+                                            ),
+                                          ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.all(16),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Row(
+                                          children: [
+                                            Expanded(
+                                              child: Text(
+                                                tripData['destination'] ??
+                                                    'Trip',
+                                                style: GoogleFonts.poppins(
+                                                  fontSize: 20,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ),
+                                            _buildStatusChip(
+                                              bookingData['status'],
+                                            ),
+                                          ],
+                                        ),
+                                        const SizedBox(height: 12),
+                                        _buildInfoRow(
+                                          Icons.calendar_month,
+                                          'Journey Date',
+                                          '${tripData['startDate'] ?? '-'} to ${tripData['endDate'] ?? '-'}',
+                                        ),
+                                        const SizedBox(height: 8),
+                                        _buildInfoRow(
+                                          Icons.group,
+                                          'Passengers',
+                                          '${passengers.length} ${passengers.length == 1 ? 'person' : 'people'}',
+                                        ),
+                                        const SizedBox(height: 8),
+                                        _buildInfoRow(
+                                          Icons.pin_drop_outlined,
+                                          'Boarding Point',
+                                          tripData['boardingPoint'] ?? 'N/A',
+                                        ),
+                                        const SizedBox(height: 8),
+                                        _buildInfoRow(
+                                          Icons.access_time,
+                                          'Booked On',
+                                          formatTimestamp(
+                                            bookingData['timestamp'],
+                                          ),
+                                        ),
+                                        const SizedBox(height: 16),
+                                        Divider(color: Colors.grey.shade300),
+                                        const SizedBox(height: 8),
+                                        Text(
+                                          'Passengers:',
+                                          style: GoogleFonts.poppins(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w600,
+                                            color: Colors.grey.shade700,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 8),
+                                        ...passengers.map((p) {
+                                          final cancelled =
+                                              p['status'] == 'cancelled';
+                                          return Padding(
+                                            padding: const EdgeInsets.only(
+                                              bottom: 4,
+                                            ),
+                                            child: Row(
+                                              children: [
+                                                Icon(
+                                                  cancelled
+                                                      ? Icons.cancel
+                                                      : Icons.person,
+                                                  size: 16,
+                                                  color: cancelled
+                                                      ? Colors.red
+                                                      : Colors.teal,
+                                                ),
+                                                const SizedBox(width: 8),
+                                                Expanded(
+                                                  child: Text(
+                                                    p['name'] ?? 'N/A',
+                                                    style: GoogleFonts.poppins(
+                                                      fontSize: 14,
+                                                      color: cancelled
+                                                          ? Colors.red
+                                                          : Colors
+                                                                .grey
+                                                                .shade800,
+                                                      decoration: cancelled
+                                                          ? TextDecoration
+                                                                .lineThrough
+                                                          : null,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          );
+                                        }),
+                                        const SizedBox(height: 16),
+                                        SizedBox(
+                                          width: double.infinity,
+                                          child: ElevatedButton(
+                                            onPressed: () {
+                                              _showBookingDetails(
+                                                context,
+                                                booking,
+                                              );
+                                            },
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor: const Color(
+                                                0xFF00BFA5,
+                                              ),
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                    vertical: 14,
+                                                  ),
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(12),
+                                              ),
+                                            ),
+                                            child: Text(
+                                              'View Full Details',
+                                              style: GoogleFonts.poppins(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.w600,
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // --- Helper Widgets (unchanged) ---
+  Widget _buildStatusChip(String? status) {
+    final s = status ?? 'confirmed';
+    Color bg = Colors.green.shade50, border = Colors.green, text = Colors.green;
+    IconData icon = Icons.check_circle;
+    String txt = 'Confirmed';
+
+    if (s == 'cancelled') {
+      bg = Colors.red.shade50;
+      border = Colors.red;
+      text = Colors.red;
+      icon = Icons.cancel;
+      txt = 'Cancelled';
+    } else if (s == 'partial') {
+      bg = Colors.orange.shade50;
+      border = Colors.orange;
+      text = Colors.orange;
+      icon = Icons.warning_rounded;
+      txt = 'Partial';
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: border, width: 1.5),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, color: text, size: 16),
+          const SizedBox(width: 4),
+          Text(
+            txt,
+            style: GoogleFonts.poppins(
+              color: text,
+              fontWeight: FontWeight.w600,
+              fontSize: 12,
             ),
           ),
         ],
@@ -526,7 +510,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
     return Row(
       children: [
         Icon(icon, size: 18, color: Colors.grey.shade600),
-        SizedBox(width: 8),
+        const SizedBox(width: 8),
         Text(
           '$label: ',
           style: GoogleFonts.poppins(fontSize: 13, color: Colors.grey.shade600),
