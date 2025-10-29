@@ -7,10 +7,10 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:motto_app/controller/placesApi_controller.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:motto_app/controller/tripDatabase.dart';
 
 import 'package:motto_app/controller/shared_preference.dart';
-
 
 import 'package:motto_app/view/bottom_navigation_screen.dart';
 
@@ -187,8 +187,23 @@ class _StartTripScreenState extends State<StartTrip>
           "userEmail": user.email ?? "",
           "createdAt": FieldValue.serverTimestamp(),
           "status": "active",
-
         });
+
+        await FirebaseFirestore.instance.collection('notifications').add({
+          'title': 'New Trip Added!',
+          'body':
+              'A new trip to ${formData["destination"]} has been posted. Check it out!',
+          'timestamp': FieldValue.serverTimestamp(),
+        });
+//         FirebaseFirestore.instance.collection('fcmTokens').get().then((snapshot) {
+//   for (var doc in snapshot.docs) {
+//     final token = doc.data()['token'];
+//     if (token != null) {
+//       sendFcmMessage(token, "New Trip Posted!", "A trip to ${formData['destination']} added");
+//     }
+//   }
+// });
+
         log("✅ Trip added to Firebase");
 
         ScaffoldMessenger.of(context).showSnackBar(
