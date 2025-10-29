@@ -10,8 +10,8 @@ import 'package:motto_app/view/booking_sucessScreen.dart';
 
 class BookingScreen extends StatefulWidget {
   final Map<String, dynamic> tripData;
-  final bool isLoggedIn; // New flag to check login
-  final String tripId; // Add this line
+  final bool isLoggedIn;
+  final String tripId;
 
   const BookingScreen({
     super.key,
@@ -27,9 +27,6 @@ class BookingScreen extends StatefulWidget {
 class _BookingScreenState extends State<BookingScreen>
     with SingleTickerProviderStateMixin {
   final List<String> _passGender = ["Male", "Female", "Transgender"];
-  UserController userControllerobj = UserController();
-  FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
-
   final List<String> _passId = [
     "Aadhar Card",
     "PAN Card",
@@ -37,9 +34,14 @@ class _BookingScreenState extends State<BookingScreen>
     "Driving License",
   ];
 
+  UserController userControllerobj = UserController();
+  FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
+
+  int availableSeats = 0;
+  bool isLoading = true;
+
   List<int> get passCount {
-    int max = widget.tripData['groupSize'] ?? 1;
-    return List<int>.generate(max, (index) => index + 1);
+    return List<int>.generate(availableSeats, (index) => index + 1);
   }
 
   late AnimationController _controller;
@@ -57,12 +59,69 @@ class _BookingScreenState extends State<BookingScreen>
     );
     _fadeAnim = CurvedAnimation(parent: _controller, curve: Curves.easeInOut);
     _controller.forward();
+    _calculateAvailableSeats();
   }
 
   @override
   void dispose() {
+    for (var p in passengerControllers) {
+      p.name.dispose();
+      p.contact.dispose();
+      p.email.dispose();
+      p.age.dispose();
+      p.idNum.dispose();
+    }
     _controller.dispose();
     super.dispose();
+  }
+
+  Future<void> _calculateAvailableSeats() async {
+    try {
+      int totalCapacity = widget.tripData['groupSize'] ?? 0;
+
+      QuerySnapshot bookingsSnapshot = await FirebaseFirestore.instance
+          .collection('trips')
+          .doc(widget.tripId)
+          .collection('bookings')
+          .get();
+
+      int bookedSeats = 0;
+
+      for (var booking in bookingsSnapshot.docs) {
+        final bookingData = booking.data() as Map<String, dynamic>;
+        final bookingStatus = bookingData['status'] ?? 'confirmed';
+
+        if (bookingStatus != 'cancelled') {
+          final passengers = bookingData['passengers'] as List<dynamic>? ?? [];
+          for (var passenger in passengers) {
+            final passengerStatus = passenger['status'] ?? 'confirmed';
+            if (passengerStatus != 'cancelled') {
+              bookedSeats++;
+            }
+          }
+        }
+      }
+
+      setState(() {
+        availableSeats = totalCapacity - bookedSeats;
+        isLoading = false;
+
+        if (availableSeats > 0) {
+          selectedTravellers = 1;
+          passengerControllers = [PassengerController()];
+        }
+      });
+
+      log(
+        "Total Capacity: $totalCapacity, Booked: $bookedSeats, Available: $availableSeats",
+      );
+    } catch (e) {
+      log("Error calculating seats: $e");
+      setState(() {
+        isLoading = false;
+        availableSeats = 0;
+      });
+    }
   }
 
   Future<void> submitBooking() async {
@@ -77,19 +136,33 @@ class _BookingScreenState extends State<BookingScreen>
       return;
     }
 
-    // Validate all passenger fields
-    bool allFilled = passengerControllers.every(
-      (p) =>
-          p.name.text.isNotEmpty &&
-          p.contact.text.isNotEmpty &&
-          p.email.text.isNotEmpty &&
-          p.age.text.isNotEmpty &&
-          p.gender.isNotEmpty &&
-          p.idType.isNotEmpty &&
-          p.idNum.text.isNotEmpty,
-    );
+    // Filter out empty passengers
+    final passengersToSave = passengerControllers
+        .where(
+          (p) =>
+              p.name.text.isNotEmpty &&
+              p.contact.text.isNotEmpty &&
+              p.email.text.isNotEmpty &&
+              p.age.text.isNotEmpty &&
+              p.gender.isNotEmpty &&
+              p.idType.isNotEmpty &&
+              p.idNum.text.isNotEmpty,
+        )
+        .map(
+          (p) => {
+            "name": p.name.text,
+            "contact": p.contact.text,
+            "email": p.email.text,
+            "age": p.age.text,
+            "gender": p.gender,
+            "idType": p.idType,
+            "idNumber": p.idNum.text,
+            "status": "confirmed",
+          },
+        )
+        .toList();
 
-    if (!allFilled) {
+    if (passengersToSave.isEmpty) {
       floatingSnackBar(
         message: "Please fill all passenger details",
         context: context,
@@ -100,32 +173,35 @@ class _BookingScreenState extends State<BookingScreen>
     }
 
     try {
-      // Save booking under trip document
-      final tripId = widget.tripData['tripId'];
+      await _calculateAvailableSeats();
+
+      if (selectedTravellers > availableSeats) {
+        floatingSnackBar(
+          message: "Not enough seats available!",
+          context: context,
+          textColor: Colors.white,
+          backgroundColor: Colors.redAccent,
+        );
+        return;
+      }
+
       await FirebaseFirestore.instance
           .collection("trips")
-          .doc(widget.tripId) // use the passed tripId
+          .doc(widget.tripId)
           .collection("bookings")
           .add({
             "bookedBy": currentUser.uid,
             "bookedByEmail": currentUser.email ?? "",
-            "passengers": passengerControllers.map((p) {
-              return {
-                "name": p.name.text,
-                "contact": p.contact.text,
-                "email": p.email.text,
-                "age": p.age.text,
-                "gender": p.gender,
-                "idType": p.idType,
-                "idNumber": p.idNum.text,
-              };
-            }).toList(),
+            "passengers": passengersToSave,
+            "status": "confirmed",
             "timestamp": FieldValue.serverTimestamp(),
           });
 
-      log("TripBooked Successfully");
-      // Navigate to success page
-      Navigator.push(context, MaterialPageRoute(builder: (_) => SubmitPage()));
+      log("Trip Booked Successfully");
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => SubmitPage()),
+      );
     } catch (e) {
       log("Error saving booking: $e");
       floatingSnackBar(
@@ -139,6 +215,70 @@ class _BookingScreenState extends State<BookingScreen>
 
   @override
   Widget build(BuildContext context) {
+    if (isLoading) {
+      return Scaffold(
+        backgroundColor: Colors.teal[50],
+        body: Center(child: CircularProgressIndicator(color: Colors.teal)),
+      );
+    }
+
+    if (availableSeats <= 0) {
+      return Scaffold(
+        backgroundColor: Colors.teal[50],
+        appBar: AppBar(
+          backgroundColor: Colors.teal,
+          title: Text(
+            "Booking Form",
+            style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
+          ),
+        ),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.event_busy, size: 100, color: Colors.grey),
+              const SizedBox(height: 20),
+              Text(
+                "Trip Fully Booked",
+                style: GoogleFonts.poppins(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.grey.shade800,
+                ),
+              ),
+              const SizedBox(height: 10),
+              Text(
+                "No seats available for this trip",
+                style: GoogleFonts.poppins(fontSize: 16, color: Colors.grey),
+              ),
+              const SizedBox(height: 30),
+              ElevatedButton(
+                onPressed: () => Navigator.pop(context),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.teal,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 40,
+                    vertical: 14,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: Text(
+                  "Go Back",
+                  style: GoogleFonts.poppins(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
       backgroundColor: Colors.teal[50],
       body: Stack(
@@ -202,6 +342,25 @@ class _BookingScreenState extends State<BookingScreen>
                           fontSize: 14,
                         ),
                       ),
+                      const SizedBox(height: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.2),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Text(
+                          "$availableSeats Seats Available",
+                          style: GoogleFonts.poppins(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -254,7 +413,6 @@ class _BookingScreenState extends State<BookingScreen>
                                   ),
                                 ),
                                 const SizedBox(height: 18),
-
                                 Column(
                                   children: List.generate(selectedTravellers, (
                                     index,
@@ -352,7 +510,6 @@ class _BookingScreenState extends State<BookingScreen>
                                     );
                                   }),
                                 ),
-
                                 Row(
                                   children: [
                                     Expanded(

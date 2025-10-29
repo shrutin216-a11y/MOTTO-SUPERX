@@ -25,7 +25,54 @@ class _HomeScreenState extends State<HomeScreen> {
 
   final user = FirebaseAuth.instance.currentUser;
 
-  // 🔥 Check if a trip is favourite
+  // Calculate available seats for a trip
+  Future<Map<String, dynamic>> _getTripAvailability(
+    String tripId,
+    int totalCapacity,
+  ) async {
+    try {
+      QuerySnapshot bookingsSnapshot = await FirebaseFirestore.instance
+          .collection('trips')
+          .doc(tripId)
+          .collection('bookings')
+          .get();
+
+      int bookedSeats = 0;
+
+      for (var booking in bookingsSnapshot.docs) {
+        final bookingData = booking.data() as Map<String, dynamic>;
+        final bookingStatus = bookingData['status'] ?? 'confirmed';
+
+        if (bookingStatus != 'cancelled') {
+          final passengers = bookingData['passengers'] as List<dynamic>? ?? [];
+
+          for (var passenger in passengers) {
+            final passengerStatus = passenger['status'] ?? 'confirmed';
+            if (passengerStatus != 'cancelled') {
+              bookedSeats++;
+            }
+          }
+        }
+      }
+
+      int availableSeats = totalCapacity - bookedSeats;
+      bool isFullyBooked = availableSeats <= 0;
+
+      return {
+        'availableSeats': availableSeats,
+        'bookedSeats': bookedSeats,
+        'isFullyBooked': isFullyBooked,
+      };
+    } catch (e) {
+      return {
+        'availableSeats': totalCapacity,
+        'bookedSeats': 0,
+        'isFullyBooked': false,
+      };
+    }
+  }
+
+  // Check if a trip is favourite
   Future<bool> _isFavourite(String tripId) async {
     if (user == null) return false;
     final doc = await FirebaseFirestore.instance
@@ -37,8 +84,11 @@ class _HomeScreenState extends State<HomeScreen> {
     return doc.exists;
   }
 
-  // ❤️ Toggle Favourite
-  Future<void> _toggleFavourite(String tripId, Map<String, dynamic> tripData) async {
+  // Toggle Favourite
+  Future<void> _toggleFavourite(
+    String tripId,
+    Map<String, dynamic> tripData,
+  ) async {
     if (user == null) return;
     final favRef = FirebaseFirestore.instance
         .collection('users')
@@ -75,7 +125,7 @@ class _HomeScreenState extends State<HomeScreen> {
       backgroundColor: Colors.white,
       body: CustomScrollView(
         slivers: [
-          // 🔹 Top Banner Section
+          // Top Banner Section
           SliverAppBar(
             automaticallyImplyLeading: false,
             pinned: false,
@@ -101,11 +151,14 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // 📍 Top Row
+                        // Top Row
                         Row(
                           children: [
-                            const Icon(Icons.pin_drop_outlined,
-                                color: Colors.white, size: 22),
+                            const Icon(
+                              Icons.pin_drop_outlined,
+                              color: Colors.white,
+                              size: 22,
+                            ),
                             const SizedBox(width: 6),
                             const Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -136,19 +189,25 @@ class _HomeScreenState extends State<HomeScreen> {
                                   ),
                                 );
                               },
-                              child: const Icon(Icons.favorite_outline_outlined,
-                                  color: Colors.white),
+                              child: const Icon(
+                                Icons.favorite_outline_outlined,
+                                color: Colors.white,
+                              ),
                             ),
                             const SizedBox(width: 8),
-                            const Icon(Icons.notifications, color: Colors.white),
+                            const Icon(
+                              Icons.notifications,
+                              color: Colors.white,
+                            ),
                           ],
                         ),
                         const SizedBox(height: 12),
                         SearchBar(
                           hintText: "Search Spots",
                           leading: const Icon(Icons.search),
-                          backgroundColor:
-                              const WidgetStatePropertyAll(Colors.white),
+                          backgroundColor: const WidgetStatePropertyAll(
+                            Colors.white,
+                          ),
                         ),
                         const SizedBox(height: 25),
                         Text(
@@ -167,7 +226,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
 
-          // 🔹 Category Tabs
+          // Category Tabs
           SliverAppBar(
             pinned: true,
             backgroundColor: Colors.white,
@@ -179,8 +238,7 @@ class _HomeScreenState extends State<HomeScreen> {
               child: ListView.separated(
                 scrollDirection: Axis.horizontal,
                 padding: const EdgeInsets.symmetric(horizontal: 16),
-                separatorBuilder: (context, index) =>
-                    const SizedBox(width: 10),
+                separatorBuilder: (context, index) => const SizedBox(width: 10),
                 itemCount: tabItems.length,
                 itemBuilder: (context, i) {
                   final isSel = selectedTab == i;
@@ -202,8 +260,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         tabItems[i],
                         style: TextStyle(
                           color: isSel ? Colors.white : Colors.grey.shade900,
-                          fontWeight:
-                              isSel ? FontWeight.w700 : FontWeight.w600,
+                          fontWeight: isSel ? FontWeight.w700 : FontWeight.w600,
                         ),
                       ),
                     ),
@@ -213,7 +270,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
 
-          // 🔹 Recommended Label
+          // Recommended Label
           SliverToBoxAdapter(
             child: Container(
               color: Colors.white,
@@ -229,7 +286,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
 
-          // 🔹 Trip Cards
+          // Trip Cards
           SliverPadding(
             padding: const EdgeInsets.fromLTRB(12, 8, 12, 24),
             sliver: StreamBuilder<QuerySnapshot>(
@@ -264,17 +321,34 @@ class _HomeScreenState extends State<HomeScreen> {
                     final trip = trips[index];
                     final tripData = trip.data() as Map<String, dynamic>;
                     final tripId = trip.id;
+                    final totalCapacity = tripData['groupSize'] ?? 0;
 
-                    final photos = (tripData['photoPaths'] as List<dynamic>?)
+                    final photos =
+                        (tripData['photoPaths'] as List<dynamic>?)
                             ?.map((e) => e.toString())
                             .toList() ??
                         [];
                     final firstPhoto = photos.isNotEmpty ? photos[0] : '';
 
-                    return FutureBuilder<bool>(
-                      future: _isFavourite(tripId),
+                    return FutureBuilder<Map<String, dynamic>>(
+                      future:
+                          Future.wait([
+                            _isFavourite(tripId),
+                            _getTripAvailability(tripId, totalCapacity),
+                          ]).then(
+                            (results) => {
+                              'isFav': results[0],
+                              'availability': results[1],
+                            },
+                          ),
                       builder: (context, snapshot) {
-                        final isFav = snapshot.data ?? false;
+                        final isFav = snapshot.data?['isFav'] ?? false;
+                        final availability =
+                            snapshot.data?['availability'] ?? {};
+                        final isFullyBooked =
+                            availability['isFullyBooked'] ?? false;
+                        final availableSeats =
+                            availability['availableSeats'] ?? totalCapacity;
 
                         return GestureDetector(
                           onTap: () {
@@ -320,14 +394,14 @@ class _HomeScreenState extends State<HomeScreen> {
                                               fit: BoxFit.cover,
                                               errorBuilder: (_, __, ___) =>
                                                   Container(
-                                                height: 200,
-                                                color: Colors.grey.shade300,
-                                                child: const Icon(
-                                                  Icons.broken_image,
-                                                  size: 80,
-                                                  color: Colors.grey,
-                                                ),
-                                              ),
+                                                    height: 200,
+                                                    color: Colors.grey.shade300,
+                                                    child: const Icon(
+                                                      Icons.broken_image,
+                                                      size: 80,
+                                                      color: Colors.grey,
+                                                    ),
+                                                  ),
                                             )
                                           : Container(
                                               height: 200,
@@ -342,8 +416,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                         top: 15,
                                         right: 12,
                                         child: GestureDetector(
-                                          onTap: () =>
-                                              _toggleFavourite(tripId, tripData),
+                                          onTap: () => _toggleFavourite(
+                                            tripId,
+                                            tripData,
+                                          ),
                                           child: Icon(
                                             isFav
                                                 ? Icons.favorite
@@ -379,18 +455,38 @@ class _HomeScreenState extends State<HomeScreen> {
                                           const Spacer(),
                                           Container(
                                             padding: const EdgeInsets.symmetric(
-                                              horizontal: 6,
-                                              vertical: 3,
+                                              horizontal: 10,
+                                              vertical: 6,
                                             ),
                                             decoration: BoxDecoration(
-                                              color: Colors.green.shade600,
+                                              color: isFullyBooked
+                                                  ? Colors.red.shade600
+                                                  : Colors.green.shade600,
                                               borderRadius:
-                                                  BorderRadius.circular(6),
+                                                  BorderRadius.circular(8),
                                             ),
-                                            child: const Icon(
-                                              Icons.flight,
-                                              color: Colors.white,
-                                              size: 18,
+                                            child: Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                Icon(
+                                                  isFullyBooked
+                                                      ? Icons.cancel
+                                                      : Icons.flight,
+                                                  color: Colors.white,
+                                                  size: 16,
+                                                ),
+                                                const SizedBox(width: 4),
+                                                Text(
+                                                  isFullyBooked
+                                                      ? "Full"
+                                                      : "$availableSeats Left",
+                                                  style: GoogleFonts.poppins(
+                                                    color: Colors.white,
+                                                    fontSize: 12,
+                                                    fontWeight: FontWeight.w600,
+                                                  ),
+                                                ),
+                                              ],
                                             ),
                                           ),
                                         ],
