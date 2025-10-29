@@ -4,6 +4,8 @@ import 'package:motto_app/view/Favourites.dart';
 import 'package:motto_app/view/card_Screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:geocoding/geocoding.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -13,6 +15,12 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  @override
+  void initState() {
+    super.initState();
+    _getCurrentLocation();
+  }
+
   int selectedTab = 0;
   final List<String> tabItems = [
     'All',
@@ -24,6 +32,55 @@ class _HomeScreenState extends State<HomeScreen> {
   ];
 
   final user = FirebaseAuth.instance.currentUser;
+  String currentLocation = "Loading...";
+  Future<void> _getCurrentLocation() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    // Check if location services are enabled
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      setState(() {
+        currentLocation = "Location services disabled";
+      });
+      return;
+    }
+
+    // Check for permissions
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        setState(() {
+          currentLocation = "Location permission denied";
+        });
+        return;
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      setState(() {
+        currentLocation = "Location permission permanently denied";
+      });
+      return;
+    }
+
+    // Get current position
+    Position position = await Geolocator.getCurrentPosition(
+      desiredAccuracy: LocationAccuracy.high,
+    );
+
+    // Convert coordinates to human-readable address
+    List<Placemark> placemarks = await placemarkFromCoordinates(
+      position.latitude,
+      position.longitude,
+    );
+
+    Placemark place = placemarks[0];
+    setState(() {
+      currentLocation = "${place.locality}, ${place.administrativeArea}";
+    });
+  }
 
   // Calculate available seats for a trip
   Future<Map<String, dynamic>> _getTripAvailability(
@@ -160,11 +217,11 @@ class _HomeScreenState extends State<HomeScreen> {
                               size: 22,
                             ),
                             const SizedBox(width: 6),
-                            const Column(
+                            Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Pune',
+                                  currentLocation,
                                   style: TextStyle(
                                     color: Colors.white,
                                     fontWeight: FontWeight.w700,
