@@ -374,11 +374,11 @@ class _CardScreenState extends State<CardScreen> {
                               );
                             },
                             child: Container(
-                              height: 70,
+                              height: 50,
                               width: size.width,
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(20),
-                                color: Colors.green,
+                                color: Colors.teal,
                                 boxShadow: const [
                                   BoxShadow(
                                     color: Colors.grey,

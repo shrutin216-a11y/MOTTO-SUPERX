@@ -84,7 +84,7 @@ class _FavouritesState extends State<Favourites> {
               children: [
                 const SizedBox(height: 15),
                 Text(
-                  "Your Favourite Trips ❤️",
+                  "Your Favourite Trips ",
                   style: GoogleFonts.poppins(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
@@ -93,7 +93,7 @@ class _FavouritesState extends State<Favourites> {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  "Keep track of trips you love the most 🌍",
+                  "Keep track of trips you love the most",
                   style: GoogleFonts.poppins(
                     color: Colors.white70,
                     fontSize: 14,
