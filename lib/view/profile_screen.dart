@@ -48,7 +48,10 @@ class _ProfileScreenState extends State<ProfileScreen>
   }
 
   Future<void> _pickImage() async {
-    final pickedFile = await _picker.pickImage(source: ImageSource.gallery, imageQuality: 80);
+    final pickedFile = await _picker.pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 80,
+    );
     if (pickedFile != null) {
       setState(() {
         _imageFile = File(pickedFile.path);
@@ -80,14 +83,20 @@ class _ProfileScreenState extends State<ProfileScreen>
           Positioned(
             top: 40,
             left: 25,
-            child: Icon(Icons.person_pin_circle,
-                color: Colors.white.withOpacity(0.2), size: 80),
+            child: Icon(
+              Icons.person_pin_circle,
+              color: Colors.white.withOpacity(0.2),
+              size: 80,
+            ),
           ),
           Positioned(
             top: 100,
             right: 40,
-            child: Icon(Icons.map_outlined,
-                color: Colors.white.withOpacity(0.25), size: 60),
+            child: Icon(
+              Icons.map_outlined,
+              color: Colors.white.withOpacity(0.25),
+              size: 60,
+            ),
           ),
           SafeArea(
             child: FadeTransition(
@@ -103,17 +112,26 @@ class _ProfileScreenState extends State<ProfileScreen>
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         IconButton(
-                          icon: const Icon(Icons.arrow_back, color: Colors.white),
+                          icon: const Icon(
+                            Icons.arrow_back,
+                            color: Colors.white,
+                          ),
                           onPressed: () {
-                            Navigator.of(context).push(MaterialPageRoute(
-                                builder: (_) => BottomNavigationWidget()));
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (_) => BottomNavigationWidget(),
+                              ),
+                            );
                           },
                         ),
-                        Text("Profile",
-                            style: GoogleFonts.poppins(
-                                color: Colors.white,
-                                fontSize: 26,
-                                fontWeight: FontWeight.bold)),
+                        Text(
+                          "Profile",
+                          style: GoogleFonts.poppins(
+                            color: Colors.white,
+                            fontSize: 26,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                         IconButton(
                           icon: const Icon(Icons.edit, color: Colors.white),
                           onPressed: () async {
@@ -164,19 +182,28 @@ class _ProfileScreenState extends State<ProfileScreen>
                                   image: (_imageFile != null)
                                       ? DecorationImage(
                                           image: FileImage(_imageFile!),
-                                          fit: BoxFit.cover)
+                                          fit: BoxFit.cover,
+                                        )
                                       : (userController.profileImage.isNotEmpty
-                                          ? DecorationImage(
-                                              image: FileImage(
-                                                  File(userController.profileImage)),
-                                              fit: BoxFit.cover)
-                                          : null),
+                                            ? DecorationImage(
+                                                image: FileImage(
+                                                  File(
+                                                    userController.profileImage,
+                                                  ),
+                                                ),
+                                                fit: BoxFit.cover,
+                                              )
+                                            : null),
                                 ),
-                                child: (_imageFile == null &&
+                                child:
+                                    (_imageFile == null &&
                                         userController.profileImage.isEmpty)
                                     ? const Center(
-                                        child: Icon(Icons.person,
-                                            size: 50, color: Colors.grey),
+                                        child: Icon(
+                                          Icons.person,
+                                          size: 50,
+                                          color: Colors.grey,
+                                        ),
                                       )
                                     : null,
                               ),
@@ -191,8 +218,11 @@ class _ProfileScreenState extends State<ProfileScreen>
                                       color: Colors.teal,
                                     ),
                                     padding: const EdgeInsets.all(6),
-                                    child: const Icon(Icons.camera_alt,
-                                        color: Colors.white, size: 18),
+                                    child: const Icon(
+                                      Icons.camera_alt,
+                                      color: Colors.white,
+                                      size: 18,
+                                    ),
                                   ),
                                 ),
                               ),
@@ -203,26 +233,34 @@ class _ProfileScreenState extends State<ProfileScreen>
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(userController.name.isNotEmpty
-                                        ? userController.name
-                                        : "Traveler Name",
-                                    style: GoogleFonts.poppins(
-                                        fontSize: 22,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.black87)),
+                                Text(
+                                  userController.name.isNotEmpty
+                                      ? userController.name
+                                      : "Traveler Name",
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 22,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black87,
+                                  ),
+                                ),
                                 const SizedBox(height: 4),
                                 Text(
                                   userController.bio.isNotEmpty
                                       ? userController.bio
                                       : "Adventure Enthusiast",
                                   style: GoogleFonts.poppins(
-                                      color: Colors.grey[600], fontSize: 15),
+                                    color: Colors.grey[600],
+                                    fontSize: 15,
+                                  ),
                                 ),
                                 const SizedBox(height: 10),
                                 Row(
                                   children: [
-                                    const Icon(Icons.phone,
-                                        size: 16, color: Colors.grey),
+                                    const Icon(
+                                      Icons.phone,
+                                      size: 16,
+                                      color: Colors.grey,
+                                    ),
                                     const SizedBox(width: 6),
                                     Text(
                                       userController.mob.isNotEmpty
@@ -238,8 +276,11 @@ class _ProfileScreenState extends State<ProfileScreen>
                                 const SizedBox(height: 6),
                                 Row(
                                   children: [
-                                    const Icon(Icons.email_outlined,
-                                        size: 16, color: Colors.grey),
+                                    const Icon(
+                                      Icons.email_outlined,
+                                      size: 16,
+                                      color: Colors.grey,
+                                    ),
                                     const SizedBox(width: 6),
                                     Flexible(
                                       child: Text(
@@ -279,32 +320,43 @@ class _ProfileScreenState extends State<ProfileScreen>
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-              color: Colors.teal.withOpacity(0.1),
-              blurRadius: 10,
-              offset: const Offset(0, 4))
+            color: Colors.teal.withOpacity(0.1),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
         ],
       ),
       child: Column(
         children: [
           _menu(Icons.add_location_alt_outlined, "Create Trip", () {
             Navigator.push(
-                context, MaterialPageRoute(builder: (_) => const StartTrip()));
+              context,
+              MaterialPageRoute(builder: (_) => const StartTrip()),
+            );
           }),
           _menu(Icons.favorite_border, "Favourites", () {
             Navigator.push(
-                context, MaterialPageRoute(builder: (_) => const Favourites()));
+              context,
+              MaterialPageRoute(builder: (_) => const Favourites()),
+            );
           }),
-          _menu(Icons.map_rounded, "My Posted Trips", () {
-            Navigator.push(context,
-                MaterialPageRoute(builder: (_) => const MyPostedTripsScreen()));
+          _menu(Icons.explore_outlined, "My Posted Trips", () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const MyPostedTripsScreen()),
+            );
           }),
-          _menu(Icons.reviews, "My Bookings", () {
-            Navigator.push(context,
-                MaterialPageRoute(builder: (_) => const MyBookingsScreen()));
+          _menu(Icons.confirmation_num_outlined, "My Bookings", () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const MyBookingsScreen()),
+            );
           }),
           _menu(Icons.settings, "Settings", () {
-            Navigator.push(context,
-                MaterialPageRoute(builder: (_) => const SettingScreen()));
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const SettingScreen()),
+            );
           }),
           const Divider(),
           GestureDetector(
@@ -312,20 +364,24 @@ class _ProfileScreenState extends State<ProfileScreen>
               final prefs = await SharedPreferences.getInstance();
               await prefs.clear();
               await FirebaseAuth.instance.signOut();
-              Navigator.pushReplacement(context,
-                  MaterialPageRoute(builder: (_) => const LoginScreen()));
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (_) => const LoginScreen()),
+              );
             },
             child: Padding(
-              padding:
-                  const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
               child: Row(
                 children: [
                   const Icon(Icons.logout, color: Colors.redAccent),
                   const SizedBox(width: 10),
-                  Text("Logout",
-                      style: GoogleFonts.poppins(
-                          color: Colors.redAccent,
-                          fontWeight: FontWeight.w600)),
+                  Text(
+                    "Logout",
+                    style: GoogleFonts.poppins(
+                      color: Colors.redAccent,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -345,11 +401,14 @@ class _ProfileScreenState extends State<ProfileScreen>
             Icon(icon, color: Colors.teal[700]),
             const SizedBox(width: 13),
             Expanded(
-              child: Text(title,
-                  style: GoogleFonts.poppins(
-                      fontSize: 16,
-                      color: Colors.black87,
-                      fontWeight: FontWeight.w500)),
+              child: Text(
+                title,
+                style: GoogleFonts.poppins(
+                  fontSize: 16,
+                  color: Colors.black87,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
             ),
             const Icon(Icons.arrow_forward_ios, size: 18, color: Colors.grey),
           ],
