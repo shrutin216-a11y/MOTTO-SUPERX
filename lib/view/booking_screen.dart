@@ -14,11 +14,11 @@ class BookingScreen extends StatefulWidget {
   final String tripId; // Add this line
 
   const BookingScreen({
-    Key? key,
+    super.key,
     required this.tripData,
     required this.tripId,
     this.isLoggedIn = false,
-  }) : super(key: key);
+  });
 
   @override
   State<BookingScreen> createState() => _BookingScreenState();

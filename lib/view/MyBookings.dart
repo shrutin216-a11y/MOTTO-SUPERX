@@ -310,38 +310,72 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                                         ),
                                       ),
                                     ),
-                                    Container(
-                                      padding: EdgeInsets.symmetric(
-                                        horizontal: 12,
-                                        vertical: 6,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: Colors.green.shade50,
-                                        borderRadius: BorderRadius.circular(20),
-                                        border: Border.all(
-                                          color: Colors.green,
-                                          width: 1.5,
-                                        ),
-                                      ),
-                                      child: Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Icon(
-                                            Icons.check_circle,
-                                            color: Colors.green,
-                                            size: 16,
+                                    // Check booking status
+                                    Builder(
+                                      builder: (context) {
+                                        final status =
+                                            bookingData['status'] ??
+                                            'confirmed';
+                                        final isCancelled =
+                                            status == 'cancelled';
+                                        final isPartial = status == 'partial';
+
+                                        Color bgColor = Colors.green.shade50;
+                                        Color borderColor = Colors.green;
+                                        Color textColor = Colors.green;
+                                        IconData icon = Icons.check_circle;
+                                        String statusText = 'Confirmed';
+
+                                        if (isCancelled) {
+                                          bgColor = Colors.red.shade50;
+                                          borderColor = Colors.red;
+                                          textColor = Colors.red;
+                                          icon = Icons.cancel;
+                                          statusText = 'Cancelled';
+                                        } else if (isPartial) {
+                                          bgColor = Colors.orange.shade50;
+                                          borderColor = Colors.orange;
+                                          textColor = Colors.orange;
+                                          icon = Icons.warning_rounded;
+                                          statusText = 'Partial';
+                                        }
+
+                                        return Container(
+                                          padding: EdgeInsets.symmetric(
+                                            horizontal: 12,
+                                            vertical: 6,
                                           ),
-                                          SizedBox(width: 4),
-                                          Text(
-                                            'Confirmed',
-                                            style: GoogleFonts.poppins(
-                                              color: Colors.green,
-                                              fontWeight: FontWeight.w600,
-                                              fontSize: 12,
+                                          decoration: BoxDecoration(
+                                            color: bgColor,
+                                            borderRadius: BorderRadius.circular(
+                                              20,
+                                            ),
+                                            border: Border.all(
+                                              color: borderColor,
+                                              width: 1.5,
                                             ),
                                           ),
-                                        ],
-                                      ),
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Icon(
+                                                icon,
+                                                color: textColor,
+                                                size: 16,
+                                              ),
+                                              SizedBox(width: 4),
+                                              Text(
+                                                statusText,
+                                                style: GoogleFonts.poppins(
+                                                  color: textColor,
+                                                  fontWeight: FontWeight.w600,
+                                                  fontSize: 12,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        );
+                                      },
                                     ),
                                   ],
                                 ),
@@ -388,27 +422,61 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                                 ),
                                 SizedBox(height: 8),
                                 ...passengers.map((passenger) {
+                                  final isPassengerCancelled =
+                                      passenger['status'] == 'cancelled';
+
                                   return Padding(
                                     padding: const EdgeInsets.only(bottom: 4),
                                     child: Row(
                                       children: [
                                         Icon(
-                                          Icons.person,
+                                          isPassengerCancelled
+                                              ? Icons.cancel
+                                              : Icons.person,
                                           size: 16,
-                                          color: Colors.teal,
+                                          color: isPassengerCancelled
+                                              ? Colors.red
+                                              : Colors.teal,
                                         ),
                                         SizedBox(width: 8),
-                                        Text(
-                                          passenger['name'] ?? 'N/A',
-                                          style: GoogleFonts.poppins(
-                                            fontSize: 14,
-                                            color: Colors.grey.shade800,
+                                        Expanded(
+                                          child: Text(
+                                            passenger['name'] ?? 'N/A',
+                                            style: GoogleFonts.poppins(
+                                              fontSize: 14,
+                                              color: isPassengerCancelled
+                                                  ? Colors.red
+                                                  : Colors.grey.shade800,
+                                              decoration: isPassengerCancelled
+                                                  ? TextDecoration.lineThrough
+                                                  : null,
+                                            ),
                                           ),
                                         ),
+                                        if (isPassengerCancelled)
+                                          Container(
+                                            padding: EdgeInsets.symmetric(
+                                              horizontal: 6,
+                                              vertical: 2,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              color: Colors.red,
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
+                                            ),
+                                            child: Text(
+                                              'Cancelled',
+                                              style: GoogleFonts.poppins(
+                                                fontSize: 10,
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                          ),
                                       ],
                                     ),
                                   );
-                                }).toList(),
+                                }),
 
                                 SizedBox(height: 16),
 
@@ -481,151 +549,269 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
     final tripData = booking['tripData'] as Map<String, dynamic>;
     final bookingData = booking['bookingData'] as Map<String, dynamic>;
     final passengers = bookingData['passengers'] as List<dynamic>? ?? [];
+    final tripId = booking['tripId'] as String;
+    final bookingId = booking['bookingId'] as String;
 
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) {
-        return DraggableScrollableSheet(
-          initialChildSize: 0.7,
-          maxChildSize: 0.95,
-          minChildSize: 0.5,
-          builder: (context, scrollController) {
-            return Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-              ),
-              child: Column(
-                children: [
-                  Container(
-                    margin: EdgeInsets.only(top: 12),
-                    width: 40,
-                    height: 4,
-                    decoration: BoxDecoration(
-                      color: Colors.grey.shade300,
-                      borderRadius: BorderRadius.circular(2),
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            return DraggableScrollableSheet(
+              initialChildSize: 0.7,
+              maxChildSize: 0.95,
+              minChildSize: 0.5,
+              builder: (context, scrollController) {
+                return Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.vertical(
+                      top: Radius.circular(20),
                     ),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.all(20),
-                    child: Text(
-                      'Booking Details',
-                      style: GoogleFonts.poppins(
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
+                  child: Column(
+                    children: [
+                      Container(
+                        margin: EdgeInsets.only(top: 12),
+                        width: 40,
+                        height: 4,
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade300,
+                          borderRadius: BorderRadius.circular(2),
+                        ),
                       ),
-                    ),
-                  ),
-                  Divider(),
-                  Expanded(
-                    child: ListView(
-                      controller: scrollController,
-                      padding: EdgeInsets.all(20),
-                      children: [
-                        Text(
-                          'Trip Information',
+                      Padding(
+                        padding: const EdgeInsets.all(20),
+                        child: Text(
+                          'Booking Details',
                           style: GoogleFonts.poppins(
-                            fontSize: 18,
+                            fontSize: 22,
                             fontWeight: FontWeight.bold,
-                            color: Colors.teal,
                           ),
                         ),
-                        SizedBox(height: 12),
-                        _buildDetailItem(
-                          'Destination',
-                          tripData['destination'] ?? 'N/A',
-                        ),
-                        _buildDetailItem(
-                          'Boarding Point',
-                          tripData['boardingPoint'] ?? 'N/A',
-                        ),
-                        _buildDetailItem(
-                          'Start Date',
-                          tripData['startDate'] ?? 'N/A',
-                        ),
-                        _buildDetailItem(
-                          'End Date',
-                          tripData['endDate'] ?? 'N/A',
-                        ),
-                        _buildDetailItem('Mode', tripData['mode'] ?? 'N/A'),
-                        _buildDetailItem(
-                          'Budget',
-                          '₹${tripData['minBudget'] ?? '-'} - ₹${tripData['maxBudget'] ?? '-'}',
-                        ),
-
-                        SizedBox(height: 20),
-                        Text(
-                          'Passenger Details',
-                          style: GoogleFonts.poppins(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.teal,
-                          ),
-                        ),
-                        SizedBox(height: 12),
-
-                        ...passengers.asMap().entries.map((entry) {
-                          int idx = entry.key;
-                          Map<String, dynamic> passenger = entry.value;
-
-                          return Container(
-                            margin: EdgeInsets.only(bottom: 16),
-                            padding: EdgeInsets.all(16),
-                            decoration: BoxDecoration(
-                              color: Colors.grey.shade50,
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(color: Colors.grey.shade200),
+                      ),
+                      Divider(),
+                      Expanded(
+                        child: ListView(
+                          controller: scrollController,
+                          padding: EdgeInsets.all(20),
+                          children: [
+                            Text(
+                              'Trip Information',
+                              style: GoogleFonts.poppins(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.teal,
+                              ),
                             ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Passenger ${idx + 1}',
-                                  style: GoogleFonts.poppins(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
+                            SizedBox(height: 12),
+                            _buildDetailItem(
+                              'Destination',
+                              tripData['destination'] ?? 'N/A',
+                            ),
+                            _buildDetailItem(
+                              'Boarding Point',
+                              tripData['boardingPoint'] ?? 'N/A',
+                            ),
+                            _buildDetailItem(
+                              'Start Date',
+                              tripData['startDate'] ?? 'N/A',
+                            ),
+                            _buildDetailItem(
+                              'End Date',
+                              tripData['endDate'] ?? 'N/A',
+                            ),
+                            _buildDetailItem('Mode', tripData['mode'] ?? 'N/A'),
+                            _buildDetailItem(
+                              'Budget',
+                              '₹${tripData['minBudget'] ?? '-'} - ₹${tripData['maxBudget'] ?? '-'}',
+                            ),
+
+                            SizedBox(height: 20),
+                            Text(
+                              'Passenger Details',
+                              style: GoogleFonts.poppins(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.teal,
+                              ),
+                            ),
+                            SizedBox(height: 12),
+
+                            ...passengers.asMap().entries.map((entry) {
+                              int idx = entry.key;
+                              Map<String, dynamic> passenger = entry.value;
+                              final isPassengerCancelled =
+                                  passenger['status'] == 'cancelled';
+
+                              return Container(
+                                margin: EdgeInsets.only(bottom: 16),
+                                padding: EdgeInsets.all(16),
+                                decoration: BoxDecoration(
+                                  color: isPassengerCancelled
+                                      ? Colors.red.shade50
+                                      : Colors.grey.shade50,
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(
+                                    color: isPassengerCancelled
+                                        ? Colors.red.shade200
+                                        : Colors.grey.shade200,
                                   ),
                                 ),
-                                SizedBox(height: 8),
-                                _buildDetailItem(
-                                  'Name',
-                                  passenger['name'] ?? 'N/A',
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Expanded(
+                                          child: Row(
+                                            children: [
+                                              Text(
+                                                'Passenger ${idx + 1}',
+                                                style: GoogleFonts.poppins(
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                              if (isPassengerCancelled) ...[
+                                                SizedBox(width: 8),
+                                                Container(
+                                                  padding: EdgeInsets.symmetric(
+                                                    horizontal: 8,
+                                                    vertical: 2,
+                                                  ),
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.red,
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          12,
+                                                        ),
+                                                  ),
+                                                  child: Text(
+                                                    'CANCELLED',
+                                                    style: GoogleFonts.poppins(
+                                                      fontSize: 10,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      color: Colors.white,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ],
+                                          ),
+                                        ),
+                                        if (!isPassengerCancelled)
+                                          TextButton.icon(
+                                            onPressed: () {
+                                              _confirmCancelPassenger(
+                                                context,
+                                                tripId,
+                                                bookingId,
+                                                idx,
+                                                passenger['name'] ??
+                                                    'Passenger ${idx + 1}',
+                                                passengers.length,
+                                                setModalState,
+                                              );
+                                            },
+                                            icon: Icon(
+                                              Icons.cancel,
+                                              size: 18,
+                                              color: Colors.red,
+                                            ),
+                                            label: Text(
+                                              'Cancel',
+                                              style: GoogleFonts.poppins(
+                                                color: Colors.red,
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                            ),
+                                            style: TextButton.styleFrom(
+                                              padding: EdgeInsets.symmetric(
+                                                horizontal: 12,
+                                                vertical: 4,
+                                              ),
+                                            ),
+                                          ),
+                                      ],
+                                    ),
+                                    SizedBox(height: 8),
+                                    _buildDetailItem(
+                                      'Name',
+                                      passenger['name'] ?? 'N/A',
+                                    ),
+                                    _buildDetailItem(
+                                      'Age',
+                                      passenger['age'] ?? 'N/A',
+                                    ),
+                                    _buildDetailItem(
+                                      'Gender',
+                                      passenger['gender'] ?? 'N/A',
+                                    ),
+                                    _buildDetailItem(
+                                      'Contact',
+                                      passenger['contact'] ?? 'N/A',
+                                    ),
+                                    _buildDetailItem(
+                                      'Email',
+                                      passenger['email'] ?? 'N/A',
+                                    ),
+                                    _buildDetailItem(
+                                      'ID Type',
+                                      passenger['idType'] ?? 'N/A',
+                                    ),
+                                    _buildDetailItem(
+                                      'ID Number',
+                                      passenger['idNumber'] ?? 'N/A',
+                                    ),
+                                  ],
                                 ),
-                                _buildDetailItem(
-                                  'Age',
-                                  passenger['age'] ?? 'N/A',
+                              );
+                            }),
+
+                            SizedBox(height: 20),
+
+                            // Cancel Entire Booking Button
+                            SizedBox(
+                              width: double.infinity,
+                              child: ElevatedButton.icon(
+                                onPressed: () {
+                                  _confirmCancelBooking(
+                                    context,
+                                    tripId,
+                                    bookingId,
+                                  );
+                                },
+                                icon: Icon(Icons.cancel_outlined),
+                                label: Text(
+                                  'Cancel Entire Booking',
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                  ),
                                 ),
-                                _buildDetailItem(
-                                  'Gender',
-                                  passenger['gender'] ?? 'N/A',
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.red,
+                                  foregroundColor: Colors.white,
+                                  padding: EdgeInsets.symmetric(vertical: 14),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
                                 ),
-                                _buildDetailItem(
-                                  'Contact',
-                                  passenger['contact'] ?? 'N/A',
-                                ),
-                                _buildDetailItem(
-                                  'Email',
-                                  passenger['email'] ?? 'N/A',
-                                ),
-                                _buildDetailItem(
-                                  'ID Type',
-                                  passenger['idType'] ?? 'N/A',
-                                ),
-                                _buildDetailItem(
-                                  'ID Number',
-                                  passenger['idNumber'] ?? 'N/A',
-                                ),
-                              ],
+                              ),
                             ),
-                          );
-                        }).toList(),
-                      ],
-                    ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
+                );
+              },
             );
           },
         );
@@ -677,5 +863,188 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
       ),
     );
   }
+
+  void _confirmCancelPassenger(
+    BuildContext context,
+    String tripId,
+    String bookingId,
+    int passengerIndex,
+    String passengerName,
+    int totalPassengers,
+    StateSetter setModalState,
+  ) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(
+            'Cancel Passenger',
+            style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
+          ),
+          content: Text(
+            'Are you sure you want to cancel the booking for $passengerName?',
+            style: GoogleFonts.poppins(),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text('No', style: GoogleFonts.poppins(color: Colors.grey)),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                Navigator.pop(context);
+                await cancelPassenger(
+                  tripId,
+                  bookingId,
+                  passengerIndex,
+                  setModalState,
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+                foregroundColor: Colors.white,
+              ),
+              child: Text(
+                'Yes, Cancel',
+                style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _confirmCancelBooking(
+    BuildContext context,
+    String tripId,
+    String bookingId,
+  ) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(
+            'Cancel Booking',
+            style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
+          ),
+          content: Text(
+            'Are you sure you want to cancel this entire booking? This action cannot be undone.',
+            style: GoogleFonts.poppins(),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text('No', style: GoogleFonts.poppins(color: Colors.grey)),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                Navigator.pop(context);
+                await cancelBooking(tripId, bookingId);
+                Navigator.pop(context); // Close bottom sheet
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+                foregroundColor: Colors.white,
+              ),
+              child: Text(
+                'Yes, Cancel',
+                style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> cancelPassenger(
+    String tripId,
+    String bookingId,
+    int passengerIndex,
+    StateSetter setModalState,
+  ) async {
+    try {
+      final bookingRef = FirebaseFirestore.instance
+          .collection('trips')
+          .doc(tripId)
+          .collection('bookings')
+          .doc(bookingId);
+
+      // Get current booking data
+      final bookingDoc = await bookingRef.get();
+      if (!bookingDoc.exists) {
+        throw Exception('Booking not found');
+      }
+
+      final bookingData = bookingDoc.data() as Map<String, dynamic>;
+      List<dynamic> passengers = List.from(bookingData['passengers'] ?? []);
+
+      // Mark the passenger as cancelled instead of removing
+      if (passengerIndex >= 0 && passengerIndex < passengers.length) {
+        passengers[passengerIndex]['status'] = 'cancelled';
+
+        // Check if all passengers are cancelled
+        bool allCancelled = passengers.every((p) => p['status'] == 'cancelled');
+
+        // Update the booking with the modified passenger list
+        await bookingRef.update({
+          'passengers': passengers,
+          'status': allCancelled ? 'cancelled' : 'partial',
+        });
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Passenger cancelled successfully.'),
+              backgroundColor: Colors.green,
+            ),
+          );
+          setState(() {}); // Refresh main UI
+          setModalState(() {}); // Refresh modal UI
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to cancel passenger: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> cancelBooking(String tripId, String bookingId) async {
+    try {
+      final bookingRef = FirebaseFirestore.instance
+          .collection('trips')
+          .doc(tripId)
+          .collection('bookings')
+          .doc(bookingId);
+
+      // Soft-cancel booking:
+      await bookingRef.update({'status': 'cancelled'});
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Booking cancelled successfully.'),
+            backgroundColor: Colors.green,
+          ),
+        );
+        setState(() {}); // refresh UI
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to cancel booking: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
 }
-/////

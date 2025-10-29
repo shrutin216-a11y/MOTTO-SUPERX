@@ -1,3 +1,6 @@
+import 'dart:developer';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 
@@ -60,10 +63,29 @@ class TripDatabase {
   // Delete Trip
   Future<void> deleteTrip(int id) async {
     Database db = await createDB();
-    await db.delete(
-      "start_trips",
-      where: "id = ?",
+    await db.delete("start_trips", where: "id = ?", whereArgs: [id]);
+  }
+
+  Future<void> cancelTrip(String tripId) async {
+    try {
+      await FirebaseFirestore.instance.collection('trips').doc(tripId).update({
+        'status': 'cancelled',
+      });
+
+      log("✅ Trip cancelled successfully in Firestore");
+    } catch (e) {
+      log("❌ Error cancelling trip: $e");
+    }
+  }
+
+  Future<void> cancelLocalTrip(int id) async {
+    Database db = await createDB();
+    await db.update(
+      'trips',
+      {'status': 'cancelled'},
+      where: 'id = ?',
       whereArgs: [id],
     );
+    log("✅ Trip cancelled locally in SQLite");
   }
 }
