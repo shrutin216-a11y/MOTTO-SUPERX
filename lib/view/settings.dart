@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:motto_app/view/edit.dart';
 
 class SettingScreen extends StatefulWidget {
   const SettingScreen({super.key});
@@ -110,7 +111,7 @@ class _SettingScreenState extends State<SettingScreen>
                     ),
 
                     // This space prevents overlap
-                    const SizedBox(height: 100),
+                    const SizedBox(height: 80),
 
                     //Settings Card
                     Container(
@@ -251,7 +252,11 @@ class _SettingScreenState extends State<SettingScreen>
               ),
             ),
           ),
-          Switch(activeThumbColor: Colors.teal, value: value, onChanged: onChanged),
+          Switch(
+            activeThumbColor: Colors.teal,
+            value: value,
+            onChanged: onChanged,
+          ),
         ],
       ),
     );
@@ -355,8 +360,10 @@ class _SettingScreenState extends State<SettingScreen>
               leading: const Icon(Icons.person_outline),
               title: const Text("Edit Personal Info"),
               onTap: () {
-                Navigator.pop(context);
-                _showSnack("Edit personal info tapped");
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const EditScreen()),
+                );
               },
             ),
             ListTile(
