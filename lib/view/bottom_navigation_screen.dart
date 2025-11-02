@@ -55,16 +55,16 @@ class _BottomNavigationWidgetState extends State<BottomNavigationWidget> {
           },
           items: [
             _bottomBarItem(Icons.public_sharp, 0, label: "Explore"),
-            // _bottomBarItem(
-            //   CupertinoIcons.chat_bubble_2_fill,
-            //   1,
-            //   selectedIcon: CupertinoIcons.chat_bubble_2_fill,
-            //   label: "Chat",
-            // ),
+            // // _bottomBarItem(
+            // //   CupertinoIcons.chat_bubble_2_fill,
+            // //   1,
+            // //   selectedIcon: CupertinoIcons.chat_bubble_2_fill,
+            // //   label: "Chat",
+            // // ),
             _bottomBarItem(
               Icons.navigation_outlined,
               1,
-              selectedIcon: Icons.navigation_outlined,
+              selectedIcon: Icons.alt_route_rounded,
               label: "Start Trip",
             ),
             _bottomBarItem(
@@ -192,7 +192,10 @@ class _BottomNavigationWidgetState extends State<BottomNavigationWidget> {
       case 0:
         return const HomeScreen(); // Explore Page
       // case 1:
-      //   return const ChatScreen(receiverId: '',receiverName: '',); // Favourites Page
+      //   return const ChatScreen(
+      //     receiverId: '',
+      //     receiverName: '',
+      //   ); // Favourites Page
       case 1:
         return const StartTrip(); // Start Trip Page
       case 2:

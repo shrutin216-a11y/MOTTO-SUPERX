@@ -25,6 +25,9 @@ class _StartTripScreenState extends State<StartTrip>
   final PageController _controller = PageController();
   final ImagePicker _picker = ImagePicker();
   UserController userControllerObj = UserController();
+bool isLoading = false;
+
+  // ✅ Added loader flag
 
   bool isLoading = false; // Added loader flag
 
@@ -130,9 +133,9 @@ class _StartTripScreenState extends State<StartTrip>
       final user = FirebaseAuth.instance.currentUser;
       if (user != null) {
         try {
-          setState(() => isLoading = true); // Show loader
+          setState(() => isLoading = true); // ✅ Show loader
 
-          // Upload photos
+          // ✅ Upload photos
           List<File> localPhotos = List<File>.from(formData["photos"]);
           List<String> uploadedPhotoUrls = [];
 
@@ -165,9 +168,9 @@ class _StartTripScreenState extends State<StartTrip>
 
           final TripDatabase localDb = TripDatabase();
           await localDb.insertTrip(trip);
-          log(" Trip added locally to SQLite");
+          log("✅ Trip added locally to SQLite");
 
-          // Save to Firestore
+          // ✅ Save to Firestore
           await FirebaseFirestore.instance.collection("trips").add({
             "destination": formData["destination"],
             "groupSize": formData["groupSize"],
@@ -193,13 +196,13 @@ class _StartTripScreenState extends State<StartTrip>
             'timestamp': FieldValue.serverTimestamp(),
           });
 
-          log("Trip added to Firebase");
+          log("✅ Trip added to Firebase");
 
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text("Trip posted successfully!")),
           );
 
-          // CLEAR CONTROLLERS AND RESET FORM AFTER POST
+          // ✅ CLEAR CONTROLLERS AND RESET FORM AFTER POST
           PlaceSearchController.destinationController.clear();
           PlaceSearchController.boardingController.clear();
           setState(() {
@@ -406,7 +409,7 @@ class _StartTripScreenState extends State<StartTrip>
         ],
       );
 
-  // GREEN CALENDAR THEME
+  // ✅ GREEN CALENDAR THEME
   Widget buildDateSelector() => Row(
         children: ["startDate", "endDate"].map((d) {
           return Expanded(
@@ -548,7 +551,7 @@ class _StartTripScreenState extends State<StartTrip>
         ),
       );
 
-  // MULTIPLE IMAGE PICKER
+  // ✅ MULTIPLE IMAGE PICKER
   Widget buildPhotoPicker() => Column(
         children: [
           ElevatedButton.icon(
@@ -765,7 +768,7 @@ class _StartTripScreenState extends State<StartTrip>
             ],
           ),
         ),
-        if (isLoading) // Loader overlay
+        if (isLoading) // ✅ Loader overlay
           Container(
             color: Colors.black54,
             child: const Center(

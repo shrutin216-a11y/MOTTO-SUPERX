@@ -40,11 +40,18 @@ dependencies:
   firebase_messaging: ^16.0.3
   flutter_local_notifications: ^19.5.0
   cloud_functions: ^6.0.3
+  google_generative_ai: ^0.4.7
+  flutter_launcher_icons: ^0.14.4
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^5.0.0
+
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "assets/Logo.png"
 
 flutter:
   uses-material-design: true
@@ -61,4 +68,8 @@ flutter:
     - assets/CardImages/fuji3.jpg
     - assets/login.png
     - assets/Logo.png
+    - assets/shashi_sir.jpg
+    - assets/Anuj_Sabade_Photo.jpeg
+    - assets/shruti.jpg
+    - assets/disha.jpg
 
