@@ -47,9 +47,6 @@ class _ProfileScreenState extends State<ProfileScreen>
     setState(() {});
   }
 
-  // -----------------------------
-  // PICK IMAGE WITH CONFIRMATION
-  // -----------------------------
   Future<void> _pickImage() async {
     final pickedFile = await _picker.pickImage(
       source: ImageSource.gallery,
@@ -58,7 +55,6 @@ class _ProfileScreenState extends State<ProfileScreen>
 
     if (pickedFile == null) return;
 
-    // Show confirmation dialog
     bool? confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -85,9 +81,6 @@ class _ProfileScreenState extends State<ProfileScreen>
     }
   }
 
-  // -----------------------------
-  // SHOW OPTIONS: EDIT OR DELETE
-  // -----------------------------
   void _showImageOptions() {
     if (_imageFile != null || userController.profileImage.isNotEmpty) {
       showModalBottomSheet(
@@ -211,7 +204,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                                 builder: (context) => const EditScreen(),
                               ),
                             );
-                            await getData(); // Refresh updated data
+                            await getData(); 
                           },
                         ),
                       ],
