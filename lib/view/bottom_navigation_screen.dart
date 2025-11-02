@@ -64,7 +64,7 @@ class _BottomNavigationWidgetState extends State<BottomNavigationWidget> {
             _bottomBarItem(
               Icons.navigation_outlined,
               1,
-              selectedIcon: Icons.alt_route_rounded,
+              selectedIcon: Icons.navigation_outlined,
               label: "Start Trip",
             ),
             _bottomBarItem(

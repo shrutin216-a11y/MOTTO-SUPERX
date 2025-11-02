@@ -30,7 +30,7 @@ class MainApp extends StatelessWidget {
       themeMode: ThemeMode.system,
 
       title: "MOTTO",
-      theme: ThemeData(textTheme: GoogleFonts.interTextTheme()),
+      theme: ThemeData(textTheme: GoogleFonts.poppinsTextTheme(),),
       debugShowCheckedModeBanner: false,
       home: Scaffold(body: SplashScreen()),
     );
