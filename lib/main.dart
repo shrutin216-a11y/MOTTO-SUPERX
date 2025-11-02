@@ -2,7 +2,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:motto_app/controller/notification_service.dart';
+//import 'package:motto_app/controller/notification_service.dart';
 import 'package:motto_app/view/splash_screen.dart';
 
 void main() async {
@@ -15,7 +15,7 @@ void main() async {
       projectId: "project1-c5126",
     ),
   );
-  await NotificationService.initialize();
+  //await NotificationService.initialize();
 
   await FirebaseMessaging.instance.requestPermission();
   runApp(const MainApp());

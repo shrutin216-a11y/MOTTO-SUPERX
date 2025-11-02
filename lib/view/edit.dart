@@ -1,8 +1,10 @@
 import 'dart:io';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:motto_app/controller/shared_preference.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class EditScreen extends StatefulWidget {
   const EditScreen({super.key});
@@ -17,7 +19,6 @@ class _EditScreenState extends State<EditScreen> {
   File? _imageFile;
   UserController userController = UserController();
 
-  // ✅ Initialize controllers safely
   TextEditingController _nameController = TextEditingController();
   TextEditingController _bioController = TextEditingController();
   TextEditingController _phoneController = TextEditingController();
@@ -29,14 +30,11 @@ class _EditScreenState extends State<EditScreen> {
   }
 
   Future<void> _loadUserData() async {
-    await userController.getSharedPrefData();
+    await userController.getUserData();
     setState(() {
       _nameController.text = userController.name;
       _bioController.text = userController.bio;
       _phoneController.text = userController.mob;
-      if (userController.profileImage.isNotEmpty) {
-        _imageFile = File(userController.profileImage);
-      }
     });
   }
 
@@ -48,13 +46,38 @@ class _EditScreenState extends State<EditScreen> {
     }
   }
 
+  Future<String?> _uploadImage(File image) async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) return null;
+
+      final ref = FirebaseStorage.instance
+          .ref()
+          .child('profile_images')
+          .child('${user.uid}.jpg');
+
+      await ref.putFile(image);
+      final url = await ref.getDownloadURL();
+      return url;
+    } catch (e) {
+      debugPrint("Error uploading image: $e");
+      return null;
+    }
+  }
+
   Future<void> _saveChanges() async {
     if (_formKey.currentState!.validate()) {
-      await userController.setSharedPrefData({
+      String? imageUrl = userController.profileImage;
+      if (_imageFile != null) {
+        imageUrl = await _uploadImage(_imageFile!) ?? imageUrl;
+      }
+
+      await userController.setUserData({
         "name": _nameController.text.trim(),
         "bio": _bioController.text.trim(),
         "mob": _phoneController.text.trim(),
-        "profileImage": _imageFile?.path ?? userController.profileImage,
+        "profileImage": imageUrl,
+        "email": FirebaseAuth.instance.currentUser?.email ?? "",
       });
 
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
@@ -73,7 +96,6 @@ class _EditScreenState extends State<EditScreen> {
       child: Scaffold(
         backgroundColor: Colors.teal[50],
         appBar: AppBar(
-          automaticallyImplyLeading: false,
           backgroundColor: Colors.teal,
           elevation: 0,
           title: Text("Edit Profile",
@@ -95,26 +117,23 @@ class _EditScreenState extends State<EditScreen> {
                 const SizedBox(height: 20),
                 Stack(
                   children: [
-                    Container(
-                      width: 120,
-                      height: 120,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Colors.grey[300],
-                        image: _imageFile != null
-                            ? DecorationImage(
-                                image: FileImage(_imageFile!),
-                                fit: BoxFit.cover)
-                            : null,
-                      ),
-                      child: _imageFile == null
+                    CircleAvatar(
+                      radius: 60,
+                      backgroundImage: _imageFile != null
+                          ? FileImage(_imageFile!)
+                          : (userController.profileImage.isNotEmpty
+                              ? NetworkImage(userController.profileImage)
+                              : null) as ImageProvider?,
+                      backgroundColor: Colors.grey[300],
+                      child: (_imageFile == null &&
+                              userController.profileImage.isEmpty)
                           ? const Icon(Icons.person,
                               size: 60, color: Colors.grey)
                           : null,
                     ),
                     Positioned(
                       bottom: 0,
-                      right: 0,
+                      right: 4,
                       child: GestureDetector(
                         onTap: _pickImage,
                         child: Container(
@@ -201,13 +220,4 @@ class _EditScreenState extends State<EditScreen> {
         fillColor: Colors.white,
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: Colors.teal),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide(color: Colors.teal),
-        ),
-      ),
-    );
-  }
-}
+          borderSide: const Border
