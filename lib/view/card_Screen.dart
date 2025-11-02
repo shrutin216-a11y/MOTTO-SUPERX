@@ -162,7 +162,7 @@ class _CardScreenState extends State<CardScreen> {
                                       widget.tripData['destination'],
                                       "Trip",
                                     ),
-                                    style: GoogleFonts.quicksand(
+                                    style: GoogleFonts.poppins(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 24,
                                     ),
@@ -245,7 +245,7 @@ class _CardScreenState extends State<CardScreen> {
                           const SizedBox(height: 30),
                           Text(
                             "Boarding Point",
-                            style: GoogleFonts.quicksand(
+                            style: GoogleFonts.poppins(
                               fontWeight: FontWeight.w700,
                               fontSize: 16,
                             ),
@@ -259,7 +259,7 @@ class _CardScreenState extends State<CardScreen> {
                                   widget.tripData['boardingPoint'],
                                   "",
                                 ),
-                                style: GoogleFonts.quicksand(
+                                style: GoogleFonts.poppins(
                                   fontWeight: FontWeight.w500,
                                   fontSize: 16,
                                 ),
@@ -269,7 +269,7 @@ class _CardScreenState extends State<CardScreen> {
                           const SizedBox(height: 20),
                           Text(
                             "Date of Journey",
-                            style: GoogleFonts.quicksand(
+                            style: GoogleFonts.poppins(
                               fontWeight: FontWeight.w700,
                               fontSize: 16,
                             ),
@@ -280,7 +280,7 @@ class _CardScreenState extends State<CardScreen> {
                               const Icon(Icons.calendar_month),
                               Text(
                                 "${_safeToString(widget.tripData['startDate'], '-')} to ${_safeToString(widget.tripData['endDate'], '-')}",
-                                style: GoogleFonts.quicksand(
+                                style: GoogleFonts.poppins(
                                   fontWeight: FontWeight.w500,
                                   fontSize: 16,
                                 ),
@@ -290,7 +290,7 @@ class _CardScreenState extends State<CardScreen> {
                           const SizedBox(height: 20),
                           Text(
                             "Mode",
-                            style: GoogleFonts.quicksand(
+                            style: GoogleFonts.poppins(
                               fontWeight: FontWeight.w700,
                               fontSize: 16,
                             ),
@@ -304,7 +304,7 @@ class _CardScreenState extends State<CardScreen> {
                                   widget.tripData['mode'],
                                   "Car | Aeroplane",
                                 ),
-                                style: GoogleFonts.quicksand(
+                                style: GoogleFonts.poppins(
                                   fontWeight: FontWeight.w400,
                                   fontSize: 16,
                                 ),
@@ -314,7 +314,7 @@ class _CardScreenState extends State<CardScreen> {
                           const SizedBox(height: 20),
                           Text(
                             "Description",
-                            style: GoogleFonts.quicksand(
+                            style: GoogleFonts.poppins(
                               fontWeight: FontWeight.w700,
                               fontSize: 16,
                             ),
@@ -325,7 +325,7 @@ class _CardScreenState extends State<CardScreen> {
                               widget.tripData['details'],
                               "Trip description goes here.",
                             ),
-                            style: GoogleFonts.quicksand(
+                            style: GoogleFonts.poppins(
                               fontWeight: FontWeight.w400,
                               fontSize: 16,
                             ),
@@ -333,7 +333,7 @@ class _CardScreenState extends State<CardScreen> {
                           const SizedBox(height: 20),
                           Text(
                             "Activities",
-                            style: GoogleFonts.quicksand(
+                            style: GoogleFonts.poppins(
                               fontWeight: FontWeight.w700,
                               fontSize: 16,
                             ),
@@ -343,7 +343,7 @@ class _CardScreenState extends State<CardScreen> {
                               widget.tripData['activities'],
                               "Trip activities go here.",
                             ),
-                            style: GoogleFonts.quicksand(
+                            style: GoogleFonts.poppins(
                               fontWeight: FontWeight.w400,
                               fontSize: 16,
                             ),
@@ -391,7 +391,7 @@ class _CardScreenState extends State<CardScreen> {
                               child: Center(
                                 child: Text(
                                   "Confirm Your Seat",
-                                  style: GoogleFonts.quicksand(
+                                  style: GoogleFonts.poppins(
                                     color: Colors.white,
                                     fontWeight: FontWeight.bold,
                                     fontSize: 24,

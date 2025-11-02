@@ -245,14 +245,14 @@ class _signupScreenState extends State<signupScreen>
                       );
 
                       await FirebaseFirestore.instance
-                          .collection("userData").doc(emailController.text).set({
-                             "name": nameController.text,
+                          .collection("userData")
+                          .doc(emailController.text)
+                          .set({
+                            "name": nameController.text,
                             "email": emailController.text,
                             "mob": phoneController.text,
                             "city": cityController.text,
                           });
-                         
-
 
                       log("User Registered: ${userCredential.user?.email}");
                       CustomSnackbar().showCustomSnackBar(
