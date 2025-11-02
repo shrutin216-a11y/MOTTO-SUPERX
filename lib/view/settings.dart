@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:motto_app/view/AboutUsPage.dart';
 
 class SettingScreen extends StatefulWidget {
   const SettingScreen({super.key});
@@ -201,7 +202,13 @@ class _SettingScreenState extends State<SettingScreen>
                             icon: Icons.info_outline,
                             title: "About App",
                             onTap: () {
-                              _showAboutDialog(context);
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const AboutUsPage(),
+                                ),
+                              );
+                              ;
                             },
                           ),
                           _divider(),
@@ -251,7 +258,11 @@ class _SettingScreenState extends State<SettingScreen>
               ),
             ),
           ),
-          Switch(activeThumbColor: Colors.teal, value: value, onChanged: onChanged),
+          Switch(
+            activeThumbColor: Colors.teal,
+            value: value,
+            onChanged: onChanged,
+          ),
         ],
       ),
     );

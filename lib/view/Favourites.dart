@@ -120,7 +120,8 @@ class _FavouritesState extends State<Favourites> {
                             if (snapshot.connectionState ==
                                 ConnectionState.waiting) {
                               return const Center(
-                                  child: CircularProgressIndicator());
+                                child: CircularProgressIndicator(),
+                              );
                             }
 
                             if (!snapshot.hasData ||
@@ -153,20 +154,24 @@ class _FavouritesState extends State<Favourites> {
                             return ListView.builder(
                               physics: const BouncingScrollPhysics(),
                               padding: const EdgeInsets.symmetric(
-                                  horizontal: 14, vertical: 16),
+                                horizontal: 14,
+                                vertical: 16,
+                              ),
                               itemCount: favourites.length,
                               itemBuilder: (context, index) {
-                                final favData = favourites[index].data()
-                                    as Map<String, dynamic>;
+                                final favData =
+                                    favourites[index].data()
+                                        as Map<String, dynamic>;
                                 final tripId = favourites[index].id;
 
                                 final photos =
                                     (favData['photoPaths'] as List<dynamic>?)
-                                            ?.map((e) => e.toString())
-                                            .toList() ??
-                                        [];
-                                final firstPhoto =
-                                    photos.isNotEmpty ? photos[0] : '';
+                                        ?.map((e) => e.toString())
+                                        .toList() ??
+                                    [];
+                                final firstPhoto = photos.isNotEmpty
+                                    ? photos[0]
+                                    : '';
 
                                 return GestureDetector(
                                   onTap: () {
@@ -200,8 +205,8 @@ class _FavouritesState extends State<Favourites> {
                                         ClipRRect(
                                           borderRadius:
                                               const BorderRadius.vertical(
-                                            top: Radius.circular(20),
-                                          ),
+                                                top: Radius.circular(20),
+                                              ),
                                           child: Stack(
                                             children: [
                                               firstPhoto.isNotEmpty
@@ -211,17 +216,23 @@ class _FavouritesState extends State<Favourites> {
                                                       width: double.infinity,
                                                       fit: BoxFit.cover,
                                                       errorBuilder:
-                                                          (_, __, ___) =>
-                                                              Container(
-                                                        height: 200,
-                                                        color: Colors
-                                                            .grey.shade300,
-                                                        child: const Icon(
-                                                          Icons.broken_image,
-                                                          size: 80,
-                                                          color: Colors.grey,
-                                                        ),
-                                                      ),
+                                                          (
+                                                            _,
+                                                            __,
+                                                            ___,
+                                                          ) => Container(
+                                                            height: 200,
+                                                            color: Colors
+                                                                .grey
+                                                                .shade300,
+                                                            child: const Icon(
+                                                              Icons
+                                                                  .broken_image,
+                                                              size: 80,
+                                                              color:
+                                                                  Colors.grey,
+                                                            ),
+                                                          ),
                                                     )
                                                   : Container(
                                                       height: 200,
@@ -239,7 +250,8 @@ class _FavouritesState extends State<Favourites> {
                                                 child: GestureDetector(
                                                   onTap: () =>
                                                       _removeFromFavourites(
-                                                          tripId),
+                                                        tripId,
+                                                      ),
                                                   child: const Icon(
                                                     Icons.favorite,
                                                     color: Colors.redAccent,
@@ -252,7 +264,9 @@ class _FavouritesState extends State<Favourites> {
                                         ),
                                         Padding(
                                           padding: const EdgeInsets.symmetric(
-                                              horizontal: 14, vertical: 12),
+                                            horizontal: 14,
+                                            vertical: 12,
+                                          ),
                                           child: Column(
                                             crossAxisAlignment:
                                                 CrossAxisAlignment.start,
@@ -272,17 +286,18 @@ class _FavouritesState extends State<Favourites> {
                                                   ),
                                                   const Spacer(),
                                                   Container(
-                                                    padding: const EdgeInsets
-                                                        .symmetric(
-                                                      horizontal: 6,
-                                                      vertical: 3,
-                                                    ),
+                                                    padding:
+                                                        const EdgeInsets.symmetric(
+                                                          horizontal: 6,
+                                                          vertical: 3,
+                                                        ),
                                                     decoration: BoxDecoration(
                                                       color:
                                                           Colors.green.shade600,
                                                       borderRadius:
                                                           BorderRadius.circular(
-                                                              6),
+                                                            6,
+                                                          ),
                                                     ),
                                                     child: const Icon(
                                                       Icons.flight,
@@ -296,7 +311,8 @@ class _FavouritesState extends State<Favourites> {
                                               Row(
                                                 children: [
                                                   const Icon(
-                                                    Icons.calendar_month_rounded,
+                                                    Icons
+                                                        .calendar_month_rounded,
                                                     size: 20,
                                                     color: Colors.grey,
                                                   ),
@@ -320,12 +336,14 @@ class _FavouritesState extends State<Favourites> {
                                                         "${favData['minBudget'] ?? '-'} - ${favData['maxBudget'] ?? '-'} /person",
                                                         style:
                                                             GoogleFonts.poppins(
-                                                          fontSize: 13,
-                                                          fontWeight:
-                                                              FontWeight.w600,
-                                                          color: Colors
-                                                              .teal.shade700,
-                                                        ),
+                                                              fontSize: 13,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w600,
+                                                              color: Colors
+                                                                  .teal
+                                                                  .shade700,
+                                                            ),
                                                       ),
                                                     ],
                                                   ),

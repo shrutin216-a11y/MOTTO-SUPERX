@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:motto_app/view/AnimatedTravelFAB.dart';
 import 'package:motto_app/view/Favourites.dart';
 import 'package:motto_app/view/card_Screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -9,6 +10,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:motto_app/view/travel_chatbot_page.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -267,9 +269,20 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                             ),
                             const SizedBox(width: 8),
-                            const Icon(
-                              Icons.notifications,
-                              color: Colors.white,
+                            GestureDetector(
+                              onTap: () {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (context) {
+                                      return TravelChatbotPage();
+                                    },
+                                  ),
+                                );
+                              },
+                              child: const Icon(
+                                Icons.notifications,
+                                color: Colors.white,
+                              ),
                             ),
                           ],
                         ),
@@ -475,11 +488,18 @@ class _HomeScreenState extends State<HomeScreen> {
                                     children: [
                                       Row(
                                         children: [
-                                          Text(
-                                            tripData['destination'] ?? "Trip",
-                                            style: GoogleFonts.quicksand(
-                                              fontSize: 20,
-                                              fontWeight: FontWeight.bold,
+                                          Container(
+                                            width:
+                                                MediaQuery.of(
+                                                  context,
+                                                ).size.width -
+                                                150,
+                                            child: Text(
+                                              tripData['destination'] ?? "Trip",
+                                              style: GoogleFonts.quicksand(
+                                                fontSize: 20,
+                                                fontWeight: FontWeight.bold,
+                                              ),
                                             ),
                                           ),
                                           const Spacer(),
@@ -570,6 +590,14 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
         ],
+      ),
+      floatingActionButton: AnimatedTravelFAB(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const TravelChatbotPage()),
+          );
+        },
       ),
     );
   }

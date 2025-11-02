@@ -27,6 +27,7 @@ class _StartTripScreenState extends State<StartTrip>
   final PageController _controller = PageController();
   final ImagePicker _picker = ImagePicker();
   UserController userControllerObj = UserController();
+bool isLoading = false;
 
   Map<String, dynamic> formData = {
     "destination": "",
