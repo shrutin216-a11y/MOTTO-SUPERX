@@ -47,16 +47,86 @@ class _ProfileScreenState extends State<ProfileScreen>
     setState(() {});
   }
 
+  // -----------------------------
+  // PICK IMAGE WITH CONFIRMATION
+  // -----------------------------
   Future<void> _pickImage() async {
     final pickedFile = await _picker.pickImage(
       source: ImageSource.gallery,
       imageQuality: 80,
     );
-    if (pickedFile != null) {
+
+    if (pickedFile == null) return;
+
+    // Show confirmation dialog
+    bool? confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Confirm Image"),
+        content: Image.file(File(pickedFile.path), height: 200),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text("Cancel"),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text("Confirm"),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true) {
       setState(() {
         _imageFile = File(pickedFile.path);
       });
       userController.setSharedPrefData({"profileImage": pickedFile.path});
+    }
+  }
+
+  // -----------------------------
+  // SHOW OPTIONS: EDIT OR DELETE
+  // -----------------------------
+  void _showImageOptions() {
+    if (_imageFile != null || userController.profileImage.isNotEmpty) {
+      showModalBottomSheet(
+        context: context,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        builder: (context) {
+          return SafeArea(
+            child: Wrap(
+              children: [
+                ListTile(
+                  leading: const Icon(Icons.edit, color: Colors.teal),
+                  title: const Text("Edit Photo"),
+                  onTap: () {
+                    Navigator.pop(context);
+                    _pickImage();
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.delete, color: Colors.redAccent),
+                  title: const Text("Delete Photo"),
+                  onTap: () async {
+                    Navigator.pop(context);
+                    setState(() {
+                      _imageFile = null;
+                      userController.profileImage = "";
+                    });
+                    await userController.setSharedPrefData({"profileImage": ""});
+                  },
+                ),
+                const SizedBox(height: 10),
+              ],
+            ),
+          );
+        },
+      );
+    } else {
+      _pickImage();
     }
   }
 
@@ -173,45 +243,45 @@ class _ProfileScreenState extends State<ProfileScreen>
                         children: [
                           Stack(
                             children: [
-                              Container(
-                                width: 110,
-                                height: 110,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: Colors.grey[300],
-                                  image: (_imageFile != null)
-                                      ? DecorationImage(
-                                          image: FileImage(_imageFile!),
-                                          fit: BoxFit.cover,
-                                        )
-                                      : (userController.profileImage.isNotEmpty
+                              GestureDetector(
+                                onTap: _showImageOptions,
+                                child: Container(
+                                  width: 110,
+                                  height: 110,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: Colors.grey[300],
+                                    image: (_imageFile != null)
+                                        ? DecorationImage(
+                                            image: FileImage(_imageFile!),
+                                            fit: BoxFit.cover,
+                                          )
+                                        : (userController.profileImage.isNotEmpty
                                             ? DecorationImage(
                                                 image: FileImage(
-                                                  File(
-                                                    userController.profileImage,
-                                                  ),
+                                                  File(userController.profileImage),
                                                 ),
                                                 fit: BoxFit.cover,
                                               )
                                             : null),
+                                  ),
+                                  child: (_imageFile == null &&
+                                          userController.profileImage.isEmpty)
+                                      ? const Center(
+                                          child: Icon(
+                                            Icons.person,
+                                            size: 50,
+                                            color: Colors.grey,
+                                          ),
+                                        )
+                                      : null,
                                 ),
-                                child:
-                                    (_imageFile == null &&
-                                        userController.profileImage.isEmpty)
-                                    ? const Center(
-                                        child: Icon(
-                                          Icons.person,
-                                          size: 50,
-                                          color: Colors.grey,
-                                        ),
-                                      )
-                                    : null,
                               ),
                               Positioned(
                                 bottom: 0,
                                 right: 0,
                                 child: GestureDetector(
-                                  onTap: _pickImage,
+                                  onTap: _showImageOptions,
                                   child: Container(
                                     decoration: const BoxDecoration(
                                       shape: BoxShape.circle,

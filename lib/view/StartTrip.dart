@@ -29,6 +29,8 @@ bool isLoading = false;
 
   // ✅ Added loader flag
 
+  bool isLoading = false; // Added loader flag
+
   Map<String, dynamic> formData = {
     "destination": "",
     "groupSize": 1,
@@ -116,7 +118,7 @@ bool isLoading = false;
         },
       ];
 
-  // ------------------ VALIDATION & NAVIGATION ------------------
+  // VALIDATION & NAVIGATION 
   void nextStep() async {
     String key = questions[currentStep]["key"];
     if (!_validateStep(key)) return;
@@ -147,7 +149,7 @@ bool isLoading = false;
             uploadedPhotoUrls.add(downloadUrl);
           }
 
-          // ✅ Prepare trip data
+          // Prepare trip data
           final trip = {
             'destination': formData["destination"],
             'groupSize': formData["groupSize"],
