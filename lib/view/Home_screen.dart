@@ -1,5 +1,4 @@
 import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:motto_app/view/Favourites.dart';
@@ -22,7 +21,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
 
-    saveFcmToken();
+    //saveFcmToken();
     _getCurrentLocation();
   }
 
