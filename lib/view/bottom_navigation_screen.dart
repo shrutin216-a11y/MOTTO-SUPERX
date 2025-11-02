@@ -55,12 +55,12 @@ class _BottomNavigationWidgetState extends State<BottomNavigationWidget> {
           },
           items: [
             _bottomBarItem(Icons.public_sharp, 0, label: "Explore"),
-            // _bottomBarItem(
-            //   CupertinoIcons.chat_bubble_2_fill,
-            //   1,
-            //   selectedIcon: CupertinoIcons.chat_bubble_2_fill,
-            //   label: "Chat",
-            // ),
+            // // _bottomBarItem(
+            // //   CupertinoIcons.chat_bubble_2_fill,
+            // //   1,
+            // //   selectedIcon: CupertinoIcons.chat_bubble_2_fill,
+            // //   label: "Chat",
+            // // ),
             _bottomBarItem(
               Icons.navigation_outlined,
               1,
