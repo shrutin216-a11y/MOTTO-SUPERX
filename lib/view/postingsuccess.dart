@@ -1,0 +1,44 @@
+import 'package:flutter/material.dart';
+import 'package:confirmation_success/confirmation_success.dart';
+
+import 'package:motto_app/view/bottom_navigation_screen.dart'; // example package
+
+class SubmitTrip extends StatefulWidget {
+  const SubmitTrip({super.key});
+
+  @override
+  State<SubmitTrip> createState() => _SubmitTripState();
+}
+
+class _SubmitTripState extends State<SubmitTrip> {
+  @override
+  void initState() {
+    super.initState();
+    Future.delayed(const Duration(seconds: 3), () {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) {
+            return BottomNavigationWidget();
+          },
+        ),
+      );
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {//8411881786
+    return Scaffold(
+      body: ConfirmationSuccess(
+        reactColor: Colors.green,
+        child: Text(
+          "   Posted \nSuccesfully! ",
+          style: TextStyle(
+            fontSize: 25,
+            color: Colors.black,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
+    );
+  }
+}

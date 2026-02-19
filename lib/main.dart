@@ -1,11 +1,13 @@
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:motto_app/splash_screen.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:motto_app/controller/notification_service.dart';
+import 'package:motto_app/view/splash_screen.dart';
 
-/////GIT SETUP DONE
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  Firebase.initializeApp(
+  await Firebase.initializeApp(
     options: FirebaseOptions(
       apiKey: "AIzaSyAlE7itPYjgoluoyF_Ihq69eNEa1y0E0f8",
       appId: "1:251210101725:android:989ee2f705690479f13c34",
@@ -13,6 +15,9 @@ void main() {
       projectId: "project1-c5126",
     ),
   );
+  await NotificationService.initialize();
+
+  await FirebaseMessaging.instance.requestPermission();
   runApp(const MainApp());
 }
 
@@ -21,9 +26,13 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
+      themeMode: ThemeMode.system,
+
+      title: "MOTTO",
+      theme: ThemeData(textTheme: GoogleFonts.interTextTheme()),
       debugShowCheckedModeBanner: false,
-      home: Scaffold(body: splashscreen()),
+      home: Scaffold(body: SplashScreen()),
     );
   }
 }
